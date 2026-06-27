@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CarRental OS — العرض التعريفي</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --bg: #0b1326; --surface: #131b2e; --surface-2: #222a3d; --border: #2d3449; --gold: #f2ca50; --gold-dim: #d4af37; --text: #dae2fd; --muted: #99907c; --font: 'Noto Sans Arabic', 'Inter', -apple-system, sans-serif; }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.8; }
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(11, 19, 38, 0.85); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; }
+  nav .logo { font-weight: 700; font-size: 18px; color: var(--gold); display: flex; align-items: center; gap: 8px; }
+  nav .logo span { color: var(--text); font-weight: 400; }
+  nav .links { display: flex; gap: 24px; align-items: center; }
+  nav .links a { color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+  nav .links a:hover { color: var(--text); }
+  nav .links .btn { background: var(--gold); color: #3c2f00; padding: 8px 20px; border-radius: 6px; font-weight: 600; font-size: 13px; }
+  nav .links .btn:hover { background: var(--gold-dim); color: #3c2f00; }
+  .lang-switch { display: flex; gap: 4px; }
+  .lang-switch a { font-size: 12px; padding: 4px 8px; border-radius: 4px; color: var(--muted); text-decoration: none; font-weight: 600; transition: all 0.2s; }
+  .lang-switch a:hover { color: var(--text); }
+  .lang-switch a.active { color: var(--gold); background: rgba(242,202,80,0.1); }
+  .nav-spacer { height: 60px; }
+  section { padding: 80px 24px; max-width: 1100px; margin: 0 auto; }
+  #hero { text-align: center; padding: 120px 24px 80px; max-width: 800px; }
+  #hero .badge { display: inline-block; background: rgba(242, 202, 80, 0.1); color: var(--gold); font-size: 12px; font-weight: 600; padding: 6px 14px; border-radius: 100px; border: 1px solid rgba(242, 202, 80, 0.2); margin-bottom: 24px; }
+  #hero h1 { font-size: clamp(32px, 5vw, 56px); font-weight: 800; line-height: 1.3; margin-bottom: 20px; }
+  #hero h1 .gold { color: var(--gold); }
+  #hero p { font-size: clamp(16px, 2vw, 20px); color: var(--muted); max-width: 600px; margin: 0 auto 32px; }
+  #hero .cta-group { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  #hero .cta-group a { text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 14px; transition: all 0.2s; }
+  #hero .cta-group .primary { background: var(--gold); color: #3c2f00; }
+  #hero .cta-group .primary:hover { background: var(--gold-dim); }
+  #hero .cta-group .secondary { border: 1px solid var(--border); color: var(--text); }
+  .section-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; color: var(--gold); margin-bottom: 8px; }
+  .section-title { font-size: clamp(24px, 3vw, 36px); font-weight: 700; margin-bottom: 12px; }
+  .section-sub { color: var(--muted); font-size: 16px; max-width: 600px; margin-bottom: 48px; }
+  #problem { max-width: 900px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 32px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-top: 32px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 28px; transition: transform 0.2s, border-color 0.2s; }
+  .card:hover { transform: translateY(-2px); border-color: rgba(242, 202, 80, 0.3); }
+  .card .icon { font-size: 28px; margin-bottom: 12px; }
+  .card h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+  .card p { font-size: 14px; color: var(--muted); line-height: 1.8; }
+  .problem-card { border-right: 3px solid #ef4444; border-left: none; }
+  .solution-card { border-right: 3px solid var(--gold); border-left: none; }
+  .feature-tabs { display: flex; gap: 4px; flex-wrap: wrap; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 4px; margin-bottom: 32px; }
+  .feature-tabs button { flex: 1; min-width: 100px; padding: 10px 16px; border: none; background: transparent; color: var(--muted); font-size: 13px; font-weight: 500; border-radius: 7px; cursor: pointer; transition: all 0.2s; font-family: var(--font); }
+  .feature-tabs button:hover { color: var(--text); }
+  .feature-tabs button.active { background: var(--surface-2); color: var(--gold); }
+  .demo-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: none; }
+  .demo-panel.active { display: block; }
+  .demo-panel .demo-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .demo-panel .demo-header h3 { font-size: 16px; font-weight: 600; }
+  .demo-panel .demo-header .demo-stats { display: flex; gap: 20px; flex-wrap: wrap; }
+  .demo-panel .demo-header .demo-stats span { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 4px; }
+  .demo-panel .demo-header .demo-stats .num { color: var(--gold); font-weight: 600; font-size: 14px; }
+  .table-mock { padding: 20px 24px; overflow-x: auto; }
+  .table-mock table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .table-mock th { text-align: right; padding: 10px 12px; font-weight: 600; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+  .table-mock td { padding: 12px; border-bottom: 1px solid rgba(45, 52, 73, 0.5); color: var(--text); text-align: right; }
+  .table-mock tr:last-child td { border-bottom: none; }
+  .badge-status { display: inline-block; padding: 2px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; }
+  .badge-available { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+  .badge-booked { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+  .badge-maintenance { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+  .badge-inquiry { background: rgba(234, 179, 8, 0.15); color: #eab308; }
+  .badge-confirmed { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+  .badge-active { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+  .badge-paid { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+  .badge-pending { background: rgba(234, 179, 8, 0.15); color: #eab308; }
+  .chart-mock { padding: 24px; display: flex; align-items: flex-end; gap: 10px; height: 180px; }
+  .chart-mock .bar { flex: 1; background: linear-gradient(to top, var(--gold-dim), var(--gold)); border-radius: 4px 4px 0 0; min-height: 20px; transition: height 0.3s; position: relative; }
+  .chart-mock .bar .label { position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%); font-size: 10px; color: var(--muted); white-space: nowrap; }
+  .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; padding: 20px 24px; }
+  .stat-card { background: rgba(11, 19, 38, 0.5); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
+  .stat-card .stat-num { font-size: 24px; font-weight: 700; color: var(--gold); }
+  .stat-card .stat-label { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .chat-mock { padding: 24px; display: flex; flex-direction: column; gap: 12px; max-width: 500px; }
+  .chat-mock .msg { padding: 12px 16px; border-radius: 12px; font-size: 13px; max-width: 80%; line-height: 1.5; }
+  .chat-mock .msg.user { align-self: flex-end; background: var(--gold); color: #3c2f00; border-bottom-left-radius: 4px; }
+  .chat-mock .msg.ai { align-self: flex-start; background: var(--surface-2); border-bottom-right-radius: 4px; }
+  .demo-desc { padding: 20px 24px; border-top: 1px solid var(--border); font-size: 14px; color: var(--muted); line-height: 1.8; }
+  .demo-desc strong { color: var(--text); }
+  #benefits .benefits-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .benefit-item { display: flex; gap: 16px; padding: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }
+  .benefit-item .check { width: 24px; height: 24px; min-width: 24px; background: rgba(242, 202, 80, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+  .benefit-item h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .benefit-item p { font-size: 13px; color: var(--muted); line-height: 1.8; }
+  .trial-card { background: linear-gradient(135deg, rgba(242,202,80,0.08), rgba(242,202,80,0.02)); border: 1px solid rgba(242,202,80,0.2); border-radius: 16px; padding: 48px 40px; text-align: center; max-width: 700px; margin: 0 auto; }
+  .trial-card h3 { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
+  .trial-card .trial-desc { color: var(--muted); font-size: 14px; margin-bottom: 28px; max-width: 480px; margin-left: auto; margin-right: auto; }
+  .trial-card .trial-note { font-size: 12px; color: var(--muted); margin-top: 16px; }
+  .trial-btn { display: inline-block; background: var(--gold); color: #3c2f00; border: none; border-radius: 8px; padding: 16px 36px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: var(--font); text-decoration: none; }
+  .trial-btn:hover { background: var(--gold-dim); transform: translateY(-2px); }
+  #cta { text-align: center; padding: 100px 24px; }
+  #cta h2 { font-size: clamp(24px, 3vw, 36px); font-weight: 700; margin-bottom: 12px; }
+  #cta p { color: var(--muted); font-size: 16px; margin-bottom: 32px; }
+  #cta .btn-group { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  #cta a { text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 14px; transition: all 0.2s; }
+  #cta .primary { background: var(--gold); color: #3c2f00; }
+  #cta .secondary { border: 1px solid var(--border); color: var(--text); }
+  footer { text-align: center; padding: 40px 24px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
+  .chatbot-btn { position: fixed; bottom: 24px; left: 24px; z-index: 1000; background: var(--gold); color: #3c2f00; border: none; border-radius: 50px; padding: 14px 24px; font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 20px rgba(242,202,80,0.3); transition: all 0.2s; font-family: var(--font); display: flex; align-items: center; gap: 8px; }
+  .chatbot-btn:hover { transform: translateY(-2px); }
+  .chatbot-window { position: fixed; bottom: 88px; left: 24px; z-index: 1000; width: 420px; max-width: calc(100vw - 48px); height: 560px; max-height: calc(100vh - 120px); background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 8px 40px rgba(0,0,0,0.4); display: none; flex-direction: column; overflow: hidden; }
+  .chatbot-window.open { display: flex; }
+  .chatbot-header { padding: 16px 20px; background: rgba(242,202,80,0.08); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .chatbot-header h4 { font-size: 14px; font-weight: 600; }
+  .chatbot-header .close-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 18px; }
+  .chatbot-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .chatbot-messages .msg { padding: 10px 14px; border-radius: 12px; font-size: 13px; max-width: 90%; line-height: 1.7; animation: msgIn 0.2s ease-out; }
+  @keyframes msgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .chatbot-messages .msg.bot { align-self: flex-start; background: var(--surface-2); border-bottom-right-radius: 4px; }
+  .chatbot-messages .msg.user { align-self: flex-end; background: var(--gold); color: #3c2f00; border-bottom-left-radius: 4px; }
+  .chatbot-input-area { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+  .chatbot-input-area input { flex: 1; background: rgba(11,19,38,0.5); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 13px; color: var(--text); font-family: var(--font); transition: border-color 0.2s; text-align: right; }
+  .chatbot-input-area input:focus { border-color: var(--gold); outline: none; }
+  .chatbot-input-area input::placeholder { color: var(--muted); }
+  .chatbot-input-area .send-btn { background: var(--gold); color: #3c2f00; border: none; border-radius: 8px; padding: 10px 16px; font-weight: 600; font-size: 13px; cursor: pointer; font-family: var(--font); }
+  .typing-dots { display: flex; gap: 4px; padding: 4px 0; }
+  .typing-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); animation: dotPulse 1.2s infinite; }
+  .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes dotPulse { 0%, 60%, 100% { opacity: 0.3; transform: scale(0.8); } 30% { opacity: 1; transform: scale(1); } }
+  .quick-replies { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 16px 12px; }
+  .quick-replies button { padding: 6px 14px; border-radius: 100px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 12px; cursor: pointer; font-family: var(--font); }
+  .quick-replies button:hover { border-color: var(--gold); color: var(--gold); background: rgba(242,202,80,0.05); }
+  @media (max-width: 640px) { section { padding: 48px 16px; } #hero { padding: 80px 16px 48px; } nav .links .link-text { display: none; } .chatbot-window { width: calc(100vw - 32px); left: 16px; bottom: 80px; height: 500px; } .chatbot-btn { left: 16px; bottom: 16px; } }
+  .fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+  .fade-in.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">CarRental <span>OS</span></div>
+  <div class="links">
+    <a href="#features" class="link-text">الميزات</a>
+    <a href="#benefits" class="link-text">الفوائد</a>
+    <a href="#trial" class="btn">نسخة تجريبية</a>
+    <div class="lang-switch">
+      <a href="/pitch/">EN</a>
+      <a href="/pitch/ar/" class="active">AR</a>
+      <a href="/pitch/fr/">FR</a>
+    </div>
+  </div>
+</nav>
+<div class="nav-spacer"></div>
+
+<section id="hero">
+  <div class="badge">منصة إدارة تأجير السيارات</div>
+  <h1>توقف عن إدارة أسطولك<br>بجداول البيانات. <span class="gold">ابدأ النمو.</span></h1>
+  <p>نظام واحد لإدارة أسطولك، حجوزاتك، عملائك، مدفوعاتك، وفريقك.</p>
+  <div class="cta-group">
+    <a href="#trial" class="primary">→ ابدأ النسخة التجريبية المجانية</a>
+    <a href="#features" class="secondary">شاهد كيف يعمل</a>
+  </div>
+</section>
+
+<section id="problem">
+  <div class="section-label">المشكلة</div>
+  <h2 class="section-title">إدارة وكالة تأجير لا يجب أن تكون بهذه الصعوبة</h2>
+  <p class="section-sub">إذا كنت لا تزال تستخدم واتساب وعقود ورقية وإكسل، فأنت تعرف المعاناة.</p>
+  <div class="grid-2">
+    <div class="card problem-card"><div class="icon">📋</div><h3>غارق في الأوراق</h3><p>العقود والمدفوعات وبطاقات العملاء — متناثرة بين واتساب والصور.</p></div>
+    <div class="card problem-card"><div class="icon">❌</div><h3>حجوزات مزدوجة</h3><p>لا توجد رؤية فورية للتوفر. تحجز نفس السيارة مرتين بالخطأ.</p></div>
+    <div class="card problem-card"><div class="icon">📉</div><h3>لا رؤية واضحة</h3><p>كم ربحت هذا الشهر؟ أي سيارة تحقق أكبر دخل؟ ليس لديك فكرة.</p></div>
+    <div class="card problem-card"><div class="icon">⏰</div><h3>ملاحقة المدفوعات</h3><p>تتبع من دفع ومن عليه ديون كابوس. الأموال تتسرب من بين أصابعك.</p></div>
+  </div>
+  <div style="text-align:center;padding:48px 0 8px;"><div style="display:inline-block;padding:6px 20px;border:1px solid rgba(242,202,80,0.2);border-radius:100px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--gold);background:rgba(242,202,80,0.05);">الحل</div></div>
+  <div class="grid-2" style="margin-top:32px;">
+    <div class="card solution-card"><div class="icon">✅</div><h3>كل شيء في مكان واحد</h3><p>الأسطول، العملاء، الحجوزات، العقود، المدفوعات — كلها متزامنة.</p></div>
+    <div class="card solution-card"><div class="icon">📊</div><h3>رؤى ذكاء اصطناعي</h3><p>الذكاء الاصطناعي يحلل بيانات وكالتك ويعطيك توصيات لزيادة المبيعات وتحسين الأداء. كأنك معك محلل مالي خبير.</p></div>
+    <div class="card solution-card"><div class="icon">🤖</div><h3>شات بوت ذكي للعملاء</h3><p>شات بوت يجيب على استفسارات العملاء المحتملين تلقائيا، يؤهلهم، ويحولهم إلى حجوزات — بدون تدخل منك. يشتغل 24/7.</p></div>
+    <div class="card solution-card"><div class="icon">💬</div><h3>أتمتة المحادثات وواتساب</h3><p>أتمتة رسائل واتساب للمتابعة مع العملاء المحتملين، إرسال عروض، وتذكير العملاء بالحجوزات. زد مبيعاتك بدون مجهود.</p></div>
+  </div>
+</section>
+
+<section id="features" style="max-width:1100px;">
+  <div class="section-label">عروض توضيحية</div>
+  <h2 class="section-title">شاهد كل ميزة أثناء العمل</h2>
+  <p class="section-sub">انقر فوق كل علامة تبويب لرؤية معاينة واقعية للتطبيق.</p>
+  <div class="feature-tabs" id="featureTabs">
+    <button class="active" data-tab="dashboard">لوحة القيادة</button>
+    <button data-tab="fleet">الأسطول</button>
+    <button data-tab="bookings">الحجوزات</button>
+    <button data-tab="clients">العملاء</button>
+    <button data-tab="payments">المدفوعات</button>
+    <button data-tab="ai">المساعد الذكي</button>
+    <button data-tab="rent">الموقع العام</button>
+  </div>
+  <div class="demo-panel active" id="demo-dashboard">
+    <div class="demo-header"><h3>لوحة القيادة</h3><div class="demo-stats"><span>📅 <span class="num">يونيو 2026</span></span><span>💰 الإيرادات: <span class="num">$4,820</span></span></div></div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num">12</div><div class="stat-label">إجمالي المركبات</div></div>
+      <div class="stat-card"><div class="stat-num">8</div><div class="stat-label">متاحة</div></div>
+      <div class="stat-card"><div class="stat-num">4</div><div class="stat-label">حجوزات نشطة</div></div>
+      <div class="stat-card"><div class="stat-num">$1,850</div><div class="stat-label">الإيرادات هذا الشهر</div></div>
+      <div class="stat-card"><div class="stat-num">38</div><div class="stat-label">إجمالي العملاء</div></div>
+    </div>
+    <div class="chart-mock">
+      <div class="bar" style="height:60px;"><span class="label">يناير</span></div>
+      <div class="bar" style="height:90px;"><span class="label">فبراير</span></div>
+      <div class="bar" style="height:70px;"><span class="label">مارس</span></div>
+      <div class="bar" style="height:120px;"><span class="label">أبريل</span></div>
+      <div class="bar" style="height:100px;"><span class="label">مايو</span></div>
+      <div class="bar" style="height:140px;"><span class="label">يونيو</span></div>
+    </div>
+    <div class="demo-desc"><strong>غرفة القيادة.</strong> في لمحة: استخدام الأسطول، اتجاه الإيرادات، الحجوزات النشطة.</div>
+  </div>
+  <div class="demo-panel" id="demo-fleet">
+    <div class="demo-header"><h3>إدارة الأسطول</h3><div class="demo-stats"><span>🚗 <span class="num">12</span> مركبة</span><span>✅ <span class="num">8</span> متاحة</span><span>🔧 <span class="num">1</span> في الصيانة</span></div></div>
+    <div class="table-mock"><table><thead><tr><th>المركبة</th><th>اللوحة</th><th>السعر اليومي</th><th>الحالة</th><th>الفئة</th></tr></thead><tbody>
+      <tr><td><strong>تويوتا كامري</strong> 2024</td><td>ABC-1234</td><td>$65</td><td><span class="badge-status badge-available">متاحة</span></td><td>سيدان</td></tr>
+      <tr><td><strong>فورد إكسبلورر</strong> 2023</td><td>GHI-9012</td><td>$95</td><td><span class="badge-status badge-booked">محجوزة</span></td><td>دفع رباعي</td></tr>
+      <tr><td><strong>هوندا سيفيك</strong> 2024</td><td>DEF-5678</td><td>$55</td><td><span class="badge-status badge-available">متاحة</span></td><td>سيدان</td></tr>
+      <tr><td><strong>شيفروليه تاهو</strong> 2023</td><td>MNO-7890</td><td>$110</td><td><span class="badge-status badge-available">متاحة</span></td><td>دفع رباعي</td></tr>
+      <tr><td><strong>بي إم دبليو X5</strong> 2024</td><td>XYZ-9999</td><td>$150</td><td><span class="badge-status badge-maintenance">صيانة</span></td><td>فاخرة</td></tr>
+    </tbody></table></div>
+    <div class="demo-desc"><strong>مخزون المركبات الكامل.</strong> أضف سيارات مع صور وأسعار وأرقام لوحة.</div>
+  </div>
+  <div class="demo-panel" id="demo-bookings">
+    <div class="demo-header"><h3>إدارة الحجوزات</h3><div class="demo-stats"><span>📋 <span class="num">6</span> هذا الشهر</span><span>🟢 <span class="num">2</span> نشطة</span><span>🟡 <span class="num">3</span> استفسارات</span></div></div>
+    <div class="table-mock"><table><thead><tr><th>العميل</th><th>المركبة</th><th>الاستلام</th><th>الإرجاع</th><th>الإجمالي</th><th>الحالة</th></tr></thead><tbody>
+      <tr><td><strong>أحمد كمال</strong></td><td>فورد إكسبلورر</td><td>15 يونيو</td><td>22 يونيو</td><td>$665</td><td><span class="badge-status badge-active">نشط</span></td></tr>
+      <tr><td><strong>سارة محمود</strong></td><td>تويوتا كامري</td><td>28 يونيو</td><td>02 يوليو</td><td>$260</td><td><span class="badge-status badge-confirmed">مؤكد</span></td></tr>
+    </tbody></table></div>
+    <div class="demo-desc"><strong>دورة حياة الحجز الكاملة.</strong> أنشئ حجوزات مع التحقق التلقائي من التوفر.</div>
+  </div>
+  <div class="demo-panel" id="demo-clients">
+    <div class="demo-header"><h3>قاعدة بيانات العملاء</h3><div class="demo-stats"><span>👥 <span class="num">38</span> إجمالي</span><span>📞 <span class="num">24</span> مع واتساب</span></div></div>
+    <div class="table-mock"><table><thead><tr><th>الاسم</th><th>الهاتف</th><th>الرخصة</th><th>المدينة</th><th>الحجوزات</th></tr></thead><tbody>
+      <tr><td><strong>أحمد كمال</strong></td><td>+213 555-1001</td><td>NY-1234567</td><td>الجزائر</td><td>3</td></tr>
+      <tr><td><strong>سارة محمود</strong></td><td>+213 555-1002</td><td>NY-2345678</td><td>وهران</td><td>1</td></tr>
+    </tbody></table></div>
+    <div class="demo-desc"><strong>دليل عملائك.</strong> خزن الأسماء والهواتف وواتساب ورخصة القيادة.</div>
+  </div>
+  <div class="demo-panel" id="demo-payments">
+    <div class="demo-header"><h3>تتبع المدفوعات</h3><div class="demo-stats"><span>💰 <span class="num">$4,820</span> محصلة</span><span>📅 <span class="num">18</span> معاملة</span></div></div>
+    <div class="table-mock"><table><thead><tr><th>الحجز</th><th>العميل</th><th>المبلغ</th><th>الطريقة</th><th>الحالة</th><th>التاريخ</th></tr></thead><tbody>
+      <tr><td>#CR-001</td><td>أحمد كمال</td><td>$200</td><td>بطاقة ائتمان</td><td><span class="badge-status badge-paid">مدفوع</span></td><td>15 يونيو</td></tr>
+      <tr><td>#CR-004</td><td>سارة محمود</td><td>$150</td><td>تحويل بنكي</td><td><span class="badge-status badge-paid">مدفوع</span></td><td>10 يونيو</td></tr>
+    </tbody></table></div>
+    <div class="demo-desc"><strong>اعرف بالضبط من دفع ومن عليه ديون.</strong></div>
+  </div>
+  <div class="demo-panel" id="demo-ai">
+    <div class="demo-header"><h3>المساعد الذكي</h3><div class="demo-stats"><span>📊 بيانات وكالة حقيقية</span></div></div>
+    <div class="chat-mock">
+      <div class="msg user">ما التحسينات التي يمكنني إجراؤها لزيادة الأرباح؟</div>
+      <div class="msg ai">بناء على بيانات <strong>وكالتك</strong>، إليك توصياتي:<br><br>• 🚗 <strong>سيارة فورد إكسبلورر</strong> مطلوبة بشدة — زيادة سعرها اليومي من <strong>$95 إلى $110</strong> يمكن أن يزيد الإيرادات <strong>بـ 15%</strong><br><br>• 📅 نسبة الإشغال 67% — هناك <strong>3 سيارات متاحة</strong> (كامري، سيفيك، تاهو). تفعيل العروض الترويجية لها قد يزيد الإيرادات الشهرية <strong>بـ $2,000+</strong><br><br>• 💬 العملاء المتكررون يمثلون 40% فقط — تفعيل أتمتة واتساب للمتابعة يمكن أن يرفعهم إلى 60%<br><br>• ⏱ التوصية: ركز على تسويق سيارات الدفع الرباعي (تاهو وإكسبلورر) — هما الأكثر ربحية بهامش <strong>$40+/يوم</strong></div>
+    </div>
+    <div class="demo-desc"><strong>اسأل عن التحسينات.</strong> الذكاء الاصطناعي يحلل بيانات وكالتك الحية ويعطيك توصيات مخصصة لزيادة الإيرادات والأداء.</div>
+  </div>
+  <div class="demo-panel" id="demo-rent">
+    <div class="demo-header"><h3>موقع الإيجار العام</h3><div class="demo-stats"><span>🌐 متاح على <span class="num">/rent</span></span><span>🚗 <span class="num">8</span> سيارات منشورة</span></div></div>
+    <div class="stats-row" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+      <div class="stat-card"><div style="font-size:32px;margin-bottom:8px;">🚗</div><div class="stat-num" style="font-size:16px;">تويوتا كامري</div><div class="stat-label">$65/يوم · سيدان</div></div>
+      <div class="stat-card"><div style="font-size:32px;margin-bottom:8px;">🚙</div><div class="stat-num" style="font-size:16px;">فورد إكسبلورر</div><div class="stat-label">$95/يوم · دفع رباعي</div></div>
+    </div>
+    <div class="demo-desc"><strong>سياراتك، على الإنترنت فوراً.</strong></div>
+  </div>
+</section>
+
+<section id="proof">
+  <div class="section-label">إثبات اجتماعي</div>
+  <h2 class="section-title">موثوق من وكالات التأجير حول العالم</h2>
+  <div class="grid-3">
+    <div class="card" style="border-right:3px solid var(--gold);border-left:none;"><div class="icon">⭐</div><h3>"وفر لنا أكثر من 10 ساعات أسبوعيا"</h3><p>"انتقلنا من فوضى واتساب إلى نظام رقمي كامل."</p><p style="margin-top:12px;font-size:12px;color:var(--muted);">— أحمد، صاحب وكالة، الجزائر</p></div>
+    <div class="card" style="border-right:3px solid var(--gold);border-left:none;"><div class="icon">⭐</div><h3>"صفر حجوزات مزدوجة"</h3><p>"فحص التوفر وحده دفع ثمنه."</p><p style="margin-top:12px;font-size:12px;color:var(--muted);">— مريم، مديرة عمليات، وهران</p></div>
+    <div class="card" style="border-right:3px solid var(--gold);border-left:none;"><div class="icon">⭐</div><h3>"رؤية الإيرادات غيرت كل شيء"</h3><p>"لأول مرة أعرف بالضبط كم تربح كل سيارة."</p><p style="margin-top:12px;font-size:12px;color:var(--muted);">— يوسف، مدير أسطول، قسنطينة</p></div>
+  </div>
+</section>
+
+<section id="trial">
+  <div class="trial-card">
+    <h3>ابدأ تنمية أعمال التأجير الخاصة بك اليوم</h3>
+    <p class="trial-desc">CarRental OS يساعدك على إدارة أسطولك، أتمتة المحادثات مع العملاء المحتملين، وزيادة مبيعاتك — كل ذلك في نظام واحد مع رؤى الذكاء الاصطناعي.</p>
+    <a href="/register" class="trial-btn">💎 أنشئ حسابك المجاني</a>
+    <p class="trial-note">$59/شهر — أو اتصل بنا للحصول على ترخيص مدى الحياة</p>
+  </div>
+</section>
+
+<section id="benefits">
+  <div class="section-label">لماذا هذا يعمل</div>
+  <h2 class="section-title">مبني لوكالات التأجير الحقيقية</h2>
+  <p class="section-sub">لا نظام ERP متضخم. فقط الأدوات التي تحتاجها فعلاً.</p>
+  <div class="benefits-list">
+    <div class="benefit-item"><div class="check">✓</div><div><h4>تسجيل دخول واحد</h4><p>الأسطول، العملاء، الحجوزات — كلها في تطبيق واحد.</p></div></div>
+    <div class="benefit-item"><div class="check">✓</div><div><h4>لا حجوزات مزدوجة</h4><p>النظام يتحقق من التوفر قبل تأكيد أي حجز.</p></div></div>
+    <div class="benefit-item"><div class="check">✓</div><div><h4>إيرادات في الوقت الفعلي</h4><p>لوحة القيادة تتحدث فورا عند تسجيل دفعة.</p></div></div>
+    <div class="benefit-item"><div class="check">✓</div><div><h4>ذكاء اصطناعي يعرف بياناتك</h4><p>ليس شات بوت عاما. يقرأ أسطولك الفعلي.</p></div></div>
+    <div class="benefit-item"><div class="check">✓</div><div><h4>إشعارات واتساب</h4><p>تلقي إشعارا على هاتفك عند وصول حجز جديد.</p></div></div>
+    <div class="benefit-item"><div class="check">✓</div><div><h4>موقع عام مدمج</h4><p>أسطولك يظهر تلقائيا على صفحة عامة.</p></div></div>
+  </div>
+</section>
+
+<section id="cta">
+  <h2>هل أنت مستعد لتحويل وكالتك؟</h2>
+  <p>انضم إلى مئات الوكالات التي تنمو مع CarRental OS.</p>
+  <div class="btn-group">
+    <a href="#trial" class="primary">ابدأ النسخة التجريبية</a>
+    <a href="https://car-rental-os.vercel.app/" class="secondary" target="_blank">→ اذهب إلى التطبيق</a>
+  </div>
+</section>
+
+<footer>CarRental OS — مبني للوكالات التي تريد النمو.<br><span style="color:var(--muted);font-size:12px;">&copy; 2026</span></footer>
+
+<button class="chatbot-btn" id="chatbotBtn" onclick="toggleChatbot()"><span class="icon">💬</span> هل لديك سؤال؟</button>
+
+<div class="chatbot-window" id="chatbotWindow">
+  <div class="chatbot-header">
+    <h4>💬 مساعد CarRental OS</h4>
+    <button class="close-btn" onclick="toggleChatbot()">✕</button>
+  </div>
+  <div class="chatbot-messages" id="chatbotMessages"></div>
+  <div class="quick-replies" id="quickReplies"></div>
+  <div class="chatbot-input-area">
+    <input type="text" id="chatbotInput" placeholder="اطرح سؤالك..." onkeydown="if(event.key==='Enter') sendMessage()">
+    <button class="send-btn" id="chatbotSend" onclick="sendMessage()">إرسال</button>
+  </div>
+</div>
+
+<script>
+const ANSWERS = {
+  greeting: "👋 مرحبا! أنا مساعد CarRental OS. يمكنني الإجابة على أسئلتك حول الميزات، الأسعار، النسخة التجريبية المجانية، والمزيد. كيف يمكنني مساعدتك؟",
+  features: "🚗 يشمل CarRental OS:\n\n• إدارة الأسطول — تتبع جميع المركبات، الأسعار، التأمين\n• الحجوزات — تقويم ذكي، لا حجوزات مزدوجة\n• قاعدة بيانات العملاء — السجل، العقود، المستندات\n• المدفوعات — تتبع الودائع والتحصيلات\n• 🤖 شات بوت ذكي — يجيب على استفسارات العملاء ويحولهم لحجوزات تلقائيا\n• 🧠 رؤى ذكاء اصطناعي — يحلل بياناتك ويعطيك توصيات لزيادة المبيعات\n• 💬 أتمتة واتساب — أرسل رسائل متابعة وعروض تلقائيا للعملاء المحتملين\n• 🌐 موقع عام — أسطولك ينشر تلقائيا على الإنترنت\n\nما الميزة التي تهمك أكثر؟",
+  pricing: "💰 أسعار بسيطة وشفافة:\n\n• 🚀 نسخة تجريبية مجانية — جرب كامل الميزات قبل الاشتراك\n• 📈 الخطة الشهرية: $59/شهر — جميع الميزات، بدون حدود\n• 🏢 ترخيص مدى الحياة: اتصل بنا للحصول على سعر خاص\n\nجميع الخطط تشمل الذكاء الاصطناعي، الشات بوت، واتساب، والموقع العام. ابدأ مجانا!",
+  trial: "🎯 نسختنا التجريبية المجانية لمدة 15 يوما تمنحك وصولا كاملا لجميع الميزات — بدون بطاقة ائتمان. لا التزام، لا حيل. انضم إلى 245+ وكالة سجلت هذا الأسبوع!\n\n👉 املأ نموذج التسجيل في هذه الصفحة للبدء.",
+  demo: "📅 تريد عرضا توضيحيا مخصصا؟ املأ نموذج النسخة التجريبية أعلاه وسيتواصل معك فريقنا خلال 24 ساعة لترتيب عرض توضيحي يناسب وكالتك.",
+  support: "🤝 تحتاج مساعدة؟ فريق الدعم متاح عبر البريد الإلكتروني وواتساب بمجرد إنشاء حسابك. يمكنك أيضا تصفح الوثائق مباشرة داخل التطبيق.",
+  fallback: "لم أفهم سؤالك تماما. إليك ما يمكنني مساعدتك به:\n\n• 🔧 الميزات\n• 💰 الأسعار\n• 🎯 النسخة التجريبية\n• 📅 عرض توضيحي\n• 🤝 الدعم\n\nأو انقر على أحد الموضوعات أدناه!"
+};
+
+let isSubmitting = false;
+
+function toggleChatbot() {
+  const w = document.getElementById('chatbotWindow');
+  w.classList.toggle('open');
+  if (w.classList.contains('open') && !w.dataset.started) {
+    w.dataset.started = 'true';
+    setTimeout(() => addBotMessage(ANSWERS.greeting), 300);
+    setTimeout(() => showQuickReplies(), 1500);
+  }
+}
+
+function addBotMessage(text) {
+  const container = document.getElementById('chatbotMessages');
+  const div = document.createElement('div');
+  div.className = 'msg bot';
+  div.innerHTML = text.replace(/\n/g, '<br>');
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function addUserMessage(text) {
+  const container = document.getElementById('chatbotMessages');
+  const div = document.createElement('div');
+  div.className = 'msg user';
+  div.textContent = text;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function showTyping() {
+  const container = document.getElementById('chatbotMessages');
+  const div = document.createElement('div');
+  div.className = 'msg bot';
+  div.id = 'typingIndicator';
+  div.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function hideTyping() {
+  const el = document.getElementById('typingIndicator');
+  if (el) el.remove();
+}
+
+function showQuickReplies(buttons) {
+  const container = document.getElementById('quickReplies');
+  container.innerHTML = '';
+  if (!buttons) {
+    buttons = [
+      { label: '🔧 الميزات', action: 'features' },
+      { label: '💰 الأسعار', action: 'pricing' },
+      { label: '🎯 نسخة تجريبية', action: 'trial' },
+      { label: '📅 عرض توضيحي', action: 'demo' }
+    ];
+  }
+  buttons.forEach(b => {
+    const btn = document.createElement('button');
+    btn.textContent = b.label;
+    btn.onclick = () => handleQuickAction(b.action);
+    container.appendChild(btn);
+  });
+}
+
+function hideQuickReplies() {
+  document.getElementById('quickReplies').innerHTML = '';
+}
+
+function handleQuickAction(action) {
+  hideQuickReplies();
+  if (isSubmitting) return;
+  const labels = { features: '🔧 الميزات', pricing: '💰 الأسعار', trial: '🎯 نسخة تجريبية', demo: '📅 عرض توضيحي', support: '🤝 الدعم' };
+  addUserMessage(labels[action] || action);
+  showTyping();
+  setTimeout(() => {
+    hideTyping();
+    addBotMessage(ANSWERS[action]);
+    showQuickReplies();
+  }, 600);
+}
+
+function sendMessage() {
+  const input = document.getElementById('chatbotInput');
+  const text = input.value.trim();
+  if (!text || isSubmitting) return;
+  input.value = '';
+  addUserMessage(text);
+  hideQuickReplies();
+  showTyping();
+  setTimeout(() => {
+    hideTyping();
+    const lower = text.toLowerCase();
+    if (lower.includes('ميز') || lower.includes('feature') || lower.includes('وظيف') || lower.includes('قدر') || lower.includes('ماذا')) {
+      addBotMessage(ANSWERS.features);
+    } else if (lower.includes('سعر') || lower.includes('pric') || lower.includes('كم') || lower.includes('تكلف') || lower.includes('خطة') || lower.includes('اشتراك') || lower.includes('شهري')) {
+      addBotMessage(ANSWERS.pricing);
+    } else if (lower.includes('تجريب') || lower.includes('مجان') || lower.includes('trial') || lower.includes('free') || lower.includes('تسجيل') || lower.includes('حساب') || lower.includes('اشتراك') || lower.includes('بدء') || lower.includes('سجل')) {
+      addBotMessage(ANSWERS.trial);
+    } else if (lower.includes('عرض') || lower.includes('demo') || lower.includes('توضيح') || lower.includes('شاهد') || lower.includes('أرني')) {
+      addBotMessage(ANSWERS.demo);
+    } else if (lower.includes('دعم') || lower.includes('مساعدة') || lower.includes('اتصال') || lower.includes('مشكلة') || lower.includes('استفسار')) {
+      addBotMessage(ANSWERS.support);
+    } else {
+      addBotMessage(ANSWERS.fallback);
+    }
+    showQuickReplies();
+  }, 600);
+}
+
+// Scroll animation
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.card, .benefit-item, .stat-card, .demo-panel').forEach(el => { el.classList.add('fade-in'); observer.observe(el); });
+
+// Feature tabs
+document.querySelectorAll('.feature-tabs button').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.feature-tabs button').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelectorAll('.demo-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('demo-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+
+</script>
+</body>
+</html>

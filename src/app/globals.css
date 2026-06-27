@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html.dark {
+    --background: #0b1326;
+    --foreground: #dae2fd;
+    --card: #060e20;
+    --card-foreground: #dae2fd;
+    --popover: #060e20;
+    --popover-foreground: #dae2fd;
+    --primary: #f2ca50;
+    --primary-foreground: #3c2f00;
+    --secondary: #2e4963;
+    --secondary-foreground: #dae2fd;
+    --muted: #131b2e;
+    --muted-foreground: #99907c;
+    --accent: #222a3d;
+    --accent-foreground: #dae2fd;
+    --destructive: #ef4444;
+    --destructive-foreground: #fafafa;
+    --border: #2d3449;
+    --input: #131b2e;
+    --ring: #f2ca50;
+    --radius: 0.25rem;
+  }
+  :root {
+    --background: #0b1326;
+    --foreground: #dae2fd;
+    --card: #060e20;
+    --card-foreground: #dae2fd;
+    --popover: #060e20;
+    --popover-foreground: #dae2fd;
+    --primary: #f2ca50;
+    --primary-foreground: #3c2f00;
+    --secondary: #2e4963;
+    --secondary-foreground: #dae2fd;
+    --muted: #131b2e;
+    --muted-foreground: #99907c;
+    --accent: #222a3d;
+    --accent-foreground: #dae2fd;
+    --destructive: #ef4444;
+    --destructive-foreground: #fafafa;
+    --border: #2d3449;
+    --input: #131b2e;
+    --ring: #f2ca50;
+    --radius: 0.25rem;
+    --sidebar-background: #060e20;
+    --sidebar-foreground: #dae2fd;
+    --sidebar-accent: #222a3d;
+    --sidebar-accent-foreground: #dae2fd;
+    --sidebar-border: #2d3449;
+  }
+  * {
+    border-color: var(--border);
+  }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+  }
+}
+
+@layer components {
+  .glass-panel {
+    background: rgba(11, 19, 38, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(212, 175, 55, 0.15);
+  }
+  .metallic-gradient {
+    background: linear-gradient(135deg, #D4AF37 0%, #B68D27 100%);
+  }
+  .input-focus-gold:focus {
+    border-color: #D4AF37;
+    box-shadow: 0 0 0 1px #D4AF37;
+    outline: none;
+  }
+  .ambient-shadow {
+    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.8), 0 0 20px rgba(212, 175, 55, 0.05);
+  }
+}

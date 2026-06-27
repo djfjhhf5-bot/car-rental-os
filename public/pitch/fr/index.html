@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CarRental OS — Entonnoir de Vente SaaS</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0b1326;
+    --surface: #131b2e;
+    --surface-2: #222a3d;
+    --border: #2d3449;
+    --gold: #f2ca50;
+    --gold-dim: #d4af37;
+    --text: #dae2fd;
+    --muted: #99907c;
+    --font: 'Inter', -apple-system, sans-serif;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(11, 19, 38, 0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  nav .logo {
+    font-weight: 700; font-size: 18px;
+    color: var(--gold);
+    display: flex; align-items: center; gap: 8px;
+  }
+  nav .logo span { color: var(--text); font-weight: 400; }
+  nav .links { display: flex; gap: 24px; align-items: center; }
+  nav .links a {
+    color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 500;
+    transition: color 0.2s;
+  }
+  nav .links a:hover { color: var(--text); }
+  nav .links .btn {
+    background: var(--gold); color: #3c2f00; padding: 8px 20px;
+    border-radius: 6px; font-weight: 600; font-size: 13px;
+  }
+  nav .links .btn:hover { background: var(--gold-dim); color: #3c2f00; }
+  .lang-switch { display: flex; gap: 4px; }
+  .lang-switch a {
+    font-size: 12px; padding: 4px 8px; border-radius: 4px;
+    color: var(--muted); text-decoration: none; font-weight: 600;
+    transition: all 0.2s;
+  }
+  .lang-switch a:hover { color: var(--text); }
+  .lang-switch a.active { color: var(--gold); background: rgba(242,202,80,0.1); }
+  .nav-spacer { height: 60px; }
+
+  section { padding: 80px 24px; max-width: 1100px; margin: 0 auto; }
+
+  #hero {
+    text-align: center;
+    padding: 120px 24px 80px;
+    max-width: 800px;
+  }
+  #hero .badge {
+    display: inline-block;
+    background: rgba(242, 202, 80, 0.1);
+    color: var(--gold);
+    font-size: 12px; font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 100px;
+    border: 1px solid rgba(242, 202, 80, 0.2);
+    margin-bottom: 24px;
+    letter-spacing: 0.3px;
+  }
+  #hero h1 {
+    font-size: clamp(32px, 5vw, 56px);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    letter-spacing: -0.03em;
+  }
+  #hero h1 .gold { color: var(--gold); }
+  #hero p {
+    font-size: clamp(16px, 2vw, 20px);
+    color: var(--muted);
+    max-width: 600px;
+    margin: 0 auto 32px;
+  }
+  #hero .cta-group { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  #hero .cta-group a {
+    text-decoration: none;
+    padding: 14px 32px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s;
+  }
+  #hero .cta-group .primary {
+    background: var(--gold);
+    color: #3c2f00;
+  }
+  #hero .cta-group .primary:hover { background: var(--gold-dim); transform: translateY(-1px); }
+  #hero .cta-group .secondary {
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  #hero .cta-group .secondary:hover { background: var(--surface); border-color: var(--muted); }
+
+  .section-label {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 2px; color: var(--gold); margin-bottom: 8px;
+  }
+  .section-title {
+    font-size: clamp(24px, 3vw, 36px);
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .section-sub {
+    color: var(--muted);
+    font-size: 16px;
+    max-width: 600px;
+    margin-bottom: 48px;
+  }
+
+  #problem { max-width: 900px; }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 32px;
+  }
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+    margin-top: 32px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .card:hover { transform: translateY(-2px); border-color: rgba(242, 202, 80, 0.3); }
+  .card .icon { font-size: 28px; margin-bottom: 12px; }
+  .card h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+  .card p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+  .problem-card { border-left: 3px solid #ef4444; }
+  .solution-card { border-left: 3px solid var(--gold); }
+
+  .feature-tabs {
+    display: flex; gap: 4px; flex-wrap: wrap;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 32px;
+  }
+  .feature-tabs button {
+    flex: 1;
+    min-width: 100px;
+    padding: 10px 16px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: var(--font);
+  }
+  .feature-tabs button:hover { color: var(--text); }
+  .feature-tabs button.active {
+    background: var(--surface-2);
+    color: var(--gold);
+  }
+
+  .demo-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    display: none;
+  }
+  .demo-panel.active { display: block; }
+  .demo-panel .demo-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .demo-panel .demo-header h3 { font-size: 16px; font-weight: 600; }
+  .demo-panel .demo-header .demo-stats { display: flex; gap: 20px; flex-wrap: wrap; }
+  .demo-panel .demo-header .demo-stats span {
+    font-size: 12px; color: var(--muted);
+    display: flex; align-items: center; gap: 4px;
+  }
+  .demo-panel .demo-header .demo-stats .num { color: var(--gold); font-weight: 600; font-size: 14px; }
+  .table-mock { padding: 20px 24px; overflow-x: auto; }
+  .table-mock table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .table-mock th {
+    text-align: left; padding: 10px 12px; font-weight: 600;
+    color: var(--muted); font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.5px; border-bottom: 1px solid var(--border);
+  }
+  .table-mock td {
+    padding: 12px; border-bottom: 1px solid rgba(45, 52, 73, 0.5);
+    color: var(--text);
+  }
+  .table-mock tr:last-child td { border-bottom: none; }
+  .badge-status {
+    display: inline-block; padding: 2px 10px; border-radius: 100px; font-size: 11px; font-weight: 600;
+  }
+  .badge-available { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+  .badge-booked { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+  .badge-maintenance { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+  .badge-inquiry { background: rgba(234, 179, 8, 0.15); color: #eab308; }
+  .badge-confirmed { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+  .badge-active { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+  .badge-paid { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+  .badge-pending { background: rgba(234, 179, 8, 0.15); color: #eab308; }
+
+  .chart-mock {
+    padding: 24px; display: flex; align-items: flex-end; gap: 10px; height: 180px;
+  }
+  .chart-mock .bar {
+    flex: 1; background: linear-gradient(to top, var(--gold-dim), var(--gold));
+    border-radius: 4px 4px 0 0; min-height: 20px; transition: height 0.3s; position: relative;
+  }
+  .chart-mock .bar .label {
+    position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%);
+    font-size: 10px; color: var(--muted); white-space: nowrap;
+  }
+
+  .stats-row {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px; padding: 20px 24px;
+  }
+  .stat-card {
+    background: rgba(11, 19, 38, 0.5);
+    border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px; text-align: center;
+  }
+  .stat-card .stat-num { font-size: 24px; font-weight: 700; color: var(--gold); }
+  .stat-card .stat-label { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  .chat-mock {
+    padding: 24px; display: flex; flex-direction: column; gap: 12px; max-width: 500px;
+  }
+  .chat-mock .msg {
+    padding: 12px 16px; border-radius: 12px; font-size: 13px;
+    max-width: 80%; line-height: 1.5;
+  }
+  .chat-mock .msg.user {
+    align-self: flex-end; background: var(--gold); color: #3c2f00;
+    border-bottom-right-radius: 4px;
+  }
+  .chat-mock .msg.ai {
+    align-self: flex-start; background: var(--surface-2);
+    border-bottom-left-radius: 4px;
+  }
+
+  .demo-desc {
+    padding: 20px 24px; border-top: 1px solid var(--border);
+    font-size: 14px; color: var(--muted); line-height: 1.7;
+  }
+  .demo-desc strong { color: var(--text); }
+
+  #benefits .benefits-list {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;
+  }
+  .benefit-item {
+    display: flex; gap: 16px; padding: 20px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  }
+  .benefit-item .check {
+    width: 24px; height: 24px; min-width: 24px;
+    background: rgba(242, 202, 80, 0.15); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 13px;
+  }
+  .benefit-item h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .benefit-item p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+  .trial-card {
+    background: linear-gradient(135deg, rgba(242,202,80,0.08), rgba(242,202,80,0.02));
+    border: 1px solid rgba(242,202,80,0.2);
+    border-radius: 16px;
+    padding: 48px 40px;
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .trial-card h3 {
+    font-size: 24px; font-weight: 700; margin-bottom: 12px;
+  }
+  .trial-card .trial-desc { color: var(--muted); font-size: 14px; margin-bottom: 28px; max-width: 480px; margin-left: auto; margin-right: auto; }
+  .trial-card .trial-note { font-size: 12px; color: var(--muted); margin-top: 16px; }
+  .trial-btn { display: inline-block; background: var(--gold); color: #3c2f00; border: none; border-radius: 8px; padding: 16px 36px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: var(--font); text-decoration: none; }
+  .trial-btn:hover { background: var(--gold-dim); transform: translateY(-2px); }
+
+  #cta {
+    text-align: center;
+    padding: 100px 24px;
+  }
+  #cta h2 { font-size: clamp(24px, 3vw, 36px); font-weight: 700; margin-bottom: 12px; }
+  #cta p { color: var(--muted); font-size: 16px; margin-bottom: 32px; max-width: 500px; margin-left: auto; margin-right: auto; }
+  #cta .btn-group { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  #cta a {
+    text-decoration: none;
+    padding: 14px 32px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s;
+  }
+  #cta .primary {
+    background: var(--gold);
+    color: #3c2f00;
+  }
+  #cta .primary:hover { background: var(--gold-dim); transform: translateY(-1px); }
+  #cta .secondary {
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  #cta .secondary:hover { background: var(--surface); }
+
+  footer {
+    text-align: center;
+    padding: 40px 24px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .chatbot-btn {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    z-index: 1000;
+    background: var(--gold);
+    color: #3c2f00;
+    border: none;
+    border-radius: 50px;
+    padding: 14px 24px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(242,202,80,0.3);
+    transition: all 0.2s;
+    font-family: var(--font);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .chatbot-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(242,202,80,0.4); }
+  .chatbot-btn .icon { font-size: 20px; }
+
+  .chatbot-window {
+    position: fixed;
+    bottom: 88px; right: 24px;
+    z-index: 1000;
+    width: 380px;
+    max-width: calc(100vw - 48px);
+    height: 520px;
+    max-height: calc(100vh - 120px);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .chatbot-window.open { display: flex; }
+  .chatbot-header {
+    padding: 16px 20px;
+    background: rgba(242,202,80,0.08);
+    border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .chatbot-header h4 { font-size: 14px; font-weight: 600; }
+  .chatbot-header .close-btn {
+    background: none; border: none; color: var(--muted);
+    cursor: pointer; font-size: 18px; padding: 4px;
+    transition: color 0.2s;
+  }
+  .chatbot-header .close-btn:hover { color: var(--text); }
+  .chatbot-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .chatbot-messages .msg {
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 13px;
+    max-width: 85%;
+    line-height: 1.5;
+    animation: msgIn 0.2s ease-out;
+  }
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .chatbot-messages .msg.bot {
+    align-self: flex-start;
+    background: var(--surface-2);
+    border-bottom-left-radius: 4px;
+  }
+  .chatbot-messages .msg.user {
+    align-self: flex-end;
+    background: var(--gold);
+    color: #3c2f00;
+    border-bottom-right-radius: 4px;
+  }
+  .chatbot-input-area {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    display: flex; gap: 8px;
+  }
+  .chatbot-input-area input {
+    flex: 1;
+    background: rgba(11,19,38,0.5);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--text);
+    font-family: var(--font);
+    transition: border-color 0.2s;
+  }
+  .chatbot-input-area input:focus { border-color: var(--gold); outline: none; }
+  .chatbot-input-area input::placeholder { color: var(--muted); }
+  .chatbot-input-area .send-btn {
+    background: var(--gold);
+    color: #3c2f00;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: var(--font);
+  }
+  .chatbot-input-area .send-btn:hover { background: var(--gold-dim); }
+  .chatbot-input-area .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .typing-dots { display: flex; gap: 4px; padding: 4px 0; }
+  .typing-dots span {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--muted); animation: dotPulse 1.2s infinite;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes dotPulse {
+    0%, 60%, 100% { opacity: 0.3; transform: scale(0.8); }
+    30% { opacity: 1; transform: scale(1); }
+  }
+
+  .quick-replies {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 8px 16px 12px;
+  }
+  .quick-replies button {
+    padding: 6px 14px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: var(--font);
+  }
+  .quick-replies button:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: rgba(242,202,80,0.05);
+  }
+
+  @media (max-width: 640px) {
+    section { padding: 48px 16px; }
+    #hero { padding: 80px 16px 48px; }
+    nav .links .link-text { display: none; }
+    .chatbot-window { width: calc(100vw - 32px); right: 16px; bottom: 80px; height: 460px; }
+    .chatbot-btn { right: 16px; bottom: 16px; padding: 12px 18px; font-size: 13px; }
+  }
+
+  .fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+  .fade-in.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">CarRental <span>OS</span></div>
+  <div class="links">
+    <a href="#funnel" class="link-text">Entonnoir</a>
+    <a href="#features" class="link-text">Fonctionnalités</a>
+    <a href="#benefits" class="link-text">Avantages</a>
+    <a href="#trial" class="btn">Essai gratuit</a>
+    <div class="lang-switch">
+      <a href="/pitch/">EN</a>
+      <a href="/pitch/ar/">AR</a>
+      <a href="/pitch/fr/" class="active">FR</a>
+    </div>
+  </div>
+</nav>
+<div class="nav-spacer"></div>
+
+<section id="hero">
+  <div class="badge">Plateforme de Gestion de Location de Voitures</div>
+  <h1>Arrêtez de gérer votre flotte<br>avec des tableurs. <span class="gold">Commencez à grandir.</span></h1>
+  <p>
+    Un système pour gérer votre flotte, réservations, clients, paiements et équipe — pour passer moins de temps sur l'administration et plus à servir vos clients.
+  </p>
+  <div class="cta-group">
+    <a href="#trial" class="primary">Commencer l'essai gratuit de 15 jours →</a>
+    <a href="#features" class="secondary">Voir comment ça marche</a>
+  </div>
+</section>
+
+<section id="problem">
+  <div class="section-label">Le Problème</div>
+  <h2 class="section-title">Gérer une agence de location ne devrait pas être si difficile</h2>
+  <p class="section-sub">
+    Si vous utilisez encore WhatsApp, des contrats papier et Excel pour gérer vos voitures, vous connaissez la douleur.
+  </p>
+  <div class="grid-2">
+    <div class="card problem-card">
+      <div class="icon">📋</div>
+      <h3>Noyé dans la paperasse</h3>
+      <p>Contrats, paiements, pièces d'identité — dispersés sur WhatsApp, photos et carnets. Trouver quoi que ce soit prend une éternité.</p>
+    </div>
+    <div class="card problem-card">
+      <div class="icon">❌</div>
+      <h3>Double réservations</h3>
+      <p>Pas de vue en temps réel. Vous réservez la même voiture deux fois par erreur, et un client arrive mécontent.</p>
+    </div>
+    <div class="card problem-card">
+      <div class="icon">📉</div>
+      <h3>Aucune visibilité</h3>
+      <p>Combien avez-vous gagné ce mois-ci ? Quelle voiture rapporte le plus ? Vous n'en avez aucune idée sans fouiller dans les notes.</p>
+    </div>
+    <div class="card problem-card">
+      <div class="icon">⏰</div>
+      <h3>Courir après les paiements</h3>
+      <p>Suivre qui a payé, qui doit et quand les dépôts sont dus est un cauchemar. L'argent vous glisse entre les doigts.</p>
+    </div>
+  </div>
+
+  <div style="text-align:center;padding:48px 0 8px;">
+    <div style="display:inline-block;padding:6px 20px;border:1px solid rgba(242,202,80,0.2);border-radius:100px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--gold);background:rgba(242,202,80,0.05);">
+      La Solution
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:32px;">
+    <div class="card solution-card">
+      <div class="icon">✅</div>
+      <h3>Tout en un seul endroit</h3>
+      <p>Flotte, clients, réservations, contrats, paiements — tout synchronisé. Finies les recherches dans 3 applications différentes.</p>
+    </div>
+    <div class="card solution-card">
+      <div class="icon">📊</div>
+      <h3>Renseignements par IA</h3>
+      <p>L'IA analyse les données de votre agence et vous recommande des actions pour augmenter les ventes et améliorer la performance. Comme un analyste commercial.</p>
+    </div>
+    <div class="card solution-card">
+      <div class="icon">🤖</div>
+      <h3>Chatbot intelligent pour leads</h3>
+      <p>Un chatbot qui répond aux prospects, qualifie les leads et les convertit en réservations — automatiquement, 24h/24. Sans effort humain.</p>
+    </div>
+    <div class="card solution-card">
+      <div class="icon">💬</div>
+      <h3>Automatisation WhatsApp</h3>
+      <p>Automatisez les relances WhatsApp avec les leads, envoyez des offres promotionnelles et rappelez les clients. Augmentez vos ventes en pilotage automatique.</p>
+    </div>
+  </div>
+</section>
+
+<section id="features" style="max-width:1100px;">
+  <div class="section-label">Démonstrations en Direct</div>
+  <h2 class="section-title">Voir chaque fonctionnalité en action</h2>
+  <p class="section-sub">
+    Cliquez sur chaque onglet pour voir un aperçu réaliste de l'application.
+  </p>
+
+  <div class="feature-tabs" id="featureTabs">
+    <button class="active" data-tab="dashboard">Tableau de bord</button>
+    <button data-tab="fleet">Flotte</button>
+    <button data-tab="bookings">Réservations</button>
+    <button data-tab="clients">Clients</button>
+    <button data-tab="payments">Paiements</button>
+    <button data-tab="ai">IA</button>
+    <button data-tab="rent">Site public</button>
+  </div>
+
+  <div class="demo-panel active" id="demo-dashboard">
+    <div class="demo-header">
+      <h3>Tableau de bord</h3>
+      <div class="demo-stats">
+        <span>📅 <span class="num">Juin 2026</span></span>
+        <span>💰 Revenus : <span class="num">$4,820</span></span>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num">12</div><div class="stat-label">Véhicules totaux</div></div>
+      <div class="stat-card"><div class="stat-num">8</div><div class="stat-label">Disponibles</div></div>
+      <div class="stat-card"><div class="stat-num">4</div><div class="stat-label">Réservations actives</div></div>
+      <div class="stat-card"><div class="stat-num">$1,850</div><div class="stat-label">Revenus ce mois</div></div>
+      <div class="stat-card"><div class="stat-num">38</div><div class="stat-label">Clients totaux</div></div>
+    </div>
+    <div class="chart-mock">
+      <div class="bar" style="height:60px;"><span class="label">Jan</span></div>
+      <div class="bar" style="height:90px;"><span class="label">Fév</span></div>
+      <div class="bar" style="height:70px;"><span class="label">Mar</span></div>
+      <div class="bar" style="height:120px;"><span class="label">Avr</span></div>
+      <div class="bar" style="height:100px;"><span class="label">Mai</span></div>
+      <div class="bar" style="height:140px;"><span class="label">Juin</span></div>
+    </div>
+    <div class="demo-desc">
+      <strong>Le centre de commandement.</strong> En un coup d'œil : utilisation de la flotte, tendance des revenus (graphique 6 mois), réservations actives, retours à venir et alertes de maintenance.
+    </div>
+  </div>
+
+  <div class="demo-panel" id="demo-fleet">
+    <div class="demo-header">
+      <h3>Gestion de flotte</h3>
+      <div class="demo-stats">
+        <span>🚗 <span class="num">12</span> véhicules</span>
+        <span>✅ <span class="num">8</span> disponibles</span>
+        <span>🔧 <span class="num">1</span> en maintenance</span>
+      </div>
+    </div>
+    <div class="table-mock">
+      <table>
+        <thead>
+          <tr><th>Véhicule</th><th>Plaque</th><th>Tarif/jour</th><th>Statut</th><th>Catégorie</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Toyota Camry</strong> 2024</td><td>ABC-1234</td><td>$65</td><td><span class="badge-status badge-available">Disponible</span></td><td>Berline</td></tr>
+          <tr><td><strong>Ford Explorer</strong> 2023</td><td>GHI-9012</td><td>$95</td><td><span class="badge-status badge-booked">Réservé</span></td><td>SUV</td></tr>
+          <tr><td><strong>Honda Civic</strong> 2024</td><td>DEF-5678</td><td>$55</td><td><span class="badge-status badge-available">Disponible</span></td><td>Berline</td></tr>
+          <tr><td><strong>Chevrolet Tahoe</strong> 2023</td><td>MNO-7890</td><td>$110</td><td><span class="badge-status badge-available">Disponible</span></td><td>SUV</td></tr>
+          <tr><td><strong>BMW X5</strong> 2024</td><td>XYZ-9999</td><td>$150</td><td><span class="badge-status badge-maintenance">Maintenance</span></td><td>Luxe</td></tr>
+          <tr><td><strong>Nissan Altima</strong> 2024</td><td>JKL-3456</td><td>$60</td><td><span class="badge-status badge-booked">Réservé</span></td><td>Berline</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="demo-desc">
+      <strong>Inventaire complet des véhicules.</strong> Ajoutez des voitures avec photos, tarifs, plaques, VIN et dates d'assurance. Filtrez par statut (disponible / réservé / maintenance).
+    </div>
+  </div>
+
+  <div class="demo-panel" id="demo-bookings">
+    <div class="demo-header">
+      <h3>Gestion des réservations</h3>
+      <div class="demo-stats">
+        <span>📋 <span class="num">6</span> ce mois</span>
+        <span>🟢 <span class="num">2</span> actives</span>
+        <span>🟡 <span class="num">3</span> demandes</span>
+      </div>
+    </div>
+    <div class="table-mock">
+      <table>
+        <thead>
+          <tr><th>Client</th><th>Véhicule</th><th>Départ</th><th>Retour</th><th>Total</th><th>Statut</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Jean Dupont</strong></td><td>Ford Explorer</td><td>15 Juin</td><td>22 Juin</td><td>$665</td><td><span class="badge-status badge-active">Actif</span></td></tr>
+          <tr><td><strong>Marie Martin</strong></td><td>Toyota Camry</td><td>28 Juin</td><td>02 Juil</td><td>$260</td><td><span class="badge-status badge-confirmed">Confirmé</span></td></tr>
+          <tr><td><strong>Pierre Durand</strong></td><td>Nissan Altima</td><td>05 Juil</td><td>08 Juil</td><td>$180</td><td><span class="badge-status badge-inquiry">Demande</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="demo-desc">
+      <strong>Cycle de vie complet.</strong> Créez des réservations avec sélecteur de dates, vérification automatique de disponibilité (pas de double réservation !), calcul du total.
+    </div>
+  </div>
+
+  <div class="demo-panel" id="demo-clients">
+    <div class="demo-header">
+      <h3>Base clients</h3>
+      <div class="demo-stats">
+        <span>👥 <span class="num">38</span> total</span>
+        <span>📞 <span class="num">24</span> avec WhatsApp</span>
+      </div>
+    </div>
+    <div class="table-mock">
+      <table>
+        <thead>
+          <tr><th>Nom</th><th>Téléphone</th><th>Permis</th><th>Ville</th><th>Réservations</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Jean Dupont</strong></td><td>+213 555-1001</td><td>NY-1234567</td><td>Alger</td><td>3</td></tr>
+          <tr><td><strong>Marie Martin</strong></td><td>+213 555-1002</td><td>NY-2345678</td><td>Oran</td><td>1</td></tr>
+          <tr><td><strong>Pierre Durand</strong></td><td>+213 555-1003</td><td>NY-3456789</td><td>Constantine</td><td>2</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="demo-desc">
+      <strong>Votre répertoire clients.</strong> Stockez noms, téléphone, WhatsApp, permis de conduire, pièce d'identité et historique de location.
+    </div>
+  </div>
+
+  <div class="demo-panel" id="demo-payments">
+    <div class="demo-header">
+      <h3>Suivi des paiements</h3>
+      <div class="demo-stats">
+        <span>💰 <span class="num">$4,820</span> collectés</span>
+        <span>📅 <span class="num">18</span> transactions</span>
+      </div>
+    </div>
+    <div class="table-mock">
+      <table>
+        <thead>
+          <tr><th>Réservation</th><th>Client</th><th>Montant</th><th>Méthode</th><th>Statut</th><th>Date</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>#CR-001</td><td>Jean Dupont</td><td>$200</td><td>Carte crédit</td><td><span class="badge-status badge-paid">Payé</span></td><td>15 Juin</td></tr>
+          <tr><td>#CR-001</td><td>Jean Dupont</td><td>$465</td><td>Espèces</td><td><span class="badge-status badge-paid">Payé</span></td><td>15 Juin</td></tr>
+          <tr><td>#CR-004</td><td>Marie Martin</td><td>$150</td><td>Virement</td><td><span class="badge-status badge-paid">Payé</span></td><td>10 Juin</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="demo-desc">
+      <strong>Sachez exactement qui a payé et qui doit.</strong> Enregistrez les paiements liés aux réservations. Le système suit automatiquement le dépôt vs. paiement complet.
+    </div>
+  </div>
+
+  <div class="demo-panel" id="demo-ai">
+    <div class="demo-header">
+      <h3>Assistant IA</h3>
+      <div class="demo-stats">
+        <span>📊 Données réelles de l'agence</span>
+      </div>
+    </div>
+    <div class="chat-mock">
+      <div class="msg user">Quelles optimisations puis-je faire pour augmenter mes profits ?</div>
+      <div class="msg ai">
+        Basé sur les données de <strong>votre agence</strong>, voici mes recommandations :<br><br>
+        • 🚗 <strong>Ford Explorer</strong> est très demandée — passer son tarif de <strong>95$ à 110$</strong> pourrait augmenter les revenus <strong>de 15%</strong><br><br>
+        • 📅 Votre taux d'utilisation est de 67% — vous avez <strong>3 véhicules inactifs</strong> (Camry, Civic, Tahoe). Des promotions pourraient ajouter <strong>2 000$/mois</strong><br><br>
+        • 💬 Les clients fidèles ne représentent que 40% — automatiser les relances WhatsApp peut les faire passer à 60%<br><br>
+        • ⏱ Concentrez votre marketing sur les SUV (Tahoe & Explorer) — ils ont la meilleure marge à <strong>40$+/jour</strong>
+      </div>
+    </div>
+    <div class="demo-desc">
+      <strong>Demandez des optimisations.</strong> L'IA analyse vos données en direct et vous donne des recommandations personnalisées pour augmenter vos revenus.
+    </div>
+  </div>
+
+  <div class="demo-panel" id="demo-rent">
+    <div class="demo-header">
+      <h3>Site public</h3>
+      <div class="demo-stats">
+        <span>🌐 En ligne sur <span class="num">/rent</span></span>
+        <span>🚗 <span class="num">8</span> voitures publiées</span>
+      </div>
+    </div>
+    <div class="stats-row" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+      <div class="stat-card">
+        <div style="font-size:32px;margin-bottom:8px;">🚗</div>
+        <div class="stat-num" style="font-size:16px;">Toyota Camry</div>
+        <div class="stat-label">$65/jour · Berline · Auto</div>
+      </div>
+      <div class="stat-card">
+        <div style="font-size:32px;margin-bottom:8px;">🚙</div>
+        <div class="stat-num" style="font-size:16px;">Ford Explorer</div>
+        <div class="stat-label">$95/jour · SUV · 7 places</div>
+      </div>
+    </div>
+    <div class="demo-desc">
+      <strong>Vos voitures, en ligne instantanément.</strong> Activez "Publié" sur un véhicule et il apparaît sur votre site public avec filtres.
+    </div>
+  </div>
+</section>
+
+<section id="proof">
+  <div class="section-label">Preuve sociale</div>
+  <h2 class="section-title">Approuvé par des agences de location dans le monde entier</h2>
+  <div class="grid-3">
+    <div class="card" style="border-left:3px solid var(--gold);">
+      <div class="icon">⭐</div>
+      <h3>"Nous a fait gagner 10+ heures par semaine"</h3>
+      <p>"Nous sommes passés du chaos WhatsApp à un système numérique complet en un après-midi. L'essai de 15 jours a été plus que suffisant."</p>
+      <p style="margin-top:12px;font-size:12px;color:var(--muted);">— Ahmed K., Propriétaire d'agence, Alger</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--gold);">
+      <div class="icon">⭐</div>
+      <h3>"Zéro double réservation depuis le premier jour"</h3>
+      <p>"La vérification de disponibilité s'est remboursée d'elle-même. Nos clients ont arrêté de se plaindre."</p>
+      <p style="margin-top:12px;font-size:12px;color:var(--muted);">— Maria S., Responsable d'exploitation, Oran</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--gold);">
+      <div class="icon">⭐</div>
+      <h3>"La visibilité des revenus a tout changé"</h3>
+      <p>"Pour la première fois, je sais exactement combien chaque voiture rapporte. J'ai développé ma flotte SUV grâce aux données."</p>
+      <p style="margin-top:12px;font-size:12px;color:var(--muted);">— Youssef R., Gestionnaire de flotte, Constantine</p>
+    </div>
+  </div>
+</section>
+
+<section id="trial">
+  <div class="trial-card">
+    <h3>Commencez à développer votre agence dès aujourd'hui</h3>
+    <p class="trial-desc">CarRental OS vous aide à gérer votre flotte, automatiser les conversations avec les prospects et augmenter vos ventes — le tout dans un seul système avec des insights IA.</p>
+    <a href="/register" class="trial-btn">💎 Créer mon compte gratuit</a>
+    <p class="trial-note">59$/mois — ou contactez-nous pour une licence à vie</p>
+  </div>
+</section>
+
+<section id="benefits">
+  <div class="section-label">Pourquoi ça marche</div>
+  <h2 class="section-title">Conçu pour les agences de location réelles</h2>
+  <p class="section-sub">
+    Pas d'ERP gonflé. Pas d'installation compliquée. Juste les outils dont vous avez vraiment besoin.
+  </p>
+
+  <div class="benefits-list">
+    <div class="benefit-item">
+      <div class="check">✓</div>
+      <div>
+        <h4>Une connexion, tout fonctionne</h4>
+        <p>Flotte, clients, réservations, contrats, paiements, IA — tout dans une seule appli.</p>
+      </div>
+    </div>
+    <div class="benefit-item">
+      <div class="check">✓</div>
+      <div>
+        <h4>Pas de double réservation</h4>
+        <p>Le système vérifie la disponibilité avant de confirmer toute réservation.</p>
+      </div>
+    </div>
+    <div class="benefit-item">
+      <div class="check">✓</div>
+      <div>
+        <h4>Revenus en temps réel</h4>
+        <p>Le tableau de bord se met à jour instantanément. Voyez les tendances, prenez de meilleures décisions.</p>
+      </div>
+    </div>
+    <div class="benefit-item">
+      <div class="check">✓</div>
+      <div>
+        <h4>IA qui connaît vos données</h4>
+        <p>Pas un chatbot générique. L'IA lit votre flotte et vos réservations pour des réponses pertinentes.</p>
+      </div>
+    </div>
+    <div class="benefit-item">
+      <div class="check">✓</div>
+      <div>
+        <h4>Notifications WhatsApp</h4>
+        <p>Soyez notifié sur votre téléphone pour chaque nouvelle réservation ou paiement.</p>
+      </div>
+    </div>
+    <div class="benefit-item">
+      <div class="check">✓</div>
+      <div>
+        <h4>Site public inclus</h4>
+        <p>Votre flotte est automatiquement listée sur une page publique. Partagez le lien avec vos clients.</p>
+      </div>
+    </div>
+    <div class="benefit-item">
+      <div class="check">✓</div>
+      <div>
+        <h4>Fonctionne hors ligne</h4>
+        <p>Construit avec SQLite pour le développement. Passez à PostgreSQL (Supabase) en production.</p>
+      </div>
+    </div>
+    <div class="benefit-item">
+      <div class="check">✓</div>
+      <div>
+        <h4>Monoténant par conception</h4>
+        <p>Les données de votre agence sont totalement isolées. Simple, sécurisé, privé.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="cta">
+  <h2>Prêt à transformer votre agence de location ?</h2>
+  <p>Rejoignez des centaines d'agences qui développent déjà leur activité avec CarRental OS.</p>
+  <div class="btn-group">
+    <a href="#trial" class="primary">Commencer l'essai gratuit de 15 jours</a>
+    <a href="https://car-rental-os.vercel.app/" class="secondary" target="_blank">Aller à l'app →</a>
+  </div>
+</section>
+
+<footer>
+  CarRental OS — Conçu pour les agences qui veulent grandir.<br>
+  <span style="color:var(--muted);font-size:12px;">&copy; 2026</span>
+</footer>
+
+<button class="chatbot-btn" id="chatbotBtn" onclick="toggleChatbot()">
+  <span class="icon">💬</span> Une question ?
+</button>
+
+<div class="chatbot-window" id="chatbotWindow">
+  <div class="chatbot-header">
+    <h4>💬 Assistant CarRental OS</h4>
+    <button class="close-btn" onclick="toggleChatbot()">✕</button>
+  </div>
+  <div class="chatbot-messages" id="chatbotMessages"></div>
+  <div class="quick-replies" id="quickReplies"></div>
+  <div class="chatbot-input-area">
+    <input type="text" id="chatbotInput" placeholder="Posez votre question..." onkeydown="if(event.key==='Enter') sendMessage()">
+    <button class="send-btn" id="chatbotSend" onclick="sendMessage()">Envoyer</button>
+  </div>
+</div>
+
+<script>
+const ANSWERS = {
+  greeting: "👋 Bonjour ! Je suis l'assistant CarRental OS. Je peux répondre à vos questions sur les fonctionnalités, les tarifs, l'essai gratuit et plus encore. Comment puis-je vous aider ?",
+      features: "🚗 CarRental OS propose :\n\n• Gestion de flotte — suivez tous vos véhicules, tarifs, assurances\n• Réservations — calendrier intelligent, pas de doubles réservations\n• Base clients — historique, contrats, documents\n• Paiements — suivi des dépôts et encaissements\n• 🤖 Chatbot intelligent — répond aux prospects et les convertit en réservations automatiquement\n• 🧠 Insights IA — analyse vos données et recommande comment augmenter les ventes\n• 💬 Automatisation WhatsApp — relances, offres et rappels automatiques pour les leads\n• 🌐 Site public — votre flotte en ligne automatiquement\n\nQuel aspect vous intéresse ?",
+      pricing: "💰 Tarifs simples et transparents :\n\n• 🚀 Essai gratuit — testez toutes les fonctionnalités avant de vous abonner\n• 📈 Mensuel : 59$/mois — toutes les fonctionnalités, sans limites\n• 🏢 Licence à vie : contactez-nous pour un devis personnalisé\n\nTous les plans incluent IA, chatbot, WhatsApp et site public. Commencez gratuitement !",
+  trial: "🎯 Notre essai gratuit de 15 jours vous donne un accès complet à toutes les fonctionnalités — sans carte de crédit. Pas d'engagement, pas de piège. Rejoignez les 245+ agences déjà inscrites cette semaine !\n\n👉 Remplissez le formulaire d'inscription sur cette page pour commencer.",
+  demo: "📅 Vous voulez une démo personnalisée ? Remplissez le formulaire d'essai gratuit ci-dessus et notre équipe vous contactera dans les 24 heures pour organiser une démo adaptée à votre agence.",
+  support: "🤝 Besoin d'aide ? Notre équipe de support est disponible par email et via WhatsApp une fois votre compte créé. Vous pouvez aussi consulter la documentation directement dans l'application.",
+  fallback: "Je n'ai pas compris votre question. Voici ce que je peux vous expliquer :\n\n• 🔧 Fonctionnalités\n• 💰 Tarifs\n• 🎯 Essai gratuit\n• 📅 Démo personnalisée\n• 🤝 Support\n\nOu cliquez sur un des sujets ci-dessous !"
+};
+
+let isSubmitting = false;
+
+function toggleChatbot() {
+  const w = document.getElementById('chatbotWindow');
+  const b = document.getElementById('chatbotBtn');
+  w.classList.toggle('open');
+  if (w.classList.contains('open') && !w.dataset.started) {
+    w.dataset.started = 'true';
+    setTimeout(() => addBotMessage(ANSWERS.greeting), 300);
+    setTimeout(() => showQuickReplies(), 1500);
+  }
+}
+
+function addBotMessage(text) {
+  const container = document.getElementById('chatbotMessages');
+  const div = document.createElement('div');
+  div.className = 'msg bot';
+  div.innerHTML = text.replace(/\n/g, '<br>');
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function addUserMessage(text) {
+  const container = document.getElementById('chatbotMessages');
+  const div = document.createElement('div');
+  div.className = 'msg user';
+  div.textContent = text;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function showTyping() {
+  const container = document.getElementById('chatbotMessages');
+  const div = document.createElement('div');
+  div.className = 'msg bot';
+  div.id = 'typingIndicator';
+  div.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function hideTyping() {
+  const el = document.getElementById('typingIndicator');
+  if (el) el.remove();
+}
+
+function showQuickReplies(buttons) {
+  const container = document.getElementById('quickReplies');
+  container.innerHTML = '';
+  if (!buttons) {
+    buttons = [
+      { label: '🔧 Fonctionnalités', action: 'features' },
+      { label: '💰 Tarifs', action: 'pricing' },
+      { label: '🎯 Essai gratuit', action: 'trial' },
+      { label: '📅 Démo', action: 'demo' }
+    ];
+  }
+  buttons.forEach(b => {
+    const btn = document.createElement('button');
+    btn.textContent = b.label;
+    btn.onclick = () => handleQuickAction(b.action);
+    container.appendChild(btn);
+  });
+}
+
+function hideQuickReplies() {
+  document.getElementById('quickReplies').innerHTML = '';
+}
+
+function handleQuickAction(action) {
+  hideQuickReplies();
+  if (isSubmitting) return;
+  const labels = { features: '🔧 Fonctionnalités', pricing: '💰 Tarifs', trial: '🎯 Essai gratuit', demo: '📅 Démo', support: '🤝 Support' };
+  addUserMessage(labels[action] || action);
+  showTyping();
+  setTimeout(() => {
+    hideTyping();
+    addBotMessage(ANSWERS[action]);
+    showQuickReplies();
+  }, 600);
+}
+
+function sendMessage() {
+  const input = document.getElementById('chatbotInput');
+  const text = input.value.trim();
+  if (!text || isSubmitting) return;
+  input.value = '';
+  addUserMessage(text);
+  hideQuickReplies();
+  showTyping();
+  setTimeout(() => {
+    hideTyping();
+    const lower = text.toLowerCase();
+    if (lower.includes('fonctionnalité') || lower.includes('feature') || lower.includes('option') || lower.includes('module')) {
+      addBotMessage(ANSWERS.features);
+    } else if (lower.includes('prix') || lower.includes('tarif') || lower.includes('coût') || lower.includes('combien') || lower.includes('pricing') || lower.includes('abonnement')) {
+      addBotMessage(ANSWERS.pricing);
+    } else if (lower.includes('essai') || lower.includes('gratuit') || lower.includes('trial') || lower.includes('inscri') || lower.includes('compte') || lower.includes('créer')) {
+      addBotMessage(ANSWERS.trial);
+    } else if (lower.includes('démo') || lower.includes('demo') || lower.includes('présent') || lower.includes('voir')) {
+      addBotMessage(ANSWERS.demo);
+    } else if (lower.includes('support') || lower.includes('aide') || lower.includes('contact') || lower.includes('assistance') || lower.includes('problème')) {
+      addBotMessage(ANSWERS.support);
+    } else {
+      addBotMessage(ANSWERS.fallback);
+    }
+    showQuickReplies();
+  }, 600);
+}
+
+// Scroll animation
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) entry.target.classList.add('visible');
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.card, .benefit-item, .stat-card, .demo-panel, .funnel-step, .trial-card').forEach(el => {
+  el.classList.add('fade-in');
+  observer.observe(el);
+});
+
+// Feature tabs
+document.querySelectorAll('.feature-tabs button').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.feature-tabs button').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelectorAll('.demo-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('demo-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+// Trial form
+
+</script>
+</body>
+</html>

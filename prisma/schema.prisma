@@ -1,0 +1,318 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Agency {
+  id             String   @id @default(cuid())
+  name           String   @default("My Car Rental Agency")
+  slug           String   @unique
+  logo           String?
+  primaryColor   String   @default("#2563eb")
+  secondaryColor String   @default("#1e40af")
+  phone          String?
+  email          String?
+  address        String?
+  currency       String   @default("DZD")
+  timezone       String   @default("America/New_York")
+  onboardingCompleted Boolean @default(false)
+  onboardingStep      Int      @default(0)
+  fleetSize       Int?
+  yearsInBusiness Int?
+  biggestChallenge String?
+  currentSoftware String?
+  referralSource  String?
+  monthlyBookings Int?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  users             User[]
+  vehicles          Vehicle[]
+  clients           Client[]
+  bookings          Booking[]
+  contracts         Contract[]
+  contractTemplates ContractTemplate[]
+  payments          Payment[]
+  maintenance       Maintenance[]
+  chatMessages      ChatMessage[]
+  activities        Activity[]
+  wassenderConfig   WassenderConfig[]
+  llmConfigs        LlmConfig[]
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("admin")
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  agencyId String
+  agency   Agency @relation(fields: [agencyId], references: [id])
+
+  bookings     Booking[]
+  contracts    Contract[]
+  payments     Payment[]
+  chatMessages ChatMessage[]
+  activities   Activity[]
+}
+
+model Vehicle {
+  id             String   @id @default(cuid())
+  brand          String
+  model          String
+  year           Int
+  color          String?
+  licensePlate   String
+  vin            String?
+  category       String   @default("standard")
+  transmission   String   @default("automatic")
+  fuelType       String   @default("gasoline")
+  seats          Int      @default(5)
+  doors          Int      @default(4)
+  dailyRate      Float    @default(0)
+  weeklyRate     Float?
+  monthlyRate    Float?
+  depositAmount  Float    @default(0)
+  mileageLimit   Int?
+  mileageUnit    String   @default("km")
+  status         String   @default("available")
+  location       String?
+  description    String?
+  imageUrl       String?
+  images         String   @default("[]")
+  insuranceExpiry DateTime?
+  registrationExpiry DateTime?
+  lastServiceMileage Int?
+  serviceInterval    Int?
+  notes          String?
+  published      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  agencyId String
+  agency   Agency @relation(fields: [agencyId], references: [id])
+
+  bookings        Booking[]
+  maintenanceLogs Maintenance[]
+  activities      Activity[]
+
+  @@unique([agencyId, licensePlate])
+}
+
+model Client {
+  id            String   @id @default(cuid())
+  firstName     String
+  lastName      String
+  email         String?
+  phone         String?
+  whatsapp      String?
+  address       String?
+  city          String?
+  country       String?
+  licenseNumber String?
+  licenseExpiry DateTime?
+  licenseImage  String?
+  idNumber      String?
+  idImage       String?
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  agencyId  String
+  agency    Agency    @relation(fields: [agencyId], references: [id])
+  bookings  Booking[]
+  contracts Contract[]
+  activities Activity[]
+}
+
+model Booking {
+  id              String   @id @default(cuid())
+  status          String   @default("inquiry")
+  pickupDate      DateTime
+  returnDate      DateTime
+  pickupLocation  String?
+  returnLocation  String?
+  totalAmount     Float    @default(0)
+  depositAmount   Float    @default(0)
+  depositPaid     Boolean  @default(false)
+  fullyPaid       Boolean  @default(false)
+  notes           String?
+  cancellationReason String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  agencyId  String
+  agency    Agency @relation(fields: [agencyId], references: [id])
+  vehicleId String
+  vehicle   Vehicle @relation(fields: [vehicleId], references: [id])
+  clientId  String
+  client    Client  @relation(fields: [clientId], references: [id])
+  userId    String
+  user      User    @relation(fields: [userId], references: [id])
+
+  contract  Contract?
+  payments  Payment[]
+}
+
+model Contract {
+  id            String   @id @default(cuid())
+  contractNumber String
+  status        String   @default("draft")
+  content       String?
+  templateId    String?
+  pickupOdometer Int?
+  returnOdometer Int?
+  fuelLevel     String?
+  damageNotes   String?
+  damageImages  String?
+  signedByClient Boolean @default(false)
+  signedByAgency Boolean @default(false)
+  signedAt      DateTime?
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  agencyId  String
+  agency    Agency  @relation(fields: [agencyId], references: [id])
+  bookingId String @unique
+  booking   Booking @relation(fields: [bookingId], references: [id])
+  clientId  String
+  client    Client  @relation(fields: [clientId], references: [id])
+  userId    String
+  user      User    @relation(fields: [userId], references: [id])
+
+  @@unique([agencyId, contractNumber])
+}
+
+model ContractTemplate {
+  id        String   @id @default(cuid())
+  name      String
+  content   String
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  agencyId String
+  agency   Agency @relation(fields: [agencyId], references: [id])
+}
+
+model Payment {
+  id        String   @id @default(cuid())
+  amount    Float
+  method    String   @default("cash")
+  type      String   @default("deposit")
+  status    String   @default("pending")
+  reference String?
+  notes     String?
+  paidAt    DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  agencyId  String
+  agency    Agency  @relation(fields: [agencyId], references: [id])
+  bookingId String
+  booking   Booking @relation(fields: [bookingId], references: [id])
+  userId    String
+  user      User    @relation(fields: [userId], references: [id])
+}
+
+model Maintenance {
+  id            String   @id @default(cuid())
+  type          String   @default("service")
+  description   String?
+  scheduledDate DateTime?
+  completedDate DateTime?
+  mileage       Int?
+  cost          Float?
+  provider      String?
+  notes         String?
+  status        String   @default("pending")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  agencyId  String
+  agency    Agency   @relation(fields: [agencyId], references: [id])
+  vehicleId String
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id])
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  role      String   @default("user")
+  content   String
+  context   String?
+  metadata  String?
+  createdAt DateTime @default(now())
+
+  agencyId String
+  agency   Agency @relation(fields: [agencyId], references: [id])
+  userId   String
+  user     User   @relation(fields: [userId], references: [id])
+}
+
+model Lead {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  company   String?
+  source    String   @default("pitch")
+  lang      String   @default("en")
+  status    String   @default("new")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Activity {
+  id        String   @id @default(cuid())
+  action    String
+  entity    String
+  entityId  String?
+  details   String?
+  createdAt DateTime @default(now())
+
+  agencyId  String
+  agency    Agency   @relation(fields: [agencyId], references: [id])
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  vehicleId String?
+  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id])
+  clientId  String?
+  client    Client?  @relation(fields: [clientId], references: [id])
+  bookingId String?
+}
+
+model WassenderConfig {
+  id            String   @id @default(cuid())
+  apiKey        String?
+  sessionId     String?
+  webhookSecret String?
+  active        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  agencyId String
+  agency   Agency @relation(fields: [agencyId], references: [id])
+}
+
+model LlmConfig {
+  id        String   @id @default(cuid())
+  provider  String   @default("openai")
+  apiKey    String?
+  model     String   @default("gpt-4")
+  apiUrl    String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  agencyId String
+  agency   Agency @relation(fields: [agencyId], references: [id])
+}
