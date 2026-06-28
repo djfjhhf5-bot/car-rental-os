@@ -820,7 +820,7 @@
     <h3>Commencez à développer votre agence dès aujourd'hui</h3>
     <p class="trial-desc">CarRental OS vous aide à gérer votre flotte, automatiser les conversations avec les prospects et augmenter vos ventes — le tout dans un seul système avec des insights IA.</p>
     <a href="/register" class="trial-btn">💎 Créer mon compte gratuit</a>
-    <p class="trial-note">59$/mois — ou contactez-nous pour une licence à vie</p>
+    <p class="trial-note">Toutes les fonctionnalités incluses — sans frais cachés</p>
   </div>
 </section>
 
@@ -926,11 +926,11 @@
 const ANSWERS = {
   greeting: "👋 Bonjour ! Je suis l'assistant CarRental OS. Je peux répondre à vos questions sur les fonctionnalités, les tarifs, l'essai gratuit et plus encore. Comment puis-je vous aider ?",
       features: "🚗 CarRental OS propose :\n\n• Gestion de flotte — suivez tous vos véhicules, tarifs, assurances\n• Réservations — calendrier intelligent, pas de doubles réservations\n• Base clients — historique, contrats, documents\n• Paiements — suivi des dépôts et encaissements\n• 🤖 Chatbot intelligent — répond aux prospects et les convertit en réservations automatiquement\n• 🧠 Insights IA — analyse vos données et recommande comment augmenter les ventes\n• 💬 Automatisation WhatsApp — relances, offres et rappels automatiques pour les leads\n• 🌐 Site public — votre flotte en ligne automatiquement\n\nQuel aspect vous intéresse ?",
-      pricing: "💰 Tarifs simples et transparents :\n\n• 🚀 Essai gratuit — testez toutes les fonctionnalités avant de vous abonner\n• 📈 Mensuel : 59$/mois — toutes les fonctionnalités, sans limites\n• 🏢 Licence à vie : contactez-nous pour un devis personnalisé\n\nTous les plans incluent IA, chatbot, WhatsApp et site public. Commencez gratuitement !",
+
   trial: "🎯 Notre essai gratuit de 15 jours vous donne un accès complet à toutes les fonctionnalités — sans carte de crédit. Pas d'engagement, pas de piège. Rejoignez les 245+ agences déjà inscrites cette semaine !\n\n👉 Remplissez le formulaire d'inscription sur cette page pour commencer.",
   demo: "📅 Vous voulez une démo personnalisée ? Remplissez le formulaire d'essai gratuit ci-dessus et notre équipe vous contactera dans les 24 heures pour organiser une démo adaptée à votre agence.",
   support: "🤝 Besoin d'aide ? Notre équipe de support est disponible par email et via WhatsApp une fois votre compte créé. Vous pouvez aussi consulter la documentation directement dans l'application.",
-  fallback: "Je n'ai pas compris votre question. Voici ce que je peux vous expliquer :\n\n• 🔧 Fonctionnalités\n• 💰 Tarifs\n• 🎯 Essai gratuit\n• 📅 Démo personnalisée\n• 🤝 Support\n\nOu cliquez sur un des sujets ci-dessous !"
+  fallback: "Je n'ai pas compris votre question. Voici ce que je peux vous expliquer :\n\n• 🔧 Fonctionnalités\n• 🎯 Essai gratuit\n• 📅 Démo personnalisée\n• 🤝 Support\n\nOu cliquez sur un des sujets ci-dessous !"
 };
 
 let isSubmitting = false;
@@ -985,7 +985,6 @@ function showQuickReplies(buttons) {
   if (!buttons) {
     buttons = [
       { label: '🔧 Fonctionnalités', action: 'features' },
-      { label: '💰 Tarifs', action: 'pricing' },
       { label: '🎯 Essai gratuit', action: 'trial' },
       { label: '📅 Démo', action: 'demo' }
     ];
@@ -1005,7 +1004,7 @@ function hideQuickReplies() {
 function handleQuickAction(action) {
   hideQuickReplies();
   if (isSubmitting) return;
-  const labels = { features: '🔧 Fonctionnalités', pricing: '💰 Tarifs', trial: '🎯 Essai gratuit', demo: '📅 Démo', support: '🤝 Support' };
+  const labels = { features: '🔧 Fonctionnalités', trial: '🎯 Essai gratuit', demo: '📅 Démo', support: '🤝 Support' };
   addUserMessage(labels[action] || action);
   showTyping();
   setTimeout(() => {
@@ -1028,8 +1027,6 @@ function sendMessage() {
     const lower = text.toLowerCase();
     if (lower.includes('fonctionnalité') || lower.includes('feature') || lower.includes('option') || lower.includes('module')) {
       addBotMessage(ANSWERS.features);
-    } else if (lower.includes('prix') || lower.includes('tarif') || lower.includes('coût') || lower.includes('combien') || lower.includes('pricing') || lower.includes('abonnement')) {
-      addBotMessage(ANSWERS.pricing);
     } else if (lower.includes('essai') || lower.includes('gratuit') || lower.includes('trial') || lower.includes('inscri') || lower.includes('compte') || lower.includes('créer')) {
       addBotMessage(ANSWERS.trial);
     } else if (lower.includes('démo') || lower.includes('demo') || lower.includes('présent') || lower.includes('voir')) {

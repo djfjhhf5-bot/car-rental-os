@@ -95,7 +95,7 @@ export default function OnboardingPage() {
           {step === 0 && <StepAgencyProfile onNext={async (data) => { setSaving(true); const r = await saveAgencyProfile(data); setSaving(false); if (r.success) setStep(1); else toast({ variant: "destructive", title: "Error", description: r.error }); }} saving={saving} />}
           {step === 1 && <StepFirstVehicle onNext={async (data) => { setSaving(true); const r = await saveFirstVehicle(data); setSaving(false); if (r.success) setStep(2); else toast({ variant: "destructive", title: "Error", description: r.error }); }} onSkip={async () => { setSaving(true); await skipVehicle(); setSaving(false); setStep(2); }} saving={saving} />}
           {step === 2 && <StepAIIntro onNext={async () => { setSaving(true); const r = await completeOnboarding(); setSaving(false); if (r.success) { await refresh(); setStep(3); } else toast({ variant: "destructive", title: "Error", description: r.error }); }} saving={saving} />}
-          {step === 3 && <StepDone onNext={() => router.push("/")} />}
+          {step === 3 && <StepDone onNext={() => router.push("/dashboard")} />}
         </CardContent>
       </Card>
     </div>
@@ -104,7 +104,7 @@ export default function OnboardingPage() {
 
 const CHALLENGES = [
   "Finding customers", "Managing bookings", "Vehicle maintenance",
-  "Pricing optimization", "Paperwork & contracts", "Customer communication",
+  "Paperwork & contracts", "Customer communication",
   "Fleet utilization",
 ];
 

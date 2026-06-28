@@ -173,7 +173,7 @@ export default function CarDetailPage() {
 
         <div className="space-y-6">
           <div className="rounded-xl bg-surface-container-lowest border border-outline-variant/30 p-6 ambient-shadow sticky top-28">
-            <h2 className="font-montserrat text-headline-lg-mobile text-on-surface mb-6">Pricing</h2>
+            <h2 className="font-montserrat text-headline-lg-mobile text-on-surface mb-6">Rates</h2>
             <div className="text-center mb-6">
               <span className="font-montserrat text-display-md font-bold text-primary">{formatCurrency(car.dailyRate)}</span>
               <span className="font-manrope text-body-md text-on-surface-variant">/day</span>

@@ -343,7 +343,7 @@
     <h3>Start growing your rental business today</h3>
     <p class="trial-desc">CarRental OS helps you manage your fleet, automate conversations with leads, and increase sales — all in one system with AI-powered insights.</p>
     <a href="/register" class="trial-btn">💎 Create Your Free Account</a>
-    <p class="trial-note">$59/month — or contact us for a lifetime license</p>
+    <p class="trial-note">All features included — no hidden fees</p>
   </div>
 </section>
 
@@ -393,11 +393,11 @@
 const ANSWERS = {
   greeting: "👋 Hi! I'm the CarRental OS assistant. I can answer your questions about features, pricing, the free trial, and more. How can I help you?",
   features: "🚗 CarRental OS includes:\n\n• Fleet Management — track all vehicles, rates, insurance\n• Bookings — smart calendar, no double-bookings\n• Client Database — history, contracts, documents\n• Payments — track deposits and collections\n• 🤖 Smart Lead Chatbot — answers prospects and converts them into bookings automatically\n• 🧠 AI Insights — analyzes your data and recommends how to increase sales\n• 💬 WhatsApp Automation — auto follow-ups, offers, and reminders for leads\n• 🌐 Public Site — your fleet goes online automatically\n\nWhich feature interests you most?",
-  pricing: "💰 Simple, transparent pricing:\n\n• 🚀 Free trial — try all features before subscribing\n• 📈 Monthly: $59/month — all features, no limits\n• 🏢 Lifetime license: contact us for a custom quote\n\nAll plans include AI, chatbot, WhatsApp, and public site. Start for free!",
+
   trial: "🎯 Our 15-day free trial gives you full access to every feature — no credit card needed. No commitment, no tricks. Join 245+ agencies who signed up this week!\n\n👉 Fill out the signup form on this page to get started.",
   demo: "📅 Want a personalized demo? Fill out the free trial form above and our team will reach out within 24 hours to schedule a demo tailored to your agency.",
   support: "🤝 Need help? Our support team is available via email and WhatsApp once your account is created. You can also browse the docs directly within the app.",
-  fallback: "I didn't quite catch that. Here's what I can help you with:\n\n• 🔧 Features\n• 💰 Pricing\n• 🎯 Free Trial\n• 📅 Personalized Demo\n• 🤝 Support\n\nOr click one of the topics below!"
+  fallback: "I didn't quite catch that. Here's what I can help you with:\n\n• 🔧 Features\n• 🎯 Free Trial\n• 📅 Personalized Demo\n• 🤝 Support\n\nOr click one of the topics below!"
 };
 
 let isSubmitting = false;
@@ -451,7 +451,6 @@ function showQuickReplies(buttons) {
   if (!buttons) {
     buttons = [
       { label: '🔧 Features', action: 'features' },
-      { label: '💰 Pricing', action: 'pricing' },
       { label: '🎯 Free Trial', action: 'trial' },
       { label: '📅 Demo', action: 'demo' }
     ];
@@ -471,7 +470,7 @@ function hideQuickReplies() {
 function handleQuickAction(action) {
   hideQuickReplies();
   if (isSubmitting) return;
-  const labels = { features: '🔧 Features', pricing: '💰 Pricing', trial: '🎯 Free Trial', demo: '📅 Demo', support: '🤝 Support' };
+  const labels = { features: '🔧 Features', trial: '🎯 Free Trial', demo: '📅 Demo', support: '🤝 Support' };
   addUserMessage(labels[action] || action);
   showTyping();
   setTimeout(() => {
@@ -494,8 +493,6 @@ function sendMessage() {
     const lower = text.toLowerCase();
     if (lower.includes('feature') || lower.includes('capabilit') || lower.includes('what can') || lower.includes('function') || lower.includes('module')) {
       addBotMessage(ANSWERS.features);
-    } else if (lower.includes('price') || lower.includes('pricing') || lower.includes('cost') || lower.includes('how much') || lower.includes('plan') || lower.includes('subscription') || lower.includes('monthly')) {
-      addBotMessage(ANSWERS.pricing);
     } else if (lower.includes('trial') || lower.includes('free') || lower.includes('sign') || lower.includes('start') || lower.includes('account') || lower.includes('create') || lower.includes('register')) {
       addBotMessage(ANSWERS.trial);
     } else if (lower.includes('demo') || lower.includes('presentation') || lower.includes('walkthrough') || lower.includes('see') || lower.includes('show')) {

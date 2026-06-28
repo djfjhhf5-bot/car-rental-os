@@ -47,7 +47,7 @@ export default function RegisterPage() {
           if (result.warning) {
             toast({ title: "Account created", description: result.warning });
           }
-          router.push("/onboarding");
+          router.push("/dashboard");
           router.refresh();
         }
       } catch {

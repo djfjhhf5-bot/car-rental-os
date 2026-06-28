@@ -329,7 +329,7 @@ export function BookingForm({ vehicles, clients, initialData }: BookingFormProps
 
         <Card>
           <CardHeader>
-            <CardTitle>Pricing</CardTitle>
+            <CardTitle>Rates</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {selectedVehicle && (

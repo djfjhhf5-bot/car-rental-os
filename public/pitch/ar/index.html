@@ -280,7 +280,7 @@
     <h3>ابدأ تنمية أعمال التأجير الخاصة بك اليوم</h3>
     <p class="trial-desc">CarRental OS يساعدك على إدارة أسطولك، أتمتة المحادثات مع العملاء المحتملين، وزيادة مبيعاتك — كل ذلك في نظام واحد مع رؤى الذكاء الاصطناعي.</p>
     <a href="/register" class="trial-btn">💎 أنشئ حسابك المجاني</a>
-    <p class="trial-note">$59/شهر — أو اتصل بنا للحصول على ترخيص مدى الحياة</p>
+    <p class="trial-note">جميع الميزات مشمولة — بدون رسوم مخفية</p>
   </div>
 </section>
 
@@ -328,11 +328,11 @@
 const ANSWERS = {
   greeting: "👋 مرحبا! أنا مساعد CarRental OS. يمكنني الإجابة على أسئلتك حول الميزات، الأسعار، النسخة التجريبية المجانية، والمزيد. كيف يمكنني مساعدتك؟",
   features: "🚗 يشمل CarRental OS:\n\n• إدارة الأسطول — تتبع جميع المركبات، الأسعار، التأمين\n• الحجوزات — تقويم ذكي، لا حجوزات مزدوجة\n• قاعدة بيانات العملاء — السجل، العقود، المستندات\n• المدفوعات — تتبع الودائع والتحصيلات\n• 🤖 شات بوت ذكي — يجيب على استفسارات العملاء ويحولهم لحجوزات تلقائيا\n• 🧠 رؤى ذكاء اصطناعي — يحلل بياناتك ويعطيك توصيات لزيادة المبيعات\n• 💬 أتمتة واتساب — أرسل رسائل متابعة وعروض تلقائيا للعملاء المحتملين\n• 🌐 موقع عام — أسطولك ينشر تلقائيا على الإنترنت\n\nما الميزة التي تهمك أكثر؟",
-  pricing: "💰 أسعار بسيطة وشفافة:\n\n• 🚀 نسخة تجريبية مجانية — جرب كامل الميزات قبل الاشتراك\n• 📈 الخطة الشهرية: $59/شهر — جميع الميزات، بدون حدود\n• 🏢 ترخيص مدى الحياة: اتصل بنا للحصول على سعر خاص\n\nجميع الخطط تشمل الذكاء الاصطناعي، الشات بوت، واتساب، والموقع العام. ابدأ مجانا!",
+
   trial: "🎯 نسختنا التجريبية المجانية لمدة 15 يوما تمنحك وصولا كاملا لجميع الميزات — بدون بطاقة ائتمان. لا التزام، لا حيل. انضم إلى 245+ وكالة سجلت هذا الأسبوع!\n\n👉 املأ نموذج التسجيل في هذه الصفحة للبدء.",
   demo: "📅 تريد عرضا توضيحيا مخصصا؟ املأ نموذج النسخة التجريبية أعلاه وسيتواصل معك فريقنا خلال 24 ساعة لترتيب عرض توضيحي يناسب وكالتك.",
   support: "🤝 تحتاج مساعدة؟ فريق الدعم متاح عبر البريد الإلكتروني وواتساب بمجرد إنشاء حسابك. يمكنك أيضا تصفح الوثائق مباشرة داخل التطبيق.",
-  fallback: "لم أفهم سؤالك تماما. إليك ما يمكنني مساعدتك به:\n\n• 🔧 الميزات\n• 💰 الأسعار\n• 🎯 النسخة التجريبية\n• 📅 عرض توضيحي\n• 🤝 الدعم\n\nأو انقر على أحد الموضوعات أدناه!"
+  fallback: "لم أفهم سؤالك تماما. إليك ما يمكنني مساعدتك به:\n\n• 🔧 الميزات\n• 🎯 النسخة التجريبية\n• 📅 عرض توضيحي\n• 🤝 الدعم\n\nأو انقر على أحد الموضوعات أدناه!"
 };
 
 let isSubmitting = false;
@@ -386,7 +386,6 @@ function showQuickReplies(buttons) {
   if (!buttons) {
     buttons = [
       { label: '🔧 الميزات', action: 'features' },
-      { label: '💰 الأسعار', action: 'pricing' },
       { label: '🎯 نسخة تجريبية', action: 'trial' },
       { label: '📅 عرض توضيحي', action: 'demo' }
     ];
@@ -406,7 +405,7 @@ function hideQuickReplies() {
 function handleQuickAction(action) {
   hideQuickReplies();
   if (isSubmitting) return;
-  const labels = { features: '🔧 الميزات', pricing: '💰 الأسعار', trial: '🎯 نسخة تجريبية', demo: '📅 عرض توضيحي', support: '🤝 الدعم' };
+  const labels = { features: '🔧 الميزات', trial: '🎯 نسخة تجريبية', demo: '📅 عرض توضيحي', support: '🤝 الدعم' };
   addUserMessage(labels[action] || action);
   showTyping();
   setTimeout(() => {
@@ -429,8 +428,6 @@ function sendMessage() {
     const lower = text.toLowerCase();
     if (lower.includes('ميز') || lower.includes('feature') || lower.includes('وظيف') || lower.includes('قدر') || lower.includes('ماذا')) {
       addBotMessage(ANSWERS.features);
-    } else if (lower.includes('سعر') || lower.includes('pric') || lower.includes('كم') || lower.includes('تكلف') || lower.includes('خطة') || lower.includes('اشتراك') || lower.includes('شهري')) {
-      addBotMessage(ANSWERS.pricing);
     } else if (lower.includes('تجريب') || lower.includes('مجان') || lower.includes('trial') || lower.includes('free') || lower.includes('تسجيل') || lower.includes('حساب') || lower.includes('اشتراك') || lower.includes('بدء') || lower.includes('سجل')) {
       addBotMessage(ANSWERS.trial);
     } else if (lower.includes('عرض') || lower.includes('demo') || lower.includes('توضيح') || lower.includes('شاهد') || lower.includes('أرني')) {
