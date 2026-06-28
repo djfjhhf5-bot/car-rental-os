@@ -201,7 +201,9 @@ export async function getDashboardStats(): Promise<{
         totalRevenue,
       },
     };
-  } catch {
+  } catch (e) {
+    console.error("Dashboard error:", e instanceof Error ? e.message : e);
+    console.error("Dashboard error stack:", e instanceof Error ? e.stack : "");
     return { success: false, error: "Failed to fetch dashboard stats" };
   }
 }
