@@ -38,7 +38,7 @@ export default function OnboardingPage() {
         return;
       }
       if (status.completed) {
-        router.push("/");
+        router.push("/dashboard");
         return;
       }
       setStep(status.step);

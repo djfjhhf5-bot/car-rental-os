@@ -8,11 +8,11 @@ export const authConfig: NextAuthConfig = {
     signIn: "/login",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id;
       }
-      if (token.id) {
+      if (token.id && (!token.agencyId || trigger === "update")) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.id as string },
           select: { agencyId: true },
@@ -39,6 +39,7 @@ export const authConfig: NextAuthConfig = {
     async authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
       const protectedPaths = [
+        "/dashboard",
         "/fleet",
         "/clients",
         "/bookings",
@@ -48,7 +49,7 @@ export const authConfig: NextAuthConfig = {
         "/settings",
         "/ai-chat",
       ];
-      const isProtected = nextUrl.pathname === "/" || protectedPaths.some((path) =>
+      const isProtected = protectedPaths.some((path) =>
         nextUrl.pathname.startsWith(path)
       );
 

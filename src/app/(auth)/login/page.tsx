@@ -29,7 +29,7 @@ function LoginForm() {
   const { toast } = useToast();
   const [isPending, setIsPending] = useState(false);
 
-  const callbackUrl = searchParams.get("callbackUrl") || "/";
+  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
 
   const {
     register,

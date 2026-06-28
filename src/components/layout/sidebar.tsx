@@ -18,7 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 const navItems = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/fleet", label: "Fleet", icon: Car },
   { href: "/clients", label: "Clients", icon: Users },
   { href: "/bookings", label: "Bookings", icon: CalendarCheck },
@@ -53,7 +53,7 @@ export default function Sidebar({ open, onClose, agencyName }: SidebarProps) {
         )}
       >
         <div className="flex h-14 items-center justify-between border-b px-4">
-          <Link href="/" className="flex items-center gap-2 font-bold text-lg">
+          <Link href="/dashboard" className="flex items-center gap-2 font-bold text-lg">
             <Car className="h-5 w-5" />
             <span>{agencyName || "CarRental OS"}</span>
           </Link>
