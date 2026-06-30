@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { decrypt } from "@/lib/services/encryption";
 
 type NotificationEvent =
   | { type: "booking_created"; bookingId: string; clientName: string; vehicleName: string; pickupDate: string; returnDate: string }
@@ -9,13 +10,13 @@ type NotificationEvent =
 function formatMessage(event: NotificationEvent): string {
   switch (event.type) {
     case "booking_created":
-      return `🔔 *New Booking Inquiry*\n\nClient: ${event.clientName}\nVehicle: ${event.vehicleName}\nPickup: ${event.pickupDate}\nReturn: ${event.returnDate}\n\nView: ${process.env.NEXTAUTH_URL}/bookings/${event.bookingId}`;
+      return `\u{1F514} *New Booking Inquiry*\n\nClient: ${event.clientName}\nVehicle: ${event.vehicleName}\nPickup: ${event.pickupDate}\nReturn: ${event.returnDate}\n\nView: ${process.env.NEXTAUTH_URL}/bookings/${event.bookingId}`;
     case "booking_confirmed":
-      return `✅ *Booking Confirmed*\n\nClient: ${event.clientName}\nBooking: #${event.bookingId.slice(0, 8)}\n\nView: ${process.env.NEXTAUTH_URL}/bookings/${event.bookingId}`;
+      return `\u{2705} *Booking Confirmed*\n\nClient: ${event.clientName}\nBooking: #${event.bookingId.slice(0, 8)}\n\nView: ${process.env.NEXTAUTH_URL}/bookings/${event.bookingId}`;
     case "payment_received":
-      return `💰 *Payment Received*\n\nClient: ${event.clientName}\nAmount: $${event.amount.toFixed(2)}\nMethod: ${event.method.replace("_", " ")}\nBooking: #${event.bookingId.slice(0, 8)}`;
+      return `\u{1F4B0} *Payment Received*\n\nClient: ${event.clientName}\nAmount: $${event.amount.toFixed(2)}\nMethod: ${event.method.replace("_", " ")}\nBooking: #${event.bookingId.slice(0, 8)}`;
     case "booking_active":
-      return `🚗 *Booking Active*\n\nClient: ${event.clientName}\nVehicle: ${event.vehicleName}\nBooking: #${event.bookingId.slice(0, 8)}\n\nThe rental is now in progress.`;
+      return `\u{1F697} *Booking Active*\n\nClient: ${event.clientName}\nVehicle: ${event.vehicleName}\nBooking: #${event.bookingId.slice(0, 8)}\n\nThe rental is now in progress.`;
   }
 }
 
@@ -28,21 +29,18 @@ export async function sendWhatsAppNotification(event: NotificationEvent): Promis
 
     if (!config?.apiKey || !config?.sessionId || !config?.agency?.phone) return;
 
+    const apiKey = decrypt(config.apiKey);
     const message = formatMessage(event);
 
-    await fetch("https://api.wassender.com/send", {
+    await fetch("https://wasenderapi.com/api/send-message", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        apikey: config.apiKey,
+        Authorization: `Bearer ${apiKey}`,
       },
-      body: JSON.stringify({
-        sessionId: config.sessionId,
-        number: config.agency.phone,
-        message,
-      }),
+      body: JSON.stringify({ to: `213${config.agency.phone}`, text: message }),
     });
   } catch {
-    // Fail silently — don't block the main action if WhatsApp fails
+    // Fail silently
   }
 }

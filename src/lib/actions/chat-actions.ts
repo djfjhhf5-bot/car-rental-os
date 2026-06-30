@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { decrypt } from "@/lib/services/encryption";
 import type { LlmConfig } from "@/lib/services/llm";
 
 export type ChatMessage = {
@@ -13,6 +14,24 @@ export type ChatMessage = {
   userId: string;
 };
 
+export type VehicleInfo = {
+  id: string;
+  brand: string;
+  model: string;
+  year: number;
+  category: string;
+  transmission: string;
+  fuelType: string;
+  seats: number;
+  dailyRate: number;
+  weeklyRate: number | null;
+  monthlyRate: number | null;
+  depositAmount: number;
+  status: string;
+  imageUrl: string | null;
+  published: boolean;
+};
+
 export type AgencyContext = {
   fleetSummary: {
     total: number;
@@ -20,6 +39,7 @@ export type AgencyContext = {
     booked: number;
     maintenance: number;
   };
+  vehicles: VehicleInfo[];
   activeBookings: number;
   totalClients: number;
   revenueThisMonth: number;
@@ -28,6 +48,7 @@ export type AgencyContext = {
   popularCategories: { category: string; count: number }[];
   currency: string;
   agencyName: string;
+  carsPageUrl: string;
 };
 
 export async function getChatHistory(): Promise<{
@@ -188,6 +209,23 @@ export async function getAgencyContext(): Promise<{
           ).length,
           maintenance: vehicles.filter((v) => v.status === "maintenance").length,
         },
+        vehicles: vehicles.map((v) => ({
+          id: v.id,
+          brand: v.brand,
+          model: v.model,
+          year: v.year,
+          category: v.category,
+          transmission: v.transmission,
+          fuelType: v.fuelType,
+          seats: v.seats,
+          dailyRate: v.dailyRate,
+          weeklyRate: v.weeklyRate,
+          monthlyRate: v.monthlyRate,
+          depositAmount: v.depositAmount,
+          status: v.status,
+          imageUrl: v.imageUrl,
+          published: v.published,
+        })),
         activeBookings: bookings.filter(
           (b) => b.status === "active" || b.status === "confirmed"
         ).length,
@@ -203,6 +241,7 @@ export async function getAgencyContext(): Promise<{
         popularCategories,
         currency: agency.currency,
         agencyName: agency.name,
+        carsPageUrl: agency.slug ? `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3200"}/rent?agency=${agency.slug}` : `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3200"}/rent`,
       },
     };
   } catch {
@@ -239,7 +278,7 @@ export async function getActiveLlmConfig(): Promise<{
       data: {
         id: config.id,
         provider: config.provider,
-        apiKey: config.apiKey,
+        apiKey: config.apiKey ? decrypt(config.apiKey) : null,
         model: config.model,
         apiUrl: config.apiUrl,
       },

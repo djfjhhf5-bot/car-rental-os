@@ -41,10 +41,7 @@ export default function RootLayout({
       className={`${montserrat.variable} ${manrope.variable} ${jetbrainsMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      </head>
+
       <body className="min-h-full">
         <Providers>
           <DashboardShell>

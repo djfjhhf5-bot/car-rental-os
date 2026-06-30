@@ -1,11 +1,16 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
 import { useUserSession } from "@/components/providers";
 import Sidebar from "@/components/layout/sidebar";
 import Navbar from "@/components/layout/navbar";
-import { FloatingChat } from "@/components/ai-chat/floating-chat";
 import { useState, useCallback, useEffect } from "react";
+
+const FloatingChat = dynamic(
+  () => import("@/components/ai-chat/floating-chat").then((m) => ({ default: m.FloatingChat })),
+  { ssr: false }
+);
 
 const PUBLIC_PATHS = ["/login", "/register", "/rent", "/onboarding"];
 

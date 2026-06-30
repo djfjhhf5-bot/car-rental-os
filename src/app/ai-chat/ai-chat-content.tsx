@@ -1,21 +1,25 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatMessage, ChatMessageSkeleton } from "@/components/ai-chat/chat-message";
 import { ChatInput } from "@/components/ai-chat/chat-input";
 import { WelcomeMessage } from "@/components/ai-chat/welcome-message";
-import { getChatHistory, saveChatMessage, getAgencyContext, getActiveLlmConfig } from "@/lib/actions/chat-actions";
-import { queryLlm } from "@/lib/services/llm";
 import { toast } from "@/components/ui/toast";
-import { MessageCircle, X, Bot } from "lucide-react";
+import { Trash2, AlertCircle } from "lucide-react";
+import { getChatHistory, saveChatMessage, clearChatHistory, getAgencyContext, getActiveLlmConfig } from "@/lib/actions/chat-actions";
+import { queryLlm } from "@/lib/services/llm";
 import type { ChatMessage as ChatMessageType } from "@/lib/actions/chat-actions";
+import type { AgencyContext } from "@/lib/actions/chat-actions";
+import type { LlmConfig } from "@/lib/services/llm";
 
-export function FloatingChat() {
-  const [isOpen, setIsOpen] = useState(false);
+export default function AiChatPage() {
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [llmConfigured, setLlmConfigured] = useState<boolean | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = useCallback(() => {
@@ -25,20 +29,23 @@ export function FloatingChat() {
   }, []);
 
   useEffect(() => {
-    if (!isOpen) return;
     async function init() {
       try {
+        const ctxResult = await getAgencyContext();
+        if (!ctxResult.success || !ctxResult.data) return;
+
         const chatResult = await getChatHistory();
         if (chatResult.success && chatResult.data) {
           setMessages(chatResult.data);
         }
+
         setIsInitialized(true);
       } catch {
         setIsInitialized(true);
       }
     }
     init();
-  }, [isOpen]);
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
@@ -69,6 +76,7 @@ export function FloatingChat() {
         ]);
 
         if (!configResult.success || !configResult.data) {
+          setLlmConfigured(false);
           const errorMsg: ChatMessageType = {
             id: `error-${Date.now()}`,
             role: "assistant",
@@ -79,10 +87,16 @@ export function FloatingChat() {
             userId: "",
           };
           setMessages((prev) => [...prev, errorMsg]);
-          await saveChatMessage("assistant", errorMsg.content, "error: llm_not_configured");
+          await saveChatMessage(
+            "assistant",
+            errorMsg.content,
+            "error: llm_not_configured"
+          );
           setIsLoading(false);
           return;
         }
+
+        setLlmConfigured(true);
 
         if (!ctxResult.success || !ctxResult.data) {
           throw new Error("Failed to fetch agency context");
@@ -93,7 +107,12 @@ export function FloatingChat() {
           content: m.content,
         }));
 
-        const llmResult = await queryLlm(llmMessages, ctxResult.data, configResult.data, content, "public");
+        const llmResult = await queryLlm(
+          llmMessages,
+          ctxResult.data,
+          configResult.data,
+          content
+        );
 
         if (!llmResult.success || !llmResult.data) {
           throw new Error(llmResult.error || "Failed to get AI response");
@@ -111,8 +130,13 @@ export function FloatingChat() {
         setMessages((prev) => [...prev, aiMsg]);
         await saveChatMessage("assistant", llmResult.data);
       } catch (err) {
-        const errorMsg = err instanceof Error ? err.message : "An unexpected error occurred";
-        toast({ title: "Error", description: errorMsg, variant: "destructive" });
+        const errorMsg =
+          err instanceof Error ? err.message : "An unexpected error occurred";
+        toast({
+          title: "Error",
+          description: errorMsg,
+          variant: "destructive",
+        });
 
         const failMsg: ChatMessageType = {
           id: `error-${Date.now()}`,
@@ -130,6 +154,13 @@ export function FloatingChat() {
     [isLoading, messages]
   );
 
+  const handleNewChat = useCallback(async () => {
+    await clearChatHistory();
+    setMessages([]);
+    setLlmConfigured(null);
+    setIsLoading(false);
+  }, []);
+
   const handleSuggestionClick = useCallback(
     (suggestion: string) => {
       handleSend(suggestion);
@@ -137,60 +168,77 @@ export function FloatingChat() {
     [handleSend]
   );
 
-  return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 sm:bottom-6 sm:right-6 bottom-4 right-4">
-      {isOpen && (
-        <div
-          className="flex w-full flex-col overflow-hidden rounded-2xl border bg-background shadow-2xl transition-all duration-200 sm:w-[380px]"
-          style={{ height: "500px", maxHeight: "calc(100vh - 120px)" }}
-        >
-          <div className="flex items-center justify-between border-b px-4 py-3">
-            <div className="flex items-center gap-2">
-              <Bot className="h-5 w-5 text-primary" />
-              <span className="text-sm font-semibold">AI Assistant</span>
-            </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
+  const isFirstLoad = !isInitialized;
 
-          <ScrollArea ref={scrollRef} className="flex-1">
-            <div className="space-y-4 p-4">
-              {messages.length === 0 ? (
-                <WelcomeMessage onSuggestionClick={handleSuggestionClick} />
-              ) : (
-                <>
-                  {messages.map((msg) => (
-                    <ChatMessage
-                      key={msg.id}
-                      role={msg.role}
-                      content={msg.content}
-                      createdAt={msg.createdAt}
-                    />
-                  ))}
-                  {isLoading && <ChatMessageSkeleton />}
-                </>
-              )}
-            </div>
-          </ScrollArea>
-
-          <ChatInput onSend={handleSend} isLoading={isLoading} disabled={!isInitialized} />
+  if (isFirstLoad) {
+    return (
+      <div className="flex h-full flex-col">
+        <LoadingHeader />
+        <div className="flex-1 space-y-4 p-4">
+          <ChatMessageSkeleton />
+          <ChatMessageSkeleton />
         </div>
-      )}
+      </div>
+    );
+  }
 
-      <button
-        onClick={() => setIsOpen((prev) => !prev)}
-        className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl active:scale-95"
-      >
-        {isOpen ? (
-          <X className="h-6 w-6" />
-        ) : (
-          <MessageCircle className="h-6 w-6" />
-        )}
-      </button>
+  return (
+    <div className="flex h-full flex-col">
+      <div className="flex items-center justify-between border-b px-4 py-3">
+        <div className="flex items-center gap-2">
+          <h1 className="text-sm font-semibold">AI Chat</h1>
+          {llmConfigured === false && (
+            <span className="flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-900 dark:text-amber-300">
+              <AlertCircle className="h-3 w-3" />
+              Not configured
+            </span>
+          )}
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleNewChat}
+          disabled={isLoading || messages.length === 0}
+        >
+          <Trash2 className="mr-1 h-4 w-4" />
+          New Chat
+        </Button>
+      </div>
+
+      <ScrollArea ref={scrollRef} className="flex-1">
+        <div className="space-y-4 p-4">
+          {messages.length === 0 ? (
+            <WelcomeMessage onSuggestionClick={handleSuggestionClick} />
+          ) : (
+            <>
+              {messages.map((msg) => (
+                <ChatMessage
+                  key={msg.id}
+                  role={msg.role}
+                  content={msg.content}
+                  createdAt={msg.createdAt}
+                />
+              ))}
+              {isLoading && <ChatMessageSkeleton />}
+            </>
+          )}
+        </div>
+      </ScrollArea>
+
+      <ChatInput
+        onSend={handleSend}
+        isLoading={isLoading}
+        disabled={!isInitialized}
+      />
+    </div>
+  );
+}
+
+function LoadingHeader() {
+  return (
+    <div className="flex items-center justify-between border-b px-4 py-3">
+      <div className="h-4 w-24 animate-pulse rounded bg-muted" />
+      <div className="h-8 w-24 animate-pulse rounded bg-muted" />
     </div>
   );
 }

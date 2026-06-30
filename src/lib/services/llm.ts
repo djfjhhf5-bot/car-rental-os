@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { decrypt } from "@/lib/services/encryption";
 import type { AgencyContext } from "@/lib/actions/chat-actions";
 
 export type LlmConfig = {
@@ -31,7 +32,7 @@ export async function getLlmConfig(
       data: {
         id: config.id,
         provider: config.provider,
-        apiKey: config.apiKey,
+        apiKey: config.apiKey ? decrypt(config.apiKey) : null,
         model: config.model,
         apiUrl: config.apiUrl,
       },
@@ -41,7 +42,43 @@ export async function getLlmConfig(
   }
 }
 
-function buildSystemPrompt(context: AgencyContext): string {
+function buildSystemPrompt(context: AgencyContext, contextType: "admin" | "public" = "admin"): string {
+  const vehicleList = context.vehicles
+    .map(
+      (v) =>
+        `- ${v.brand} ${v.model} (${v.year}) — ${v.category}, ${v.transmission}, ${v.fuelType}, ${v.seats} seats — ${context.currency} ${v.dailyRate.toLocaleString()}/day (weekly: ${v.weeklyRate ? context.currency + " " + v.weeklyRate.toLocaleString() : "N/A"}, monthly: ${v.monthlyRate ? context.currency + " " + v.monthlyRate.toLocaleString() : "N/A"}) — Deposit: ${context.currency} ${v.depositAmount.toLocaleString()} — Status: ${v.status}`
+    )
+    .join("\n");
+
+  if (contextType === "public") {
+    return `You are a helpful and friendly customer support assistant for ${context.agencyName}, a car rental agency. Your job is to help customers find the perfect rental car, answer their questions about the fleet, pricing, and policies.
+
+## AVAILABLE FLEET
+${context.agencyName} offers the following vehicles for rent (all prices in ${context.currency}):
+
+${vehicleList}
+
+## YOUR CAPABILITIES
+- Recommend cars based on customer needs (passengers, budget, trip type, preferences)
+- Compare different vehicles (fuel type, transmission, seating capacity)
+- Provide pricing information (daily, weekly, monthly rates)
+- Explain deposit requirements and rental terms
+- Guide customers to book through the website or contact the agency
+
+## RESPONSE GUIDELINES
+- Be warm, helpful, and enthusiastic about helping customers
+- ALWAYS reference specific vehicles from the fleet list above with their actual prices
+- When asked "what cars do you have", list all available vehicles with key details
+- When recommending, ask about the customer's needs (how many people, budget, trip purpose)
+- Never mention internal business operations, fleet management, or admin features
+- If a customer asks about something outside your scope, politely guide them to contact the agency
+- Keep responses concise and focused on helping the customer choose a vehicle
+- Use ${context.currency} when mentioning prices
+- IMPORTANT: Always include a link to browse all cars online: ${context.carsPageUrl}
+- Encourage customers to view available cars with photos and details on the website
+- If they want to book, direct them to the website link above`;
+  }
+
   const fleetSummary = context.fleetSummary;
   const utilizationRate =
     fleetSummary.total > 0
@@ -63,6 +100,9 @@ Current agency data for ${context.agencyName}:
 - Total Revenue: ${context.currency} ${context.totalRevenue.toLocaleString()}
 - Bookings This Month: ${context.recentBookingsCount}
 - Popular Categories: ${context.popularCategories.map((c) => `${c.category} (${c.count})`).join(", ")}
+
+### FLEET VEHICLES (${context.vehicles.length} total)
+${vehicleList}
 
 ## SALES & MARKETING FRAMEWORKS
 
@@ -147,10 +187,11 @@ export async function queryLlm(
   messages: ChatMessage[],
   agencyContext: AgencyContext,
   llmConfig: LlmConfig,
-  userInput: string
+  userInput: string,
+  contextType: "admin" | "public" = "admin"
 ): Promise<{ success: boolean; data?: string; error?: string }> {
   try {
-    const systemPrompt = buildSystemPrompt(agencyContext);
+    const systemPrompt = buildSystemPrompt(agencyContext, contextType);
     const userMessage = buildUserMessage(messages, userInput);
 
     switch (llmConfig.provider) {
@@ -158,6 +199,8 @@ export async function queryLlm(
         return queryOpenAI(systemPrompt, userMessage, llmConfig);
       case "anthropic":
         return queryAnthropic(systemPrompt, userMessage, llmConfig);
+      case "openrouter":
+        return queryOpenRouter(systemPrompt, userMessage, llmConfig);
       case "custom":
         return queryCustom(systemPrompt, userMessage, llmConfig);
       default:
@@ -259,6 +302,56 @@ async function queryAnthropic(
     return { success: true, data: content.trim() };
   } catch {
     return { success: false, error: "Failed to query Anthropic" };
+  }
+}
+
+async function queryOpenRouter(
+  systemPrompt: string,
+  userMessage: string,
+  config: LlmConfig
+): Promise<{ success: boolean; data?: string; error?: string }> {
+  try {
+    const apiKey = config.apiKey || process.env.OPENROUTER_API_KEY;
+    if (!apiKey) {
+      return { success: false, error: "OpenRouter API key not configured" };
+    }
+
+    const response = await fetch(
+      config.apiUrl || "https://openrouter.ai/api/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+          "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+          "X-Title": "Car Rental OS",
+        },
+        body: JSON.stringify({
+          model: config.model || "openai/gpt-4o",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userMessage },
+          ],
+          max_tokens: 2048,
+          temperature: 0.7,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const err = await response.text();
+      return { success: false, error: `OpenRouter API error: ${err}` };
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content;
+    if (!content) {
+      return { success: false, error: "No response from OpenRouter" };
+    }
+
+    return { success: true, data: content.trim() };
+  } catch {
+    return { success: false, error: "Failed to query OpenRouter" };
   }
 }
 

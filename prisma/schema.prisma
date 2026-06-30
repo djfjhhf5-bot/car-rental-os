@@ -42,6 +42,8 @@ model Agency {
   activities        Activity[]
   wassenderConfig   WassenderConfig[]
   llmConfigs        LlmConfig[]
+  leads             Lead[]
+  leadImports       LeadImport[]
 }
 
 model User {
@@ -261,14 +263,55 @@ model ChatMessage {
 model Lead {
   id        String   @id @default(cuid())
   name      String
-  email     String
+  email     String?
   phone     String?
+  whatsapp  String?
   company   String?
   source    String   @default("pitch")
   lang      String   @default("en")
-  status    String   @default("new")
+
+  customerName        String?
+  vehicleRequested    String?
+  pickupDate          DateTime?
+  returnDate          DateTime?
+  pickupLocation      String?
+  returnLocation      String?
+  totalAmount         Float?
+  depositAmount       Float?
+  contractNumber      String?
+  insuranceType       String?
+  driverLicenseNumber String?
+  nationality         String?
+  notes               String?
+
+  phase   String   @default("inquiry")
+  status  String   @default("new")
+
+  importId String?
+  import   LeadImport? @relation(fields: [importId], references: [id])
+
+  agencyId String?
+  agency   Agency? @relation(fields: [agencyId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model LeadImport {
+  id           String   @id @default(cuid())
+  fileName     String
+  fileType     String   @default("csv")
+  rowsTotal    Int      @default(0)
+  rowsImported Int      @default(0)
+  rowsSkipped  Int      @default(0)
+  status       String   @default("completed")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  agencyId String
+  agency   Agency @relation(fields: [agencyId], references: [id])
+
+  leads Lead[]
 }
 
 model Activity {

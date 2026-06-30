@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Gauge, Users, Fuel } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
@@ -12,9 +13,10 @@ interface CarCardProps {
   seats: number;
   dailyRate: number;
   category: string;
+  imageUrl?: string | null;
 }
 
-export function CarCard({ id, brand, model, year, transmission, fuelType, seats, dailyRate, category }: CarCardProps) {
+export function CarCard({ id, brand, model, year, transmission, fuelType, seats, dailyRate, category, imageUrl }: CarCardProps) {
   const initials = `${brand[0]}${model[0]}`.toUpperCase();
   const categoryLabel = category.charAt(0).toUpperCase() + category.slice(1);
 
@@ -25,13 +27,24 @@ export function CarCard({ id, brand, model, year, transmission, fuelType, seats,
       </div>
       <Link href={`/rent/cars/${id}`}>
         <div className="h-64 w-full relative bg-surface-container-high overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-surface-container-high to-surface-dim flex items-center justify-center opacity-80 group-hover:opacity-100 transition-opacity duration-500">
-            <div className="flex flex-col items-center gap-2">
-              <div className="w-16 h-16 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center">
-                <span className="font-jetbrains-mono text-label-sm font-bold text-primary">{initials}</span>
+          {imageUrl ? (
+            <Image
+              src={imageUrl}
+              alt={`${brand} ${model}`}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              loading="eager"
+            />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-surface-container-high to-surface-dim flex items-center justify-center opacity-80 group-hover:opacity-100 transition-opacity duration-500">
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-16 h-16 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center">
+                  <span className="font-jetbrains-mono text-label-sm font-bold text-primary">{initials}</span>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </Link>
       <div className="p-6 flex flex-col gap-4 relative z-10 bg-surface-container-lowest">

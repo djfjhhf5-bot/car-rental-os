@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
+import { encrypt, decrypt } from "@/lib/services/encryption";
 import {
   agencySchema,
   llmConfigSchema,
@@ -80,7 +81,10 @@ export async function getLlmConfigs() {
       orderBy: { createdAt: "desc" },
     });
 
-    return { success: true, data: serialize(configs) };
+    return {
+      success: true,
+      data: serialize(configs.map((c) => ({ ...c, apiKey: c.apiKey ? decrypt(c.apiKey) : null }))),
+    };
   } catch {
     return { success: false, error: "Failed to fetch LLM configs" };
   }
@@ -104,26 +108,28 @@ export async function saveLlmConfig(data: unknown) {
       where: { agencyId, active: true },
     });
 
+    const encryptedKey = validated.data.apiKey ? encrypt(validated.data.apiKey) : null;
+
     if (existing) {
       const config = await prisma.llmConfig.update({
         where: { id: existing.id },
         data: {
           provider: validated.data.provider,
-          apiKey: validated.data.apiKey || existing.apiKey,
+          apiKey: encryptedKey || existing.apiKey,
           model: validated.data.model,
           apiUrl: validated.data.apiUrl || null,
           active: true,
         },
       });
       revalidatePath("/settings");
-      return { success: true, data: serialize(config) };
+      return { success: true, data: serialize({ ...config, apiKey: config.apiKey ? decrypt(config.apiKey) : null }) };
     }
 
     const config = await prisma.llmConfig.create({
       data: {
         agencyId,
         provider: validated.data.provider,
-        apiKey: validated.data.apiKey || null,
+        apiKey: encryptedKey,
         model: validated.data.model,
         apiUrl: validated.data.apiUrl || null,
         active: true,
@@ -131,7 +137,7 @@ export async function saveLlmConfig(data: unknown) {
     });
 
     revalidatePath("/settings");
-    return { success: true, data: serialize(config) };
+    return { success: true, data: serialize({ ...config, apiKey: config.apiKey ? decrypt(config.apiKey) : null }) };
   } catch {
     return { success: false, error: "Failed to save LLM config" };
   }
@@ -148,7 +154,7 @@ export async function getWassenderConfig() {
 
     return {
       success: true,
-      data: config ? serialize(config) : null,
+      data: config ? serialize({ ...config, apiKey: config.apiKey ? decrypt(config.apiKey) : null, webhookSecret: config.webhookSecret ? decrypt(config.webhookSecret) : null }) : null,
     };
   } catch {
     return { success: false, error: "Failed to fetch Wassender config" };
@@ -173,33 +179,35 @@ export async function saveWassenderConfig(data: unknown) {
       where: { agencyId },
     });
 
+    const encryptedKey = validated.data.apiKey ? encrypt(validated.data.apiKey) : null;
+    const encryptedSecret = validated.data.webhookSecret ? encrypt(validated.data.webhookSecret) : null;
+
     if (existing) {
       const config = await prisma.wassenderConfig.update({
         where: { id: existing.id },
         data: {
-          apiKey: validated.data.apiKey || existing.apiKey,
+          apiKey: encryptedKey || existing.apiKey,
           sessionId: validated.data.sessionId || existing.sessionId,
-          webhookSecret:
-            validated.data.webhookSecret || existing.webhookSecret,
+          webhookSecret: encryptedSecret || existing.webhookSecret,
           active: validated.data.active,
         },
       });
       revalidatePath("/settings");
-      return { success: true, data: serialize(config) };
+      return { success: true, data: serialize({ ...config, apiKey: config.apiKey ? decrypt(config.apiKey) : null, webhookSecret: config.webhookSecret ? decrypt(config.webhookSecret) : null }) };
     }
 
     const config = await prisma.wassenderConfig.create({
       data: {
         agencyId,
-        apiKey: validated.data.apiKey || null,
+        apiKey: encryptedKey,
         sessionId: validated.data.sessionId || null,
-        webhookSecret: validated.data.webhookSecret || null,
+        webhookSecret: encryptedSecret,
         active: validated.data.active,
       },
     });
 
     revalidatePath("/settings");
-    return { success: true, data: serialize(config) };
+    return { success: true, data: serialize({ ...config, apiKey: config.apiKey ? decrypt(config.apiKey) : null, webhookSecret: config.webhookSecret ? decrypt(config.webhookSecret) : null }) };
   } catch {
     return { success: false, error: "Failed to save Wassender config" };
   }

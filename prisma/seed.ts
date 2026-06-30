@@ -32,6 +32,7 @@ async function main() {
       email: "info@demorental.com",
       address: "123 Main Street, New York, NY 10001",
       currency: "DZD",
+      onboardingCompleted: true,
     },
   });
   console.log(`Agency created: ${agency.name}`);
@@ -49,11 +50,13 @@ async function main() {
   console.log(`Admin user created: ${adminUser.email}`);
 
   const vehiclesData = [
-    { brand: "Toyota", model: "Camry", year: 2024, color: "White", licensePlate: "ABC-1234", vin: "1HGCM82633A004352", category: "sedan", transmission: "automatic", fuelType: "gasoline", seats: 5, doors: 4, dailyRate: 65, weeklyRate: 390, monthlyRate: 1400, mileageLimit: 200, status: "available" },
-    { brand: "Honda", model: "Civic", year: 2024, color: "Blue", licensePlate: "DEF-5678", vin: "2HGFG3B53GH550001", category: "sedan", transmission: "automatic", fuelType: "gasoline", seats: 5, doors: 4, dailyRate: 55, weeklyRate: 330, monthlyRate: 1200, mileageLimit: 200, status: "available" },
-    { brand: "Ford", model: "Explorer", year: 2023, color: "Black", licensePlate: "GHI-9012", vin: "1FM5K7D84JGA00001", category: "suv", transmission: "automatic", fuelType: "gasoline", seats: 7, doors: 4, dailyRate: 95, weeklyRate: 570, monthlyRate: 2100, mileageLimit: 250, status: "booked" },
-    { brand: "Nissan", model: "Altima", year: 2024, color: "Silver", licensePlate: "JKL-3456", vin: "1N4AL3AP2JC000001", category: "sedan", transmission: "automatic", fuelType: "gasoline", seats: 5, doors: 4, dailyRate: 60, weeklyRate: 360, monthlyRate: 1300, mileageLimit: 200, status: "available" },
-    { brand: "Chevrolet", model: "Tahoe", year: 2023, color: "Red", licensePlate: "MNO-7890", vin: "1GNSKKE00AR000001", category: "suv", transmission: "automatic", fuelType: "gasoline", seats: 8, doors: 4, dailyRate: 110, weeklyRate: 660, monthlyRate: 2500, depositAmount: 500, mileageLimit: 300, status: "available" },
+    { brand: "Renault", model: "Clio 4", year: 2023, color: "White", licensePlate: "ABC-1234", vin: "1HGCM82633A004352", category: "economy", transmission: "manual", fuelType: "gasoline", seats: 5, doors: 4, dailyRate: 4000, weeklyRate: 24000, monthlyRate: 90000, depositAmount: 15000, mileageLimit: 200, status: "available", imageUrl: "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=800&q=80", published: true },
+    { brand: "Renault", model: "Symbol", year: 2023, color: "Blue", licensePlate: "DEF-5678", vin: "2HGFG3B53GH550001", category: "economy", transmission: "manual", fuelType: "gasoline", seats: 5, doors: 4, dailyRate: 3500, weeklyRate: 21000, monthlyRate: 75000, depositAmount: 12000, mileageLimit: 200, status: "available", imageUrl: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&q=80", published: true },
+    { brand: "Toyota", model: "Camry", year: 2024, color: "White", licensePlate: "GHI-9012", vin: "1FM5K7D84JGA00001", category: "sedan", transmission: "automatic", fuelType: "gasoline", seats: 5, doors: 4, dailyRate: 7000, weeklyRate: 42000, monthlyRate: 150000, depositAmount: 25000, mileageLimit: 250, status: "available", imageUrl: "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=800&q=80", published: true },
+    { brand: "Honda", model: "Civic", year: 2024, color: "Silver", licensePlate: "JKL-3456", vin: "1N4AL3AP2JC000001", category: "sedan", transmission: "automatic", fuelType: "gasoline", seats: 5, doors: 4, dailyRate: 6000, weeklyRate: 36000, monthlyRate: 130000, mileageLimit: 200, status: "available", imageUrl: "https://images.unsplash.com/photo-1590362891991-f776e747a588?w=800&q=80", published: true },
+    { brand: "Ford", model: "Explorer", year: 2023, color: "Black", licensePlate: "MNO-7890", vin: "1GNSKKE00AR000001", category: "suv", transmission: "automatic", fuelType: "gasoline", seats: 7, doors: 4, dailyRate: 12000, weeklyRate: 72000, monthlyRate: 250000, depositAmount: 50000, mileageLimit: 300, status: "booked", imageUrl: "https://images.unsplash.com/photo-1469285994282-454ceb49e63c?w=800&q=80", published: true },
+    { brand: "Mercedes", model: "Classe C", year: 2024, color: "Black", licensePlate: "PQR-1234", vin: "WDD2050421R000001", category: "luxury", transmission: "automatic", fuelType: "diesel", seats: 5, doors: 4, dailyRate: 18000, weeklyRate: 108000, monthlyRate: 400000, depositAmount: 80000, mileageLimit: 250, status: "available", imageUrl: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800&q=80", published: true },
+    { brand: "Hyundai", model: "Tucson", year: 2024, color: "White", licensePlate: "STU-5678", vin: "KM8J3CA46J0000001", category: "suv", transmission: "automatic", fuelType: "diesel", seats: 5, doors: 4, dailyRate: 10000, weeklyRate: 60000, monthlyRate: 220000, depositAmount: 35000, mileageLimit: 250, status: "available", imageUrl: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&q=80", published: true },
   ];
 
   const vehicles = [];
@@ -173,14 +176,15 @@ async function main() {
 
   await prisma.llmConfig.create({
     data: {
-      provider: "openai",
-      apiKey: "",
-      model: "gpt-4",
+      provider: "custom",
+      apiKey: "sk-or-v1-placeholder-replace-with-real-key",
+      apiUrl: "https://openrouter.ai/api/v1/chat/completions",
+      model: "openai/gpt-4o",
       active: true,
       agencyId: agency.id,
     },
   });
-  console.log("Default LLM config created");
+  console.log("Default LLM config created (OpenRouter)");
 
   await prisma.wassenderConfig.create({
     data: {

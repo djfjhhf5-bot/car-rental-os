@@ -14,12 +14,14 @@ import {
   Bot,
   Settings,
   X,
+  UserPlus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/fleet", label: "Fleet", icon: Car },
+  { href: "/leads", label: "Leads", icon: UserPlus },
   { href: "/clients", label: "Clients", icon: Users },
   { href: "/bookings", label: "Bookings", icon: CalendarCheck },
   { href: "/contracts", label: "Contracts", icon: FileText },
@@ -77,6 +79,7 @@ export default function Sidebar({ open, onClose, agencyName }: SidebarProps) {
               <Link
                 key={item.href}
                 href={item.href}
+                prefetch={false}
                 onClick={onClose}
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",

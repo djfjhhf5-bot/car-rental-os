@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Car } from "lucide-react";
-import { CustomerChat } from "@/components/public/customer-chat";
+import { FloatingChat } from "@/components/ai-chat/floating-chat";
 
 export const metadata: Metadata = {
   title: "Premium Drive | The Pinnacle of Mobility",
@@ -44,12 +44,12 @@ export default function RentLayout({ children }: { children: React.ReactNode }) 
           </Link>
         </div>
         <div className="flex items-center gap-4">
-          <a
-            href="tel:+1-555-0100"
+          <Link
+            href="/rent"
             className="flex items-center gap-2 metallic-gradient text-on-primary-fixed font-manrope font-bold px-6 py-2 rounded hover:opacity-90 transition-opacity shadow-lg"
           >
             Book Now
-          </a>
+          </Link>
         </div>
       </nav>
       <main className="flex-grow flex flex-col items-center w-full pt-24 pb-24">
@@ -71,18 +71,18 @@ export default function RentLayout({ children }: { children: React.ReactNode }) 
           <Link href="/rent" className="text-on-surface-variant hover:text-primary transition-colors">
             Fleet
           </Link>
-          <a
-            href="tel:+1-555-0100"
+          <Link
+            href="/rent"
             className="text-primary hover:text-primary transition-colors"
           >
             Contact Us
-          </a>
+          </Link>
         </div>
         <div className="text-on-surface-variant font-manrope text-body-md text-center md:text-right">
           &copy; {new Date().getFullYear()} Premium Drive. The Pinnacle of Mobility.
         </div>
       </footer>
-      <CustomerChat />
+      <FloatingChat />
     </div>
   );
 }

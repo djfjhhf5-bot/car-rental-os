@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUserSession } from "@/components/providers";
-import { getOnboardingStatus, saveAgencyProfile, saveFirstVehicle, skipVehicle, completeOnboarding } from "@/lib/actions/onboarding-actions";
+import { getOnboardingStatus, saveAgencyProfile, saveFirstVehicle, skipVehicle, completeOnboarding, skipLeadImport, saveLeadImport } from "@/lib/actions/onboarding-actions";
+import { importLeadsFromFile } from "@/lib/actions/lead-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,7 +12,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, Building, Car, Sparkles, CheckCircle, ArrowRight, SkipForward, Users, Check } from "lucide-react";
+import { Loader2, Building, Car, Sparkles, CheckCircle, ArrowRight, SkipForward, Users, Check, Upload, MessageSquare } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 
 const TIMEZONES = [
@@ -50,8 +51,9 @@ export default function OnboardingPage() {
   const steps = [
     { id: 0, title: "Agency Profile", icon: Building },
     { id: 1, title: "First Vehicle", icon: Car },
-    { id: 2, title: "AI Assistant", icon: Sparkles },
-    { id: 3, title: "Done", icon: CheckCircle },
+    { id: 2, title: "Import Leads", icon: Upload },
+    { id: 3, title: "AI Assistant", icon: Sparkles },
+    { id: 4, title: "Done", icon: CheckCircle },
   ];
 
   if (loading) {
@@ -67,7 +69,7 @@ export default function OnboardingPage() {
       <Card className="w-full max-w-lg">
         <CardHeader>
           <div className="mb-4">
-            <Progress value={((step) / 3) * 100} className="h-2" />
+            <Progress value={(step / 4) * 100} className="h-2" />
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
             {steps.map((s) => (
@@ -81,21 +83,24 @@ export default function OnboardingPage() {
           <CardTitle className="text-2xl">
             {step === 0 && "Set Up Your Agency"}
             {step === 1 && "Add Your First Vehicle"}
-            {step === 2 && "Meet Your AI Assistant"}
-            {step === 3 && "You're All Set!"}
+            {step === 2 && "Import Your Leads"}
+            {step === 3 && "Meet Your AI Assistant"}
+            {step === 4 && "You're All Set!"}
           </CardTitle>
           <CardDescription>
             {step === 0 && "Tell us about your car rental business"}
             {step === 1 && "Add your first car or skip for now"}
-            {step === 2 && "Discover how AI can help you grow"}
-            {step === 3 && "Let's start managing your fleet"}
+            {step === 2 && "Upload your leads from WhatsApp or CSV (or skip)"}
+            {step === 3 && "Discover how AI can help you grow"}
+            {step === 4 && "Let's start managing your fleet"}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {step === 0 && <StepAgencyProfile onNext={async (data) => { setSaving(true); const r = await saveAgencyProfile(data); setSaving(false); if (r.success) setStep(1); else toast({ variant: "destructive", title: "Error", description: r.error }); }} saving={saving} />}
           {step === 1 && <StepFirstVehicle onNext={async (data) => { setSaving(true); const r = await saveFirstVehicle(data); setSaving(false); if (r.success) setStep(2); else toast({ variant: "destructive", title: "Error", description: r.error }); }} onSkip={async () => { setSaving(true); await skipVehicle(); setSaving(false); setStep(2); }} saving={saving} />}
-          {step === 2 && <StepAIIntro onNext={async () => { setSaving(true); const r = await completeOnboarding(); setSaving(false); if (r.success) { await refresh(); setStep(3); } else toast({ variant: "destructive", title: "Error", description: r.error }); }} saving={saving} />}
-          {step === 3 && <StepDone onNext={() => router.push("/dashboard")} />}
+          {step === 2 && <StepImportLeads onNext={async () => { await saveLeadImport(); setStep(3); }} onSkip={async () => { await skipLeadImport(); setStep(3); }} />}
+          {step === 3 && <StepAIIntro onNext={async () => { setSaving(true); const r = await completeOnboarding(); setSaving(false); if (r.success) { await refresh(); setStep(4); } else toast({ variant: "destructive", title: "Error", description: r.error }); }} saving={saving} />}
+          {step === 4 && <StepDone onNext={() => router.push("/dashboard")} />}
         </CardContent>
       </Card>
     </div>
@@ -281,6 +286,72 @@ function StepFirstVehicle({ onNext, onSkip, saving }: { onNext: (d: { brand: str
   );
 }
 
+function StepImportLeads({ onNext, onSkip }: { onNext: () => void; onSkip: () => void }) {
+  const { toast } = useToast();
+  const [file, setFile] = useState<File | null>(null);
+  const [importing, setImporting] = useState(false);
+  const [done, setDone] = useState(false);
+
+  const handleFile = async () => {
+    if (!file) return;
+    setImporting(true);
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await importLeadsFromFile(fd);
+    setImporting(false);
+    if (res.success) {
+      setDone(true);
+      toast({ title: "Import complete", description: `${res.data?.imported || 0} leads imported`, variant: "success" });
+    } else {
+      toast({ title: "Import failed", description: res.error || "Error", variant: "destructive" });
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-lg border-2 border-dashed p-6 text-center">
+        <Upload className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
+        <p className="text-sm font-medium mb-1">Upload your leads file</p>
+        <p className="text-xs text-muted-foreground mb-3">WhatsApp export (.txt) or CSV</p>
+        <Input type="file" accept=".csv,.txt" onChange={(e) => setFile(e.target.files?.[0] || null)} className="max-w-xs mx-auto" />
+        {file && !done && (
+          <div className="mt-3">
+            <p className="text-xs text-muted-foreground">{file.name} ({(file.size / 1024).toFixed(1)} KB)</p>
+            <Button size="sm" className="mt-2" onClick={handleFile} disabled={importing}>
+              {importing ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : <Upload className="mr-1 h-3 w-3" />}
+              {importing ? "Importing..." : "Import"}
+            </Button>
+          </div>
+        )}
+        {done && (
+          <div className="mt-3 flex items-center justify-center gap-2 text-sm text-green-600">
+            <Check className="h-4 w-4" /> Imported successfully!
+          </div>
+        )}
+      </div>
+      <div className="flex gap-3">
+        {done ? (
+          <Button className="flex-1" onClick={onNext}>
+            <ArrowRight className="mr-2 h-4 w-4" />
+            Continue
+          </Button>
+        ) : (
+          <>
+            <Button className="flex-1" onClick={handleFile} disabled={!file || importing}>
+              {importing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRight className="mr-2 h-4 w-4" />}
+              Import & Continue
+            </Button>
+            <Button variant="outline" onClick={onSkip}>
+              <SkipForward className="mr-2 h-4 w-4" />
+              Skip
+            </Button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function StepAIIntro({ onNext, saving }: { onNext: () => void; saving: boolean }) {
   return (
     <div className="space-y-6 text-center">
@@ -309,9 +380,13 @@ function StepAIIntro({ onNext, saving }: { onNext: () => void; saving: boolean }
         </div>
         <div className="rounded-lg border p-3">
           <p className="text-sm font-medium">WhatsApp Auto</p>
-          <p className="text-xs text-muted-foreground">Automate communications</p>
+          <p className="text-xs text-muted-foreground">Auto DM leads with phase-based messages</p>
         </div>
       </div>
+      <p className="text-xs text-muted-foreground text-center">
+        After onboarding, you can configure WhatsApp DM automation in Settings &gt; WhatsApp
+        and send bulk messages to your leads from the Leads page.
+      </p>
       <Button className="w-full" onClick={onNext} disabled={saving}>
         {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRight className="mr-2 h-4 w-4" />}
         Start Using CarRental OS

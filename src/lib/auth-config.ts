@@ -19,12 +19,14 @@ export const authConfig: NextAuthConfig = {
         });
         if (dbUser) {
           token.agencyId = dbUser.agencyId;
-          const agency = await prisma.agency.findUnique({
-            where: { id: dbUser.agencyId },
-            select: { onboardingCompleted: true },
-          });
-          token.onboardingCompleted = agency?.onboardingCompleted ?? true;
         }
+      }
+      if (token.agencyId) {
+        const agency = await prisma.agency.findUnique({
+          where: { id: token.agencyId as string },
+          select: { onboardingCompleted: true },
+        });
+        token.onboardingCompleted = agency?.onboardingCompleted ?? true;
       }
       return token;
     },

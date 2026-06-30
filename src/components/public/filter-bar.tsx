@@ -1,10 +1,12 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { useRef, useCallback } from "react";
 
 export function FilterBar() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const priceTimeout = useRef<ReturnType<typeof setTimeout>>(null);
 
   const category = searchParams.get("category") || "all";
   const minPrice = searchParams.get("minPrice") || "";
@@ -20,6 +22,22 @@ export function FilterBar() {
     }
     router.push(`/rent?${params.toString()}`);
   }
+
+  const debouncedPriceFilter = useCallback(
+    (key: string, value: string) => {
+      if (priceTimeout.current) clearTimeout(priceTimeout.current);
+      priceTimeout.current = setTimeout(() => {
+        const params = new URLSearchParams(searchParams.toString());
+        if (value) {
+          params.set(key, value);
+        } else {
+          params.delete(key);
+        }
+        router.push(`/rent?${params.toString()}`);
+      }, 400);
+    },
+    [searchParams, router]
+  );
 
   function handleSearchSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -72,41 +90,25 @@ export function FilterBar() {
         </div>
         <div className="md:col-span-2 flex flex-col gap-2">
           <label className="font-jetbrains-mono text-label-sm text-primary uppercase tracking-widest">
-            Min Price
+            Min Price (DZD)
           </label>
           <input
             type="number"
-            placeholder="$0"
-            value={minPrice}
-            onChange={(e) => {
-              const params = new URLSearchParams(searchParams.toString());
-              if (e.target.value) {
-                params.set("minPrice", e.target.value);
-              } else {
-                params.delete("minPrice");
-              }
-              router.push(`/rent?${params.toString()}`);
-            }}
+            placeholder="0"
+            defaultValue={minPrice}
+            onChange={(e) => debouncedPriceFilter("minPrice", e.target.value)}
             className="w-full bg-surface-container-high border border-outline-variant text-on-surface rounded p-3 input-focus-gold transition-colors font-manrope text-body-md placeholder:text-on-surface-variant/50"
           />
         </div>
         <div className="md:col-span-2 flex flex-col gap-2">
           <label className="font-jetbrains-mono text-label-sm text-primary uppercase tracking-widest">
-            Max Price
+            Max Price (DZD)
           </label>
           <input
             type="number"
-            placeholder="$500"
-            value={maxPrice}
-            onChange={(e) => {
-              const params = new URLSearchParams(searchParams.toString());
-              if (e.target.value) {
-                params.set("maxPrice", e.target.value);
-              } else {
-                params.delete("maxPrice");
-              }
-              router.push(`/rent?${params.toString()}`);
-            }}
+            placeholder="50000"
+            defaultValue={maxPrice}
+            onChange={(e) => debouncedPriceFilter("maxPrice", e.target.value)}
             className="w-full bg-surface-container-high border border-outline-variant text-on-surface rounded p-3 input-focus-gold transition-colors font-manrope text-body-md placeholder:text-on-surface-variant/50"
           />
         </div>

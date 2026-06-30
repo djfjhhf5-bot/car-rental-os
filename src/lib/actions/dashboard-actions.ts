@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import type { Prisma } from "@prisma/client";
 
 export type DashboardStats = {
   totalVehicles: number;
@@ -37,89 +37,73 @@ export type DashboardStats = {
     returnDate: Date;
   }[];
   totalRevenue: number;
+  leadStats: {
+    total: number;
+    byPhase: { phase: string; count: number }[];
+  };
 };
 
-export async function getDashboardStats(): Promise<{
+export async function getDashboardStats(agencyId: string): Promise<{
   success: boolean;
   data?: DashboardStats;
   error?: string;
 }> {
   try {
-    const session = await auth();
-    if (!session?.user?.id) return { success: false, error: "Unauthorized" };
+    if (!agencyId) return { success: false, error: "No agency found" };
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { agencyId: true },
-    });
-
-    if (!user?.agencyId) return { success: false, error: "No agency found" };
-
-    const agencyId = user.agencyId;
-
-    const [vehicles, clients, bookings, payments, maintenanceLogs] =
+    const [vehicles, totalClients, rawBookings, payments, rawMaintenance, leadStats] =
       await Promise.all([
         prisma.vehicle.findMany({ where: { agencyId } }),
-        prisma.client.findMany({ where: { agencyId } }),
+        prisma.client.count({ where: { agencyId } }),
         prisma.booking.findMany({
           where: { agencyId },
           include: { client: true, vehicle: true },
           orderBy: { createdAt: "desc" },
+          take: 50,
         }),
         prisma.payment.findMany({
-          where: { agencyId },
+          where: { agencyId, paidAt: { gte: new Date(now.getFullYear(), now.getMonth() - 5, 1) } },
           orderBy: { paidAt: "desc" },
         }),
         prisma.maintenance.findMany({
           where: { agencyId },
           include: { vehicle: true },
           orderBy: { scheduledDate: "desc" },
+          take: 50,
+        }),
+        prisma.lead.groupBy({
+          by: ["phase"],
+          where: { agencyId },
+          _count: true,
         }),
       ]);
+    type BookingWithRelations = Prisma.BookingGetPayload<{ include: { client: true; vehicle: true } }>;
+    const bookings = rawBookings as BookingWithRelations[];
+    const leadData = leadStats as { _count: number; phase: string }[];
+    type MaintWithRelations = Prisma.MaintenanceGetPayload<{ include: { vehicle: true } }>;
+    const maintenanceLogs = rawMaintenance as MaintWithRelations[];
 
     const totalVehicles = vehicles.length;
-    const availableVehicles = vehicles.filter(
-      (v) => v.status === "available"
-    ).length;
-    const bookedVehicles = vehicles.filter(
-      (v) => v.status === "booked" || v.status === "rented"
-    ).length;
-    const maintenanceVehicles = vehicles.filter(
-      (v) => v.status === "maintenance"
-    ).length;
-    const totalClients = clients.length;
-    const activeBookings = bookings.filter(
-      (b) => b.status === "active" || b.status === "confirmed"
-    ).length;
+    const availableVehicles = vehicles.filter((v) => v.status === "available").length;
+    const bookedVehicles = vehicles.filter((v) => v.status === "booked" || v.status === "rented").length;
+    const maintenanceVehicles = vehicles.filter((v) => v.status === "maintenance").length;
+    const activeBookings = rawBookings.filter((b) => b.status === "active" || b.status === "confirmed").length;
 
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-
-    const thisMonthPayments = payments.filter(
-      (p) => p.paidAt && new Date(p.paidAt) >= startOfMonth
-    );
-    const totalRevenueThisMonth = thisMonthPayments.reduce(
-      (sum, p) => sum + p.amount,
-      0
-    );
+    const thisMonthPayments = payments.filter((p) => p.paidAt && p.paidAt >= startOfMonth);
+    const totalRevenueThisMonth = thisMonthPayments.reduce((sum, p) => sum + p.amount, 0);
 
     const revenueTrend: { month: string; revenue: number }[] = [];
     for (let i = 5; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const monthStr = d.toLocaleDateString("en-US", {
-        month: "short",
-        year: "numeric",
-      });
       const monthStart = new Date(d.getFullYear(), d.getMonth(), 1);
       const monthEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0);
       const monthPayments = payments.filter(
-        (p) =>
-          p.paidAt &&
-          new Date(p.paidAt) >= monthStart &&
-          new Date(p.paidAt) <= monthEnd
+        (p) => p.paidAt && p.paidAt >= monthStart && p.paidAt <= monthEnd
       );
       revenueTrend.push({
-        month: monthStr,
+        month: d.toLocaleDateString("en-US", { month: "short", year: "numeric" }),
         revenue: monthPayments.reduce((sum, p) => sum + p.amount, 0),
       });
     }
@@ -137,15 +121,8 @@ export async function getDashboardStats(): Promise<{
     ];
 
     const upcomingReturns = bookings
-      .filter(
-        (b) =>
-          (b.status === "active" || b.status === "confirmed") &&
-          new Date(b.returnDate) >= now
-      )
-      .sort(
-        (a, b) =>
-          new Date(a.returnDate).getTime() - new Date(b.returnDate).getTime()
-      )
+      .filter((b) => (b.status === "active" || b.status === "confirmed") && b.returnDate >= now)
+      .sort((a, b) => a.returnDate.getTime() - b.returnDate.getTime())
       .slice(0, 5)
       .map((b) => ({
         id: b.id,
@@ -155,12 +132,7 @@ export async function getDashboardStats(): Promise<{
       }));
 
     const overdueMaintenance = maintenanceLogs
-      .filter(
-        (m) =>
-          (m.status === "pending" || m.status === "scheduled") &&
-          m.scheduledDate &&
-          new Date(m.scheduledDate) < now
-      )
+      .filter((m) => (m.status === "pending" || m.status === "scheduled") && m.scheduledDate && m.scheduledDate < now)
       .slice(0, 5)
       .map((m) => ({
         id: m.id,
@@ -170,6 +142,11 @@ export async function getDashboardStats(): Promise<{
       }));
 
     const totalRevenue = payments.reduce((sum, p) => sum + p.amount, 0);
+
+    const leadStatsData = {
+      total: leadData.reduce((s, l) => s + l._count, 0),
+      byPhase: leadData.map((l) => ({ phase: l.phase, count: l._count })),
+    };
 
     const recentBookings = bookings.slice(0, 5).map((b) => ({
       id: b.id,
@@ -185,20 +162,13 @@ export async function getDashboardStats(): Promise<{
     return {
       success: true,
       data: {
-        totalVehicles,
-        availableVehicles,
-        bookedVehicles,
-        maintenanceVehicles,
-        totalClients,
-        activeBookings,
-        totalRevenueThisMonth,
-        revenueTrend,
-        bookingPipeline,
-        fleetUtilization,
+        totalVehicles, availableVehicles, bookedVehicles, maintenanceVehicles,
+        totalClients, activeBookings, totalRevenueThisMonth, totalRevenue,
+        revenueTrend, bookingPipeline, fleetUtilization,
         upcomingReturns,
         overdueMaintenance,
         recentBookings,
-        totalRevenue,
+        leadStats: leadStatsData,
       },
     };
   } catch (e) {

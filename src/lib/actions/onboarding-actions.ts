@@ -121,6 +121,24 @@ export async function skipVehicle() {
   return { success: true };
 }
 
+export async function saveLeadImport() {
+  const session = await auth();
+  if (!session?.user?.id) return { error: "Not authenticated" };
+  const user = await prisma.user.findUnique({ where: { id: session.user.id }, select: { agencyId: true } });
+  if (!user) return { error: "User not found" };
+  await prisma.agency.update({ where: { id: user.agencyId }, data: { onboardingStep: 3 } });
+  return { success: true };
+}
+
+export async function skipLeadImport() {
+  const session = await auth();
+  if (!session?.user?.id) return { error: "Not authenticated" };
+  const user = await prisma.user.findUnique({ where: { id: session.user.id }, select: { agencyId: true } });
+  if (!user) return { error: "User not found" };
+  await prisma.agency.update({ where: { id: user.agencyId }, data: { onboardingStep: 3 } });
+  return { success: true };
+}
+
 export async function completeOnboarding() {
   const session = await auth();
   if (!session?.user?.id) return { error: "Not authenticated" };

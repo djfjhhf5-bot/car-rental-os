@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency } from "@/lib/utils";
 
@@ -111,15 +112,26 @@ export default function CarDetailPage() {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <div className="relative h-72 overflow-hidden rounded-xl bg-surface-container-high border border-outline-variant/30 ambient-shadow">
-            <div className="flex h-full items-center justify-center">
-              <div className="flex flex-col items-center gap-4">
-                <div className="w-24 h-24 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center">
-                  <span className="font-jetbrains-mono text-2xl font-bold text-primary">
-                    {car.brand[0]}{car.model[0]}
-                  </span>
+            {car.imageUrl ? (
+              <Image
+                src={car.imageUrl}
+                alt={`${car.brand} ${car.model}`}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 66vw"
+                loading="eager"
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="w-24 h-24 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center">
+                    <span className="font-jetbrains-mono text-2xl font-bold text-primary">
+                      {car.brand[0]}{car.model[0]}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
             <div className="absolute bottom-4 left-4">
               <h1 className="font-montserrat text-headline-lg text-on-surface drop-shadow-lg">
                 {car.brand} {car.model}

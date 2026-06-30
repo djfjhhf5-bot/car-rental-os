@@ -16,6 +16,7 @@ interface CarData {
   seats: number;
   dailyRate: number;
   category: string;
+  imageUrl?: string | null;
 }
 
 export default function RentPage() {
@@ -97,6 +98,7 @@ export default function RentPage() {
                 seats={car.seats}
                 dailyRate={car.dailyRate}
                 category={car.category}
+                imageUrl={car.imageUrl}
               />
             ))}
           </div>
