@@ -44,6 +44,7 @@ model Agency {
   llmConfigs        LlmConfig[]
   leads             Lead[]
   leadImports       LeadImport[]
+  conversations     Conversation[]
 }
 
 model User {
@@ -295,6 +296,8 @@ model Lead {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  conversations Conversation[]
 }
 
 model LeadImport {
@@ -331,6 +334,25 @@ model Activity {
   clientId  String?
   client    Client?  @relation(fields: [clientId], references: [id])
   bookingId String?
+}
+
+model Conversation {
+  id          String   @id @default(cuid())
+  phoneNumber String
+  agencyId    String
+  leadId      String?
+  messages    Json     @default("[]")
+  lastMessageId String?
+  messageCount Int     @default(0)
+  pendingReply String?
+  retryCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  agency Agency @relation(fields: [agencyId], references: [id])
+  lead   Lead?  @relation(fields: [leadId], references: [id])
+
+  @@unique([phoneNumber, agencyId])
 }
 
 model WassenderConfig {

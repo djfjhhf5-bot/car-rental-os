@@ -1,189 +1,192 @@
 import { NextRequest } from "next/server";
-import { queryLlm, getLlmConfig } from "@/lib/services/llm";
+import { queryLlm, getLlmConfig, type ChatMessage } from "@/lib/services/llm";
 import { decrypt } from "@/lib/services/encryption";
 import type { AgencyContext, VehicleInfo } from "@/lib/actions/chat-actions";
 
-const WINDOW_MS = 60_000;
-const MAX_REQUESTS = 30;
-const rateMap = new Map<string, { count: number; resetAt: number }>();
+const APP_URL = () => process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3200";
 
-function isRateLimited(ip: string): boolean {
+let fleetCache: { data: AgencyContext | null; expiresAt: number } = { data: null, expiresAt: 0 };
+
+async function getFleetContext(agencyId: string, agencySlug?: string): Promise<AgencyContext> {
   const now = Date.now();
-  const entry = rateMap.get(ip);
-  if (!entry || now > entry.resetAt) {
-    rateMap.set(ip, { count: 1, resetAt: now + WINDOW_MS });
-    return false;
-  }
-  entry.count++;
-  return entry.count > MAX_REQUESTS;
+  if (fleetCache.data && now < fleetCache.expiresAt) return fleetCache.data;
+
+  const { prisma } = await import("@/lib/prisma");
+  const agency = await prisma.agency.findUnique({ where: { id: agencyId } });
+  const vehicles = await prisma.vehicle.findMany({
+    where: { agencyId, published: true },
+    select: { brand: true, model: true, year: true, category: true, transmission: true, fuelType: true, seats: true, dailyRate: true, weeklyRate: true, monthlyRate: true, depositAmount: true, status: true, imageUrl: true, published: true, id: true },
+  });
+
+  const popularCategories: { category: string; count: number }[] = [];
+  const counts: Record<string, number> = {};
+  vehicles.forEach((v) => { counts[v.category] = (counts[v.category] || 0) + 1; });
+  for (const [category, count] of Object.entries(counts)) popularCategories.push({ category, count });
+  popularCategories.sort((a, b) => b.count - a.count);
+
+  const ctx: AgencyContext = {
+    fleetSummary: { total: vehicles.length, available: vehicles.filter(v => v.status === "available").length, booked: vehicles.filter(v => v.status === "booked" || v.status === "rented").length, maintenance: vehicles.filter(v => v.status === "maintenance").length },
+    vehicles: vehicles as VehicleInfo[],
+    activeBookings: 0, totalClients: 0, revenueThisMonth: 0, totalRevenue: 0, recentBookingsCount: 0,
+    popularCategories, currency: agency?.currency || "DZD", agencyName: agency?.name || "Car Rental Agency",
+    carsPageUrl: agencySlug ? `${APP_URL()}/rent?agency=${agencySlug}` : `${APP_URL()}/rent`,
+  };
+
+  fleetCache = { data: ctx, expiresAt: now + 300_000 };
+  return ctx;
 }
-
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, val] of rateMap) {
-    if (now > val.resetAt) rateMap.delete(key);
-  }
-}, 60_000);
 
 export async function POST(request: NextRequest) {
   try {
-    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-    if (isRateLimited(ip)) {
-      return Response.json({ success: false, error: "Too many requests" }, { status: 429 });
-    }
-
     const body = await request.json();
     const signature = request.headers.get("x-webhook-signature");
     const secret = signature || request.nextUrl.searchParams.get("secret") || body?.secret;
-
-    if (!secret) {
-      return Response.json({ success: false, error: "Missing webhook secret" }, { status: 401 });
-    }
+    if (!secret) return Response.json({ success: false, error: "Missing webhook secret" }, { status: 401 });
 
     const { prisma } = await import("@/lib/prisma");
-
     const config = await prisma.wassenderConfig.findFirst({
       where: { webhookSecret: secret, active: true },
       include: { agency: true },
     });
-
-    if (!config) {
-      return Response.json({ success: false, error: "Invalid or inactive webhook secret" }, { status: 401 });
-    }
-
-    if (signature && config.webhookSecret && signature !== config.webhookSecret) {
-      return Response.json({ success: false, error: "Invalid webhook signature" }, { status: 401 });
-    }
+    if (!config) return Response.json({ success: false, error: "Invalid webhook secret" }, { status: 401 });
+    if (signature && config.webhookSecret && signature !== config.webhookSecret)
+      return Response.json({ success: false, error: "Invalid signature" }, { status: 401 });
 
     const rawMessages = body?.data?.messages;
     const msg = Array.isArray(rawMessages) ? rawMessages[0] : rawMessages;
-    if (msg?.key?.fromMe) {
-      return Response.json({ success: true, data: { ignored: true, reason: "Outgoing message" } });
-    }
+    if (msg?.key?.fromMe) return Response.json({ success: true, data: { ignored: true, reason: "Outgoing" } });
+
     const from = msg?.key?.remoteJid || msg?.key?.cleanedSenderPn || "";
     const text = msg?.messageBody || msg?.message?.conversation || "";
-
-    if (!from || !text) {
-      return Response.json({ success: true, data: { ignored: true, reason: "No message content" } });
-    }
-
-    await prisma.activity.create({
-      data: {
-        action: "whatsapp_inbound",
-        entity: "lead",
-        details: `Inbound from ${from}: ${text.slice(0, 500)}`,
-        agencyId: config.agencyId,
-      },
-    });
+    const messageId = msg?.key?.id || "";
+    if (!from || !text) return Response.json({ success: true, data: { ignored: true, reason: "No content" } });
 
     const digits = from.replace(/[^0-9]/g, "");
+    const agencyId = config.agencyId;
+    const agencySlug = config.agency?.slug || undefined;
 
-    const leads = await prisma.lead.findMany({
-      where: { agencyId: config.agencyId },
-      select: { id: true, name: true, phone: true, whatsapp: true, phase: true },
+    const lead = await prisma.lead.findFirst({
+      where: { agencyId },
+      select: { id: true, name: true, phone: true, whatsapp: true, phase: true, source: true, notes: true },
     });
 
-    const matchedLead = leads.find((l) => {
+    const matchLead = (l: typeof lead) => {
+      if (!l) return false;
       const p = (l.phone || l.whatsapp || "").replace(/[^0-9]/g, "");
       return p.includes(digits) || digits.includes(p) || p.slice(-9) === digits.slice(-9);
-    });
+    };
+    const matchedLead = lead && matchLead(lead) ? lead : null;
 
     if (matchedLead) {
-      await prisma.lead.update({
-        where: { id: matchedLead.id },
-        data: { phase: "follow-up" },
-      });
+      await prisma.lead.update({ where: { id: matchedLead.id }, data: { phase: "follow-up" } });
     }
 
-    const llmResult = await getLlmConfig(config.agencyId);
+    const conversation = await prisma.conversation.upsert({
+      where: { phoneNumber_agencyId: { phoneNumber: digits, agencyId } },
+      create: { phoneNumber: digits, agencyId, leadId: matchedLead?.id || null, messages: [], lastMessageId: messageId, messageCount: 0, pendingReply: null, retryCount: 0 },
+      update: {},
+    });
+
+    if (conversation.lastMessageId === messageId) {
+      return Response.json({ success: true, data: { ignored: true, reason: "Duplicate" } });
+    }
+
+    const messages = (conversation.messages as Array<{ role: string; content: string; timestamp: number }>) || [];
+    messages.push({ role: "user", content: text, timestamp: Date.now() });
+    const recentMessages = messages.slice(-20);
+
+    await prisma.activity.create({
+      data: { action: "whatsapp_inbound", entity: "lead", details: `Inbound from ${digits}: ${text.slice(0, 500)}`, agencyId: config.agencyId },
+    });
+
+    let replied = false;
+    const pendingReply = conversation.pendingReply as string | null;
+    const retryCount = conversation.retryCount || 0;
+
+    const trySend = async (replyText: string, targetPhone: string): Promise<boolean> => {
+      try {
+        const apiKey = decrypt(config.apiKey || "");
+        const res = await fetch("https://wasenderapi.com/api/send-message", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+          body: JSON.stringify({ to: targetPhone, text: replyText }),
+        });
+        if (!res.ok) {
+          const errBody = await res.text();
+          if (res.status === 429 || errBody.includes("rate limit") || errBody.includes("trial")) {
+            return false;
+          }
+          console.error("Wassender send error:", res.status, errBody.slice(0, 200));
+          return false;
+        }
+        return true;
+      } catch {
+        return false;
+      }
+    };
+
+    const sendWithRetry = async (replyText: string, targetPhone: string): Promise<boolean> => {
+      const sent = await trySend(replyText, targetPhone);
+      if (!sent) {
+        await prisma.conversation.update({
+          where: { id: conversation.id },
+          data: { pendingReply: replyText, retryCount: retryCount + 1, lastMessageId: messageId, messages: recentMessages, messageCount: recentMessages.length, updatedAt: new Date() },
+        });
+      }
+      return sent;
+    };
+
+    if (pendingReply) {
+      const sent = await trySend(pendingReply, from);
+      if (sent) {
+        recentMessages.push({ role: "assistant", content: pendingReply, timestamp: Date.now() });
+        await prisma.conversation.update({
+          where: { id: conversation.id },
+          data: { pendingReply: null, retryCount: 0, messages: recentMessages, messageCount: recentMessages.length, lastMessageId: messageId, updatedAt: new Date() },
+        });
+      }
+    }
+
+    const fleetCtx = await getFleetContext(agencyId, agencySlug);
+    const llmResult = await getLlmConfig(agencyId);
     let replyText = "";
 
     if (llmResult.success && llmResult.data) {
       const apiKey = decrypt(llmResult.data.apiKey || "");
-      const agencyCtx = await buildAgencyContext(config.agencyId);
-      const aiResult = await queryLlm([], agencyCtx, { ...llmResult.data, apiKey }, text, "public");
+      const chatHistory: ChatMessage[] = recentMessages.slice(-10).map(m => ({ role: m.role === "assistant" ? "assistant" : "user", content: m.content }));
+      const leadContext = matchedLead ? {
+        name: matchedLead.name,
+        phase: matchedLead.phase,
+        source: matchedLead.source || undefined,
+        notes: matchedLead.notes || undefined,
+      } : null;
 
-      if (aiResult.success && aiResult.data) {
-        replyText = aiResult.data;
-      }
+      const aiResult = await queryLlm(chatHistory, fleetCtx, { ...llmResult.data, apiKey }, text, "public", leadContext);
+      if (aiResult.success && aiResult.data) replyText = aiResult.data;
     }
 
     if (!replyText) {
-      const carsUrl = config.agency?.slug
-        ? `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3200"}/rent?agency=${config.agency.slug}`
-        : `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3200"}/rent`;
-      replyText = `Hi! 👋\n\nThank you for your message. Browse our available cars here: ${carsUrl}\n- ${config.agency.name || "The Team"}`;
+      replyText = `Hi! 👋\n\nThank you for your message. Browse our available cars here: ${fleetCtx.carsPageUrl}\n- ${fleetCtx.agencyName}`;
     }
 
-    try {
-      const apiKey = decrypt(config.apiKey || "");
-      await fetch("https://wasenderapi.com/api/send-message", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({ to: from, text: replyText }),
+    const sent = await sendWithRetry(replyText, from);
+    if (sent) {
+      replied = true;
+      recentMessages.push({ role: "assistant", content: replyText, timestamp: Date.now() });
+      await prisma.conversation.update({
+        where: { id: conversation.id },
+        data: { messages: recentMessages, messageCount: recentMessages.length, lastMessageId: messageId, retryCount: 0, pendingReply: null, updatedAt: new Date() },
       });
-    } catch (sendErr) {
-      console.error("Failed to send reply via Wassender:", sendErr);
+    } else {
+      await prisma.conversation.update({
+        where: { id: conversation.id },
+        data: { lastMessageId: messageId, messages: recentMessages, messageCount: recentMessages.length, updatedAt: new Date() },
+      });
     }
 
-    return Response.json({ success: true, data: { received: true, replied: true } });
+    return Response.json({ success: true, data: { received: true, replied } });
   } catch (error) {
     console.error("Webhook error:", error);
     return Response.json({ success: false, error: "Internal server error" }, { status: 500 });
   }
-}
-
-async function buildAgencyContext(agencyId: string): Promise<AgencyContext> {
-  const { prisma } = await import("@/lib/prisma");
-
-  const agency = await prisma.agency.findUnique({ where: { id: agencyId } });
-  const vehicles = await prisma.vehicle.findMany({ where: { agencyId } });
-
-  const popularCategories: { category: string; count: number }[] = [];
-  const categoryCounts: Record<string, number> = {};
-  vehicles.forEach((v) => {
-    categoryCounts[v.category] = (categoryCounts[v.category] || 0) + 1;
-  });
-  for (const [category, count] of Object.entries(categoryCounts)) {
-    popularCategories.push({ category, count });
-  }
-  popularCategories.sort((a, b) => b.count - a.count);
-
-  return {
-    fleetSummary: {
-      total: vehicles.length,
-      available: vehicles.filter((v) => v.status === "available").length,
-      booked: vehicles.filter((v) => v.status === "booked" || v.status === "rented").length,
-      maintenance: vehicles.filter((v) => v.status === "maintenance").length,
-    },
-    vehicles: vehicles.map((v) => ({
-      id: v.id,
-      brand: v.brand,
-      model: v.model,
-      year: v.year,
-      category: v.category,
-      transmission: v.transmission,
-      fuelType: v.fuelType,
-      seats: v.seats,
-      dailyRate: v.dailyRate,
-      weeklyRate: v.weeklyRate,
-      monthlyRate: v.monthlyRate,
-      depositAmount: v.depositAmount,
-      status: v.status,
-      imageUrl: v.imageUrl,
-      published: v.published,
-    })),
-    activeBookings: 0,
-    totalClients: 0,
-    revenueThisMonth: 0,
-    totalRevenue: 0,
-    recentBookingsCount: 0,
-    popularCategories,
-    currency: agency?.currency || "DZD",
-    agencyName: agency?.name || "Car Rental Agency",
-    carsPageUrl: agency?.slug ? `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3200"}/rent?agency=${agency.slug}` : `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3200"}/rent`,
-  };
 }

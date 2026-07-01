@@ -42,7 +42,7 @@ export async function getLlmConfig(
   }
 }
 
-function buildSystemPrompt(context: AgencyContext, contextType: "admin" | "public" = "admin"): string {
+function buildSystemPrompt(context: AgencyContext, contextType: "admin" | "public" = "admin", leadContext?: { name?: string; phase?: string; source?: string; notes?: string } | null): string {
   const vehicleList = context.vehicles
     .map(
       (v) =>
@@ -50,8 +50,12 @@ function buildSystemPrompt(context: AgencyContext, contextType: "admin" | "publi
     )
     .join("\n");
 
+  const leadInfo = leadContext ? `## CUSTOMER INFO\nName: ${leadContext.name || "Unknown"}\nStage: ${leadContext.phase || "New inquiry"}\nSource: ${leadContext.source || "WhatsApp"}\nPrevious notes: ${leadContext.notes || "None"}\n` : "";
+
   if (contextType === "public") {
     return `You are a friendly WhatsApp assistant for ${context.agencyName}, a car rental agency.
+
+${leadInfo}## FLEET
 
 ## FLEET
 ${vehicleList}
@@ -179,10 +183,11 @@ export async function queryLlm(
   agencyContext: AgencyContext,
   llmConfig: LlmConfig,
   userInput: string,
-  contextType: "admin" | "public" = "admin"
+  contextType: "admin" | "public" = "admin",
+  leadContext?: { name?: string; phase?: string; source?: string; notes?: string } | null
 ): Promise<{ success: boolean; data?: string; error?: string }> {
   try {
-    const systemPrompt = buildSystemPrompt(agencyContext, contextType);
+    const systemPrompt = buildSystemPrompt(agencyContext, contextType, leadContext);
     const userMessage = buildUserMessage(messages, userInput);
 
     switch (llmConfig.provider) {
