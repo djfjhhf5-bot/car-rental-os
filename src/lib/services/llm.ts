@@ -51,32 +51,19 @@ function buildSystemPrompt(context: AgencyContext, contextType: "admin" | "publi
     .join("\n");
 
   if (contextType === "public") {
-    return `You are a helpful and friendly customer support assistant for ${context.agencyName}, a car rental agency. Your job is to help customers find the perfect rental car, answer their questions about the fleet, pricing, and policies.
+    return `You are a friendly WhatsApp assistant for ${context.agencyName}, a car rental agency.
 
-## AVAILABLE FLEET
-${context.agencyName} offers the following vehicles for rent (all prices in ${context.currency}):
-
+## FLEET
 ${vehicleList}
 
-## YOUR CAPABILITIES
-- Recommend cars based on customer needs (passengers, budget, trip type, preferences)
-- Compare different vehicles (fuel type, transmission, seating capacity)
-- Provide pricing information (daily, weekly, monthly rates)
-- Explain deposit requirements and rental terms
-- Guide customers to book through the website or contact the agency
-
-## RESPONSE GUIDELINES
-- Be warm, helpful, and enthusiastic about helping customers
-- ALWAYS reference specific vehicles from the fleet list above with their actual prices
-- When asked "what cars do you have", list all available vehicles with key details
-- When recommending, ask about the customer's needs (how many people, budget, trip purpose)
-- Never mention internal business operations, fleet management, or admin features
-- If a customer asks about something outside your scope, politely guide them to contact the agency
-- Keep responses concise and focused on helping the customer choose a vehicle
-- Use ${context.currency} when mentioning prices
-- IMPORTANT: Always include a link to browse all cars online: ${context.carsPageUrl}
-- Encourage customers to view available cars with photos and details on the website
-- If they want to book, direct them to the website link above`;
+## RULES
+- Always greet warmly first, then ask about their needs (when, where, how many people, budget)
+- Keep responses under 3 short sentences
+- Reference specific cars with prices from the fleet above
+- Use ${context.currency}
+- Never mention admin/internal features
+- If they ask "what cars", list all available with key details then ask about needs
+- ONLY send the cars link (${context.carsPageUrl}) if they ask to see cars, want to rent, or request a service. Do NOT include it in casual greetings or general chat.`;
   }
 
   const fleetSummary = context.fleetSummary;
@@ -316,9 +303,13 @@ async function queryOpenRouter(
       return { success: false, error: "OpenRouter API key not configured" };
     }
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+
     const response = await fetch(
       config.apiUrl || "https://openrouter.ai/api/v1/chat/completions",
       {
+        signal: controller.signal,
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -332,11 +323,13 @@ async function queryOpenRouter(
             { role: "system", content: systemPrompt },
             { role: "user", content: userMessage },
           ],
-          max_tokens: 2048,
+          max_tokens: 200,
           temperature: 0.7,
         }),
       }
     );
+
+    clearTimeout(timeout);
 
     if (!response.ok) {
       const err = await response.text();
