@@ -327,7 +327,7 @@ async function queryOpenRouter(
           "X-Title": "Car Rental OS",
         },
         body: JSON.stringify({
-          model: config.model || "openai/gpt-4o",
+          model: config.model || "openai/gpt-4o-mini",
           messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: userMessage },

@@ -55,9 +55,13 @@ export async function POST(request: NextRequest) {
       return Response.json({ success: false, error: "Invalid webhook signature" }, { status: 401 });
     }
 
-    const msg = body?.messages?.[0] || body?.message || body;
-    const from = msg?.from || msg?.sender || msg?.author || "";
-    const text = msg?.text || msg?.body || msg?.content || "";
+    const rawMessages = body?.data?.messages;
+    const msg = Array.isArray(rawMessages) ? rawMessages[0] : rawMessages;
+    if (msg?.key?.fromMe) {
+      return Response.json({ success: true, data: { ignored: true, reason: "Outgoing message" } });
+    }
+    const from = msg?.key?.remoteJid || msg?.key?.cleanedSenderPn || "";
+    const text = msg?.messageBody || msg?.message?.conversation || "";
 
     if (!from || !text) {
       return Response.json({ success: true, data: { ignored: true, reason: "No message content" } });
