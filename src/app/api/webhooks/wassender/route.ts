@@ -139,25 +139,18 @@ export async function POST(request: NextRequest) {
 async function buildAgencyContext(agencyId: string): Promise<AgencyContext> {
   const { prisma } = await import("@/lib/prisma");
 
-  const [agency, vehicles, bookings, clients, payments] = await Promise.all([
-    prisma.agency.findUnique({ where: { id: agencyId } }),
-    prisma.vehicle.findMany({ where: { agencyId } }),
-    prisma.booking.findMany({ where: { agencyId } }),
-    prisma.client.findMany({ where: { agencyId } }),
-    prisma.payment.findMany({ where: { agencyId } }),
-  ]);
+  const agency = await prisma.agency.findUnique({ where: { id: agencyId } });
+  const vehicles = await prisma.vehicle.findMany({ where: { agencyId } });
 
-  const now = new Date();
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const thisMonthPayments = payments.filter((p) => p.paidAt && new Date(p.paidAt) >= startOfMonth);
-
+  const popularCategories: { category: string; count: number }[] = [];
   const categoryCounts: Record<string, number> = {};
   vehicles.forEach((v) => {
     categoryCounts[v.category] = (categoryCounts[v.category] || 0) + 1;
   });
-  const popularCategories = Object.entries(categoryCounts)
-    .map(([category, count]) => ({ category, count }))
-    .sort((a, b) => b.count - a.count);
+  for (const [category, count] of Object.entries(categoryCounts)) {
+    popularCategories.push({ category, count });
+  }
+  popularCategories.sort((a, b) => b.count - a.count);
 
   return {
     fleetSummary: {
@@ -183,11 +176,11 @@ async function buildAgencyContext(agencyId: string): Promise<AgencyContext> {
       imageUrl: v.imageUrl,
       published: v.published,
     })),
-    activeBookings: bookings.filter((b) => b.status === "active" || b.status === "confirmed").length,
-    totalClients: clients.length,
-    revenueThisMonth: thisMonthPayments.reduce((sum, p) => sum + p.amount, 0),
-    totalRevenue: payments.reduce((sum, p) => sum + p.amount, 0),
-    recentBookingsCount: bookings.filter((b) => new Date(b.createdAt) >= startOfMonth).length,
+    activeBookings: 0,
+    totalClients: 0,
+    revenueThisMonth: 0,
+    totalRevenue: 0,
+    recentBookingsCount: 0,
     popularCategories,
     currency: agency?.currency || "DZD",
     agencyName: agency?.name || "Car Rental Agency",

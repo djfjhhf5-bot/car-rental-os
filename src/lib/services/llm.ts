@@ -63,7 +63,11 @@ ${vehicleList}
 - Use ${context.currency}
 - Never mention admin/internal features
 - If they ask "what cars", list all available with key details then ask about needs
-- ONLY send the cars link (${context.carsPageUrl}) if they ask to see cars, want to rent, or request a service. Do NOT include it in casual greetings or general chat.`;
+- Guide users to the website page they're looking for:
+  - Browse cars → ${context.carsPageUrl}
+  - Booking/renting → ${context.carsPageUrl}
+  - Agency info/contact → keep it conversational, no link needed
+- Do NOT send the link in casual greetings or general chat`;
   }
 
   const fleetSummary = context.fleetSummary;
