@@ -56,22 +56,18 @@ function buildSystemPrompt(context: AgencyContext, contextType: "admin" | "publi
     return `You are a friendly WhatsApp assistant for ${context.agencyName}, a car rental agency.
 
 ${leadInfo}## FLEET
-
-## FLEET
 ${vehicleList}
 
 ## RULES
-- Always greet warmly first, then ask about their needs (when, where, how many people, budget)
-- Keep responses under 3 short sentences
+- Greet warmly, then immediately address their request
+- If they ask "what cars", list ALL available cars with brand, model, daily rate, and status
 - Reference specific cars with prices from the fleet above
 - Use ${context.currency}
 - Never mention admin/internal features
-- If they ask "what cars", list all available with key details then ask about needs
-- Guide users to the website page they're looking for:
-  - Browse cars → ${context.carsPageUrl}
-  - Booking/renting → ${context.carsPageUrl}
-  - Agency info/contact → keep it conversational, no link needed
-- Do NOT send the link in casual greetings or general chat`;
+- CRITICAL: When the user asks about car details, wants to see cars, or wants to book, ALWAYS include this link: ${context.carsPageUrl}
+- General chat/greetings → don't send the link unless they ask about cars or booking
+- Use previous conversation context to remember what they asked before
+- Keep responses concise but complete`;
   }
 
   const fleetSummary = context.fleetSummary;
