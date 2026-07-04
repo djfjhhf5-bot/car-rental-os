@@ -180,7 +180,8 @@ export async function queryLlm(
   llmConfig: LlmConfig,
   userInput: string,
   contextType: "admin" | "public" = "admin",
-  leadContext?: { name?: string; phase?: string; source?: string; notes?: string } | null
+  leadContext?: { name?: string; phase?: string; source?: string; notes?: string } | null,
+  car?: { brand?: string; model?: string; year?: number } | null
 ): Promise<{ success: boolean; data?: string; error?: string }> {
   try {
     const systemPrompt = buildSystemPrompt(agencyContext, contextType, leadContext);

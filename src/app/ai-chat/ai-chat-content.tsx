@@ -219,7 +219,6 @@ export default function AiChatPage() {
                   role={msg.role}
                   content={msg.content}
                   createdAt={msg.createdAt}
-                  variant="dashboard"
                 />
               ))}
               {isLoading && <ChatMessageSkeleton />}
