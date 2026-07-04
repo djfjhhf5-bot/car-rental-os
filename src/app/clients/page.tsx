@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/lib/i18n/language-context";
+import { t } from "@/lib/i18n/translations";
 import {
   Dialog,
   DialogContent,
@@ -33,6 +35,7 @@ import { toast } from "@/components/ui/toast";
 function ClientsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { lang } = useLanguage();
   const search = searchParams.get("search") || "";
 
   const [clients, setClients] = useState<any[]>([]);
@@ -49,10 +52,10 @@ function ClientsContent() {
       if (result.data) {
         setClients(result.data);
       } else {
-        setError(result.error ?? "Failed to load clients");
+        setError(result.error ?? t("clients.loadError", lang));
       }
     } catch {
-      setError("Failed to load clients");
+      setError(t("clients.loadError", lang));
     } finally {
       setLoading(false);
     }
@@ -68,7 +71,7 @@ function ClientsContent() {
     const result = await deleteClient(deleteId);
     setDeleting(false);
     if (result.success) {
-      toast({ title: "Deleted", description: "Client deleted successfully", variant: "success" as const });
+      toast({ title: t("clients.deleted", lang), description: t("clients.deletedDesc", lang), variant: "success" as const });
       setDeleteId(null);
       loadClients();
     } else {
@@ -80,15 +83,15 @@ function ClientsContent() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Clients</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t("clients.title", lang)}</h1>
           <p className="text-sm text-muted-foreground">
-            Manage your rental clients
+            {t("clients.subtitle", lang)}
           </p>
         </div>
         <Button asChild>
           <Link href="/clients/new">
             <Plus className="h-4 w-4 mr-2" />
-            Add Client
+            {t("clients.addClient", lang)}
           </Link>
         </Button>
       </div>
@@ -101,7 +104,7 @@ function ClientsContent() {
               <Input
                 name="search"
                 defaultValue={search}
-                placeholder="Search by name, email, or phone..."
+                placeholder={t("common.searchByNameEmail", lang)}
                 className="pl-10"
               />
             </div>
@@ -116,12 +119,12 @@ function ClientsContent() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left text-sm font-medium text-muted-foreground px-6 py-4">Name</th>
-                    <th className="text-left text-sm font-medium text-muted-foreground px-6 py-4">Phone</th>
-                    <th className="text-left text-sm font-medium text-muted-foreground px-6 py-4">Email</th>
-                    <th className="text-left text-sm font-medium text-muted-foreground px-6 py-4">License</th>
-                    <th className="text-center text-sm font-medium text-muted-foreground px-6 py-4">Bookings</th>
-                    <th className="text-right text-sm font-medium text-muted-foreground px-6 py-4">Actions</th>
+                    <th className="text-left text-sm font-medium text-muted-foreground px-6 py-4">{t("clients.name", lang)}</th>
+                    <th className="text-left text-sm font-medium text-muted-foreground px-6 py-4">{t("clients.phone", lang)}</th>
+                    <th className="text-left text-sm font-medium text-muted-foreground px-6 py-4">{t("clients.email", lang)}</th>
+                    <th className="text-left text-sm font-medium text-muted-foreground px-6 py-4">{t("clients.license", lang)}</th>
+                    <th className="text-center text-sm font-medium text-muted-foreground px-6 py-4">{t("clients.bookings", lang)}</th>
+                    <th className="text-right text-sm font-medium text-muted-foreground px-6 py-4">{t("common.actions", lang)}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -144,9 +147,9 @@ function ClientsContent() {
           <div className="p-4 rounded-full bg-destructive/10 mb-4">
             <Users className="h-8 w-8 text-destructive" />
           </div>
-          <h2 className="text-xl font-semibold mb-2">Error Loading Clients</h2>
+          <h2 className="text-xl font-semibold mb-2">{t("clients.errorTitle", lang)}</h2>
           <p className="text-muted-foreground mb-6">{error}</p>
-          <Button onClick={loadClients}>Try Again</Button>
+          <Button onClick={loadClients}>{t("common.tryAgain", lang)}</Button>
         </div>
       ) : clients.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center border rounded-xl">
@@ -154,18 +157,18 @@ function ClientsContent() {
             <Users className="h-8 w-8 text-muted-foreground" />
           </div>
           <h2 className="text-xl font-semibold mb-2">
-            {search ? "No clients found" : "No clients yet"}
+            {search ? t("clients.noResults", lang) : t("clients.noClients", lang)}
           </h2>
           <p className="text-muted-foreground mb-6">
             {search
-              ? "Try a different search term"
-              : "Add your first client to get started"}
+              ? t("clients.noResultsDesc", lang)
+              : t("clients.noClientsDesc", lang)}
           </p>
           {!search && (
             <Button asChild>
               <Link href="/clients/new">
                 <Plus className="h-4 w-4 mr-2" />
-                Add Client
+                {t("clients.addClient", lang)}
               </Link>
             </Button>
           )}
@@ -178,22 +181,22 @@ function ClientsContent() {
                 <thead>
                   <tr className="border-b">
                     <th className="text-left text-sm font-medium text-muted-foreground px-6 py-4">
-                      Name
+                      {t("clients.name", lang)}
                     </th>
                     <th className="text-left text-sm font-medium text-muted-foreground px-6 py-4">
-                      Phone
+                      {t("clients.phone", lang)}
                     </th>
                     <th className="text-left text-sm font-medium text-muted-foreground px-6 py-4">
-                      Email
+                      {t("clients.email", lang)}
                     </th>
                     <th className="text-left text-sm font-medium text-muted-foreground px-6 py-4">
-                      License
+                      {t("clients.license", lang)}
                     </th>
                     <th className="text-center text-sm font-medium text-muted-foreground px-6 py-4">
-                      Bookings
+                      {t("clients.bookings", lang)}
                     </th>
                     <th className="text-right text-sm font-medium text-muted-foreground px-6 py-4">
-                      Actions
+                      {t("common.actions", lang)}
                     </th>
                   </tr>
                 </thead>
@@ -228,7 +231,7 @@ function ClientsContent() {
                             {client.phone}
                           </div>
                         ) : (
-                          <span className="text-sm text-muted-foreground">—</span>
+                          <span className="text-sm text-muted-foreground">&mdash;</span>
                         )}
                       </td>
                       <td className="px-6 py-4">
@@ -238,14 +241,14 @@ function ClientsContent() {
                             {client.email}
                           </div>
                         ) : (
-                          <span className="text-sm text-muted-foreground">—</span>
+                          <span className="text-sm text-muted-foreground">&mdash;</span>
                         )}
                       </td>
                       <td className="px-6 py-4">
                         {client.licenseNumber ? (
                           <span className="text-sm">{client.licenseNumber}</span>
                         ) : (
-                          <span className="text-sm text-muted-foreground">—</span>
+                          <span className="text-sm text-muted-foreground">&mdash;</span>
                         )}
                       </td>
                       <td className="px-6 py-4 text-center">
@@ -286,18 +289,18 @@ function ClientsContent() {
       <Dialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Client</DialogTitle>
+            <DialogTitle>{t("clients.deleteTitle", lang)}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this client? This action cannot be undone.
+              {t("clients.deleteDesc", lang)}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteId(null)}>
-              Cancel
+              {t("common.cancel", lang)}
             </Button>
             <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
               {deleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Delete
+              {t("common.delete", lang)}
             </Button>
           </DialogFooter>
         </DialogContent>

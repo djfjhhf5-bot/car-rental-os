@@ -6,6 +6,8 @@ import { Plus, Wrench, AlertTriangle, Calendar, Loader2, Trash2 } from "lucide-r
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/lib/i18n/language-context";
+import { t } from "@/lib/i18n/translations";
 import {
   Select,
   SelectContent,
@@ -59,6 +61,7 @@ interface UpcomingData {
 }
 
 export default function MaintenancePage() {
+  const { lang } = useLanguage();
   const [records, setRecords] = useState<MaintenanceData[]>([]);
   const [upcomingData, setUpcomingData] = useState<UpcomingData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -114,15 +117,15 @@ export default function MaintenancePage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Maintenance</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t("maintenance.title", lang)}</h1>
           <p className="text-sm text-muted-foreground">
-            Track vehicle maintenance and service records
+            {t("maintenance.subtitle", lang)}
           </p>
         </div>
         <Button asChild>
           <Link href="/maintenance/new">
             <Plus className="mr-2 h-4 w-4" />
-            Add Record
+            {t("maintenance.addRecord", lang)}
           </Link>
         </Button>
       </div>
@@ -139,7 +142,7 @@ export default function MaintenancePage() {
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-destructive text-sm">
                   <AlertTriangle className="h-4 w-4" />
-                  Overdue Maintenance ({upcomingData!.overdue.length})
+                  {t("maintenance.overdue", lang)} ({upcomingData!.overdue.length})
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -152,10 +155,10 @@ export default function MaintenancePage() {
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-muted-foreground text-xs">
-                          Due: {r.scheduledDate ? formatDate(r.scheduledDate) : "N/A"}
+                          {t("dashboard.due", lang)} {r.scheduledDate ? formatDate(r.scheduledDate) : t("dashboard.noDate", lang)}
                         </span>
                         <Button variant="ghost" size="sm" asChild>
-                          <Link href={`/maintenance/${r.id}`}>View</Link>
+                          <Link href={`/maintenance/${r.id}`}>{t("common.view", lang)}</Link>
                         </Button>
                       </div>
                     </div>
@@ -169,7 +172,7 @@ export default function MaintenancePage() {
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-yellow-600 text-sm">
                   <Calendar className="h-4 w-4" />
-                  Upcoming Maintenance (Next 30 Days) - {upcomingData!.upcoming.length}
+                  {t("maintenance.upcoming", lang)} - {upcomingData!.upcoming.length}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -182,10 +185,10 @@ export default function MaintenancePage() {
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-muted-foreground text-xs">
-                          {r.scheduledDate ? formatDate(r.scheduledDate) : "No date set"}
+                          {r.scheduledDate ? formatDate(r.scheduledDate) : t("dashboard.noDate", lang)}
                         </span>
                         <Button variant="ghost" size="sm" asChild>
-                          <Link href={`/maintenance/${r.id}`}>View</Link>
+                          <Link href={`/maintenance/${r.id}`}>{t("common.view", lang)}</Link>
                         </Button>
                       </div>
                     </div>
@@ -200,10 +203,10 @@ export default function MaintenancePage() {
       <div className="flex flex-col gap-4 sm:flex-row">
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-full sm:w-40">
-            <SelectValue placeholder="All statuses" />
+            <SelectValue placeholder={t("common.allStatuses", lang)} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Statuses</SelectItem>
+            <SelectItem value="all">{t("common.allStatuses", lang)}</SelectItem>
             <SelectItem value="pending">Pending</SelectItem>
             <SelectItem value="in_progress">In Progress</SelectItem>
             <SelectItem value="completed">Completed</SelectItem>
@@ -212,10 +215,10 @@ export default function MaintenancePage() {
         </Select>
         <Select value={vehicleFilter} onValueChange={setVehicleFilter}>
           <SelectTrigger className="w-full sm:w-48">
-            <SelectValue placeholder="All vehicles" />
+            <SelectValue placeholder={t("common.allVehicles", lang)} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Vehicles</SelectItem>
+            <SelectItem value="all">{t("common.allVehicles", lang)}</SelectItem>
             {uniqueVehicles.map((v) => (
               <SelectItem key={v.id} value={v.id}>
                 {v.brand} {v.model} - {v.licensePlate}
@@ -232,7 +235,7 @@ export default function MaintenancePage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b">
-                    {["Vehicle", "Type", "Status", "Date", "Cost", "Actions"].map((h) => (
+                    {[t("maintenance.vehicle", lang), t("maintenance.type", lang), t("maintenance.scheduled", lang), t("maintenance.cost", lang), t("common.actions", lang)].map((h) => (
                       <th key={h} className="text-left text-sm font-medium text-muted-foreground px-6 py-4">
                         {h}
                       </th>
@@ -258,23 +261,23 @@ export default function MaintenancePage() {
         <div className="flex flex-col items-center justify-center rounded-lg border border-destructive/50 bg-destructive/5 py-16">
           <p className="text-destructive">{error}</p>
           <Button variant="outline" className="mt-4" onClick={loadData}>
-            Try Again
+            {t("common.tryAgain", lang)}
           </Button>
         </div>
       ) : records.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
           <Wrench className="mb-4 h-12 w-12 text-muted-foreground" />
-          <p className="text-lg font-medium">No maintenance records</p>
+          <p className="text-lg font-medium">{t("maintenance.noRecords", lang)}</p>
           <p className="text-sm text-muted-foreground">
             {statusFilter !== "all" || vehicleFilter !== "all"
-              ? "Try adjusting your filters"
-              : "Add your first maintenance record"}
+              ? t("common.noResultsDesc", lang)
+              : t("maintenance.addFirst", lang)}
           </p>
           {statusFilter === "all" && vehicleFilter === "all" && (
             <Button asChild className="mt-4">
               <Link href="/maintenance/new">
                 <Plus className="mr-2 h-4 w-4" />
-                Add Record
+                {t("maintenance.addRecord", lang)}
               </Link>
             </Button>
           )}
@@ -286,12 +289,12 @@ export default function MaintenancePage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left text-sm font-medium text-muted-foreground px-6 py-4">Vehicle</th>
-                    <th className="text-left text-sm font-medium text-muted-foreground px-6 py-4">Type</th>
-                    <th className="text-center text-sm font-medium text-muted-foreground px-6 py-4">Status</th>
-                    <th className="text-left text-sm font-medium text-muted-foreground px-6 py-4">Scheduled</th>
-                    <th className="text-right text-sm font-medium text-muted-foreground px-6 py-4">Cost</th>
-                    <th className="text-right text-sm font-medium text-muted-foreground px-6 py-4">Actions</th>
+                    <th className="text-left text-sm font-medium text-muted-foreground px-6 py-4">{t("maintenance.vehicle", lang)}</th>
+                    <th className="text-left text-sm font-medium text-muted-foreground px-6 py-4">{t("maintenance.type", lang)}</th>
+                    <th className="text-center text-sm font-medium text-muted-foreground px-6 py-4">{t("common.status", lang)}</th>
+                    <th className="text-left text-sm font-medium text-muted-foreground px-6 py-4">{t("maintenance.scheduled", lang)}</th>
+                    <th className="text-right text-sm font-medium text-muted-foreground px-6 py-4">{t("maintenance.cost", lang)}</th>
+                    <th className="text-right text-sm font-medium text-muted-foreground px-6 py-4">{t("common.actions", lang)}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -318,7 +321,7 @@ export default function MaintenancePage() {
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <Button variant="ghost" size="sm" asChild>
-                            <Link href={`/maintenance/${record.id}`}>View</Link>
+                            <Link href={`/maintenance/${record.id}`}>{t("common.view", lang)}</Link>
                           </Button>
                           <Button
                             variant="ghost"
@@ -341,18 +344,18 @@ export default function MaintenancePage() {
       <Dialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Maintenance Record</DialogTitle>
+            <DialogTitle>{t("maintenance.deleteTitle", lang)}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this maintenance record? This action cannot be undone.
+              {t("maintenance.deleteDesc", lang)}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteId(null)}>
-              Cancel
+              {t("common.cancel", lang)}
             </Button>
             <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
               {deleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Delete
+              {t("common.delete", lang)}
             </Button>
           </DialogFooter>
         </DialogContent>

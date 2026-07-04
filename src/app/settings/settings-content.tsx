@@ -11,6 +11,8 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLanguage } from "@/lib/i18n/language-context";
+import { t } from "@/lib/i18n/translations";
 import { toast } from "@/components/ui/toast";
 import {
   getAgencySettings,
@@ -87,6 +89,7 @@ type AgencyUserData = {
 };
 
 export default function SettingsPage() {
+  const { lang } = useLanguage();
   const [activeTab, setActiveTab] = useState("agency");
   const [loading, setLoading] = useState(true);
 
@@ -159,7 +162,7 @@ export default function SettingsPage() {
     });
     setAgencySaving(false);
     if (res.success) {
-      toast({ title: "Saved", description: "Agency settings updated", variant: "success" as const });
+      toast({ title: t("settings.saved", lang), description: t("settings.savedDesc", lang), variant: "success" as const });
     } else {
       toast({ title: "Error", description: res.error || "Failed to save", variant: "destructive" as const });
     }
@@ -175,7 +178,8 @@ export default function SettingsPage() {
     });
     setLlmSaving(false);
     if (res.success) {
-      toast({ title: "Saved", description: "LLM configuration updated", variant: "success" as const });
+      if (res.data) setLlmConfig(res.data as LlmConfigData);
+      toast({ title: t("settings.saved", lang), description: t("settings.configUpdated", lang), variant: "success" as const });
     } else {
       toast({ title: "Error", description: res.error || "Failed to save", variant: "destructive" as const });
     }
@@ -191,7 +195,7 @@ export default function SettingsPage() {
     });
     setWassenderSaving(false);
     if (res.success) {
-      toast({ title: "Saved", description: "Wassender configuration updated", variant: "success" as const });
+      toast({ title: t("settings.saved", lang), description: t("settings.whatsappUpdated", lang), variant: "success" as const });
     } else {
       toast({ title: "Error", description: res.error || "Failed to save", variant: "destructive" as const });
     }
@@ -199,7 +203,7 @@ export default function SettingsPage() {
 
   const handleTemplateSave = useCallback(async () => {
     if (!templateName || !templateContent) {
-      toast({ title: "Error", description: "Name and content are required", variant: "destructive" as const });
+      toast({ title: "Error", description: t("settings.nameRequired", lang), variant: "destructive" as const });
       return;
     }
     setTemplateSaving(true);
@@ -211,7 +215,7 @@ export default function SettingsPage() {
     });
     setTemplateSaving(false);
     if (res.success && res.data) {
-      toast({ title: "Saved", description: "Contract template saved", variant: "success" as const });
+      toast({ title: t("settings.saved", lang), description: t("settings.templateSaved", lang), variant: "success" as const });
       setTemplates((prev) => {
         const existing = prev.findIndex((t) => t.id === res.data!.id);
         if (existing >= 0) {
@@ -231,7 +235,7 @@ export default function SettingsPage() {
     const res = await deleteContractTemplate(id);
     if (res.success) {
       setTemplates((prev) => prev.filter((t) => t.id !== id));
-      toast({ title: "Deleted", description: "Template removed", variant: "success" as const });
+      toast({ title: t("settings.saved", lang), description: t("settings.templateDeleted", lang), variant: "success" as const });
     } else {
       toast({ title: "Error", description: res.error || "Failed to delete", variant: "destructive" as const });
     }
@@ -239,7 +243,7 @@ export default function SettingsPage() {
 
   const handleUserCreate = useCallback(async () => {
     if (!newUserName || !newUserEmail || !newUserPassword) {
-      toast({ title: "Error", description: "All fields are required", variant: "destructive" as const });
+      toast({ title: "Error", description: t("settings.allFieldsRequired", lang), variant: "destructive" as const });
       return;
     }
     setUserSaving(true);
@@ -251,7 +255,7 @@ export default function SettingsPage() {
     });
     setUserSaving(false);
     if (res.success && res.data) {
-      toast({ title: "Created", description: "Team member added", variant: "success" as const });
+      toast({ title: t("settings.saved", lang), description: t("settings.memberAdded", lang), variant: "success" as const });
       setUsers((prev) => [...prev, res.data!]);
       setNewUserName("");
       setNewUserEmail("");
@@ -293,9 +297,9 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
+        <h1 className="text-2xl font-bold tracking-tight">{t("settings.title", lang)}</h1>
         <p className="text-sm text-muted-foreground">
-          Manage your agency configuration
+          {t("settings.subtitle", lang)}
         </p>
       </div>
 
@@ -303,38 +307,38 @@ export default function SettingsPage() {
         <TabsList className="w-full flex-wrap justify-start h-auto gap-1">
           <TabsTrigger value="agency" className="gap-1.5">
             <Building2 className="h-4 w-4" />
-            Agency
+            {t("settings.agency", lang)}
           </TabsTrigger>
           <TabsTrigger value="llm" className="gap-1.5">
             <Brain className="h-4 w-4" />
-            LLM
+            {t("settings.llm", lang)}
           </TabsTrigger>
           <TabsTrigger value="wassender" className="gap-1.5">
             <MessageSquare className="h-4 w-4" />
-            WhatsApp
+            {t("settings.whatsapp", lang)}
           </TabsTrigger>
           <TabsTrigger value="templates" className="gap-1.5">
             <FileText className="h-4 w-4" />
-            Contracts
+            {t("settings.contracts", lang)}
           </TabsTrigger>
           <TabsTrigger value="team" className="gap-1.5">
             <Users className="h-4 w-4" />
-            Team
+            {t("settings.team", lang)}
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="agency" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Agency Settings</CardTitle>
+              <CardTitle>{t("settings.agencySettings", lang)}</CardTitle>
               <CardDescription>
-                Configure your rental agency details
+                {t("settings.agencySettingsDesc", lang)}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Agency Name</Label>
+                  <Label htmlFor="name">{t("settings.agencyName", lang)}</Label>
                   <Input
                     id="name"
                     value={agency?.name || ""}
@@ -346,11 +350,11 @@ export default function SettingsPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="slug">Slug</Label>
+                  <Label htmlFor="slug">{t("settings.slug", lang)}</Label>
                   <Input id="slug" value={agency?.slug || ""} disabled />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">{t("settings.email", lang)}</Label>
                   <Input
                     id="email"
                     type="email"
@@ -363,7 +367,7 @@ export default function SettingsPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone</Label>
+                  <Label htmlFor="phone">{t("settings.phone", lang)}</Label>
                   <Input
                     id="phone"
                     value={agency?.phone || ""}
@@ -375,7 +379,7 @@ export default function SettingsPage() {
                   />
                 </div>
                 <div className="space-y-2 sm:col-span-2">
-                  <Label htmlFor="address">Address</Label>
+                  <Label htmlFor="address">{t("settings.address", lang)}</Label>
                   <Input
                     id="address"
                     value={agency?.address || ""}
@@ -387,7 +391,7 @@ export default function SettingsPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="currency">Currency</Label>
+                  <Label htmlFor="currency">{t("settings.currency", lang)}</Label>
                   <Select
                     value={agency?.currency || "USD"}
                     onValueChange={(v) =>
@@ -401,8 +405,8 @@ export default function SettingsPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="USD">USD ($)</SelectItem>
-                      <SelectItem value="EUR">EUR (€)</SelectItem>
-                      <SelectItem value="GBP">GBP (£)</SelectItem>
+                      <SelectItem value="EUR">EUR (&euro;)</SelectItem>
+                      <SelectItem value="GBP">GBP (&pound;)</SelectItem>
                       <SelectItem value="MAD">MAD (DH)</SelectItem>
                       <SelectItem value="AED">AED (د.إ)</SelectItem>
                       <SelectItem value="DZD">DZD (د.ج)</SelectItem>
@@ -410,7 +414,7 @@ export default function SettingsPage() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="timezone">Timezone</Label>
+                  <Label htmlFor="timezone">{t("settings.timezone", lang)}</Label>
                   <Select
                     value={agency?.timezone || "America/New_York"}
                     onValueChange={(v) =>
@@ -444,7 +448,7 @@ export default function SettingsPage() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="primaryColor">Primary Color</Label>
+                  <Label htmlFor="primaryColor">{t("settings.primaryColor", lang)}</Label>
                   <div className="flex gap-2">
                     <Input
                       id="primaryColor"
@@ -473,7 +477,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="secondaryColor">Secondary Color</Label>
+                  <Label htmlFor="secondaryColor">{t("settings.secondaryColor", lang)}</Label>
                   <div className="flex gap-2">
                     <Input
                       id="secondaryColor"
@@ -502,7 +506,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="logo">Logo URL</Label>
+                  <Label htmlFor="logo">{t("settings.logoUrl", lang)}</Label>
                   <Input
                     id="logo"
                     value={agency?.logo || ""}
@@ -519,7 +523,7 @@ export default function SettingsPage() {
                 {agencySaving && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
-                Save Changes
+                {t("settings.saveChanges", lang)}
               </Button>
             </CardContent>
           </Card>
@@ -528,55 +532,58 @@ export default function SettingsPage() {
         <TabsContent value="llm" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>LLM Configuration</CardTitle>
+              <CardTitle>{t("settings.llmConfig", lang)}</CardTitle>
               <CardDescription>
-                Configure the AI provider for chat features
+                {t("settings.llmConfigDesc", lang)}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="provider">Provider</Label>
+                <Label htmlFor="provider">{t("settings.provider", lang)}</Label>
                 <Select
                   value={llmConfig?.provider || "openai"}
                   onValueChange={(v) =>
                     setLlmConfig((prev) =>
-                      prev ? { ...prev, provider: v } : null
+                      prev ? { ...prev, provider: v } : { id: "", provider: v, apiKey: null, model: "gpt-4", apiUrl: null, active: true }
                     )
                   }
                 >
                   <SelectTrigger id="provider">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                    <SelectContent>
                     <SelectItem value="openai">OpenAI</SelectItem>
                     <SelectItem value="anthropic">Anthropic</SelectItem>
-                    <SelectItem value="custom">Custom</SelectItem>
+                    <SelectItem value="openrouter">OpenRouter</SelectItem>
+                    <SelectItem value="custom">{t("settings.customApiUrl", lang)}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="model">Model</Label>
+                <Label htmlFor="model">{t("settings.model", lang)}</Label>
                 <Input
                   id="model"
                   value={llmConfig?.model || ""}
                   onChange={(e) =>
-                    setLlmConfig((prev) =>
-                      prev ? { ...prev, model: e.target.value } : null
-                    )
+                  setLlmConfig((prev) =>
+                    prev ? { ...prev, model: e.target.value } : { id: "", provider: "openai", apiKey: null, model: e.target.value, apiUrl: null, active: true }
+                  )
                   }
                   placeholder={
                     llmConfig?.provider === "openai"
                       ? "gpt-4"
                       : llmConfig?.provider === "anthropic"
                         ? "claude-3-opus-20240229"
-                        : "gpt-4"
+                        : llmConfig?.provider === "openrouter"
+                          ? "openai/gpt-4o-mini"
+                          : "gpt-4"
                   }
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="apiKey">API Key</Label>
+                <Label htmlFor="apiKey">{t("settings.apiKey", lang)}</Label>
                 <div className="relative">
                   <Input
                     id="apiKey"
@@ -584,7 +591,7 @@ export default function SettingsPage() {
                     value={llmConfig?.apiKey || ""}
                     onChange={(e) =>
                       setLlmConfig((prev) =>
-                        prev ? { ...prev, apiKey: e.target.value } : null
+                        prev ? { ...prev, apiKey: e.target.value } : { id: "", provider: "openai", apiKey: e.target.value, model: "gpt-4", apiUrl: null, active: true }
                       )
                     }
                     placeholder="sk-..."
@@ -607,13 +614,13 @@ export default function SettingsPage() {
 
               {llmConfig?.provider === "custom" && (
                 <div className="space-y-2">
-                  <Label htmlFor="apiUrl">Custom API URL</Label>
+                  <Label htmlFor="apiUrl">{t("settings.customApiUrl", lang)}</Label>
                   <Input
                     id="apiUrl"
                     value={llmConfig?.apiUrl || ""}
                     onChange={(e) =>
                       setLlmConfig((prev) =>
-                        prev ? { ...prev, apiUrl: e.target.value } : null
+                        prev ? { ...prev, apiUrl: e.target.value } : { id: "", provider: "custom", apiKey: null, model: "gpt-4", apiUrl: e.target.value, active: true }
                       )
                     }
                     placeholder="https://your-api.com/v1/chat/completions"
@@ -625,7 +632,7 @@ export default function SettingsPage() {
                 {llmSaving && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
-                Save Configuration
+                {t("settings.saveConfig", lang)}
               </Button>
             </CardContent>
           </Card>
@@ -634,17 +641,17 @@ export default function SettingsPage() {
         <TabsContent value="wassender" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>WhatsApp / Wassender Configuration</CardTitle>
+              <CardTitle>{t("settings.whatsappConfig", lang)}</CardTitle>
               <CardDescription>
-                Configure WhatsApp integration for client communication
+                {t("settings.whatsappConfigDesc", lang)}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between rounded-lg border p-4">
                 <div>
-                  <p className="font-medium">Active</p>
+                  <p className="font-medium">{t("settings.active", lang)}</p>
                   <p className="text-sm text-muted-foreground">
-                    Toggle WhatsApp integration on/off
+                    {t("settings.toggleWhatsApp", lang)}
                   </p>
                 </div>
                 <Switch
@@ -658,7 +665,7 @@ export default function SettingsPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="wsApiKey">API Key</Label>
+                <Label htmlFor="wsApiKey">{t("settings.apiKey", lang)}</Label>
                 <div className="relative">
                   <Input
                     id="wsApiKey"
@@ -687,7 +694,7 @@ export default function SettingsPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="sessionId">Session ID</Label>
+                <Label htmlFor="sessionId">{t("settings.sessionId", lang)}</Label>
                 <Input
                   id="sessionId"
                   value={wassender?.sessionId || ""}
@@ -700,7 +707,7 @@ export default function SettingsPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="webhookSecret">Webhook Secret</Label>
+                <Label htmlFor="webhookSecret">{t("settings.webhookSecret", lang)}</Label>
                 <div className="relative">
                   <Input
                     id="webhookSecret"
@@ -734,7 +741,7 @@ export default function SettingsPage() {
                 {wassenderSaving && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
-                Save Configuration
+                {t("settings.saveConfig", lang)}
               </Button>
             </CardContent>
           </Card>
@@ -743,48 +750,48 @@ export default function SettingsPage() {
         <TabsContent value="templates" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Contract Templates</CardTitle>
+              <CardTitle>{t("settings.contractTemplates", lang)}</CardTitle>
               <CardDescription>
-                Create and manage rental contract templates
+                {t("settings.contractTemplatesDesc", lang)}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {templates.length === 0 && !editingTemplate && (
                 <p className="py-4 text-center text-sm text-muted-foreground">
-                  No templates yet. Create your first one below.
+                  {t("settings.noTemplates", lang)}
                 </p>
               )}
 
-              {templates.map((t) => (
+              {templates.map((tmpl) => (
                 <div
-                  key={t.id}
+                  key={tmpl.id}
                   className="flex items-center justify-between rounded-lg border p-3"
                 >
                   <div className="space-y-0.5">
                     <p className="font-medium">
-                      {t.name}
-                      {t.isDefault && (
+                      {tmpl.name}
+                      {tmpl.isDefault && (
                         <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] text-primary">
-                          Default
+                          {t("settings.default", lang)}
                         </span>
                       )}
                     </p>
                     <p className="text-xs text-muted-foreground line-clamp-1">
-                      {t.content.slice(0, 100)}...
+                      {tmpl.content.slice(0, 100)}...
                     </p>
                   </div>
                   <div className="flex gap-1">
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => editTemplate(t)}
+                      onClick={() => editTemplate(tmpl)}
                     >
                       <FileText className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleTemplateDelete(t.id)}
+                      onClick={() => handleTemplateDelete(tmpl.id)}
                     >
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
@@ -796,24 +803,24 @@ export default function SettingsPage() {
 
               <div className="space-y-4">
                 <h3 className="text-sm font-medium">
-                  {editingTemplate ? "Edit Template" : "New Template"}
+                  {editingTemplate ? t("settings.editTemplate", lang) : t("settings.newTemplate", lang)}
                 </h3>
                 <div className="space-y-2">
-                  <Label htmlFor="templateName">Template Name</Label>
+                  <Label htmlFor="templateName">{t("settings.templateName", lang)}</Label>
                   <Input
                     id="templateName"
                     value={templateName}
                     onChange={(e) => setTemplateName(e.target.value)}
-                    placeholder="Standard Rental Contract"
+                    placeholder={t("settings.templateNamePlaceholder", lang)}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="templateContent">Content</Label>
+                  <Label htmlFor="templateContent">{t("settings.templateContent", lang)}</Label>
                   <Textarea
                     id="templateContent"
                     value={templateContent}
                     onChange={(e) => setTemplateContent(e.target.value)}
-                    placeholder="Enter contract content..."
+                    placeholder={t("settings.templateContentPlaceholder", lang)}
                     rows={8}
                   />
                 </div>
@@ -824,7 +831,7 @@ export default function SettingsPage() {
                     id="templateDefault"
                   />
                   <Label htmlFor="templateDefault">
-                    Set as default template
+                    {t("settings.setDefault", lang)}
                   </Label>
                 </div>
                 <div className="flex gap-2">
@@ -835,11 +842,11 @@ export default function SettingsPage() {
                     {templateSaving && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     )}
-                    {editingTemplate ? "Update Template" : "Create Template"}
+                    {editingTemplate ? t("settings.updateTemplate", lang) : t("settings.createTemplate", lang)}
                   </Button>
                   {editingTemplate && (
                     <Button variant="outline" onClick={resetTemplateForm}>
-                      Cancel
+                      {t("common.cancel", lang)}
                     </Button>
                   )}
                 </div>
@@ -851,15 +858,15 @@ export default function SettingsPage() {
         <TabsContent value="team" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Team Members</CardTitle>
+              <CardTitle>{t("settings.teamMembers", lang)}</CardTitle>
               <CardDescription>
-                Manage users with access to this agency
+                {t("settings.teamMembersDesc", lang)}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {users.length === 0 ? (
                 <p className="py-4 text-center text-sm text-muted-foreground">
-                  No team members yet
+                  {t("settings.noMembers", lang)}
                 </p>
               ) : (
                 <div className="space-y-2">
@@ -885,46 +892,46 @@ export default function SettingsPage() {
               <Separator />
 
               <div className="space-y-4">
-                <h3 className="text-sm font-medium">Add Team Member</h3>
+                <h3 className="text-sm font-medium">{t("settings.addMember", lang)}</h3>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="userName">Name</Label>
+                    <Label htmlFor="userName">{t("settings.nameLabel", lang)}</Label>
                     <Input
                       id="userName"
                       value={newUserName}
                       onChange={(e) => setNewUserName(e.target.value)}
-                      placeholder="John Doe"
+                      placeholder={t("settings.namePlaceholder", lang)}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="userEmail">Email</Label>
+                    <Label htmlFor="userEmail">{t("settings.emailLabel", lang)}</Label>
                     <Input
                       id="userEmail"
                       type="email"
                       value={newUserEmail}
                       onChange={(e) => setNewUserEmail(e.target.value)}
-                      placeholder="john@example.com"
+                      placeholder={t("settings.emailPlaceholder", lang)}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="userPassword">Password</Label>
+                    <Label htmlFor="userPassword">{t("settings.passwordLabel", lang)}</Label>
                     <Input
                       id="userPassword"
                       type="password"
                       value={newUserPassword}
                       onChange={(e) => setNewUserPassword(e.target.value)}
-                      placeholder="Min 6 characters"
+                      placeholder={t("settings.passwordPlaceholder", lang)}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="userRole">Role</Label>
+                    <Label htmlFor="userRole">{t("settings.role", lang)}</Label>
                     <Select value={newUserRole} onValueChange={setNewUserRole}>
                       <SelectTrigger id="userRole">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="admin">Admin</SelectItem>
-                        <SelectItem value="staff">Staff</SelectItem>
+                        <SelectItem value="admin">{t("settings.admin", lang)}</SelectItem>
+                        <SelectItem value="staff">{t("settings.staff", lang)}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -934,7 +941,7 @@ export default function SettingsPage() {
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
                   <Plus className="mr-2 h-4 w-4" />
-                  Add Member
+                  {t("settings.addMemberBtn", lang)}
                 </Button>
               </div>
             </CardContent>

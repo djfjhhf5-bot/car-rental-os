@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n/language-context";
+import { t } from "@/lib/i18n/translations";
 import {
   LayoutDashboard,
   Car,
@@ -19,16 +21,16 @@ import {
 import { Button } from "@/components/ui/button";
 
 const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/fleet", label: "Fleet", icon: Car },
-  { href: "/leads", label: "Leads", icon: UserPlus },
-  { href: "/clients", label: "Clients", icon: Users },
-  { href: "/bookings", label: "Bookings", icon: CalendarCheck },
-  { href: "/contracts", label: "Contracts", icon: FileText },
-  { href: "/payments", label: "Payments", icon: CreditCard },
-  { href: "/maintenance", label: "Maintenance", icon: Wrench },
-  { href: "/ai-chat", label: "AI Chat", icon: Bot },
-  { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/dashboard", key: "sidebar.dashboard", icon: LayoutDashboard },
+  { href: "/fleet", key: "sidebar.fleet", icon: Car },
+  { href: "/leads", key: "sidebar.leads", icon: UserPlus },
+  { href: "/clients", key: "sidebar.clients", icon: Users },
+  { href: "/bookings", key: "sidebar.bookings", icon: CalendarCheck },
+  { href: "/contracts", key: "sidebar.contracts", icon: FileText },
+  { href: "/payments", key: "sidebar.payments", icon: CreditCard },
+  { href: "/maintenance", key: "sidebar.maintenance", icon: Wrench },
+  { href: "/ai-chat", key: "sidebar.aiChat", icon: Bot },
+  { href: "/settings", key: "sidebar.settings", icon: Settings },
 ];
 
 interface SidebarProps {
@@ -39,6 +41,7 @@ interface SidebarProps {
 
 export default function Sidebar({ open, onClose, agencyName }: SidebarProps) {
   const pathname = usePathname();
+  const { lang, dir } = useLanguage();
 
   return (
     <>
@@ -49,6 +52,7 @@ export default function Sidebar({ open, onClose, agencyName }: SidebarProps) {
         />
       )}
       <aside
+        dir={dir}
         className={cn(
           "fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r bg-sidebar-background transition-transform duration-300 lg:static lg:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full"
@@ -89,13 +93,13 @@ export default function Sidebar({ open, onClose, agencyName }: SidebarProps) {
                 )}
               >
                 <Icon className="h-4 w-4" />
-                {item.label}
+                {t(item.key, lang)}
               </Link>
             );
           })}
         </nav>
         <div className="border-t p-3 text-xs text-muted-foreground">
-          CarRental OS v1.0
+          {t("sidebar.version", lang)}
         </div>
       </aside>
     </>

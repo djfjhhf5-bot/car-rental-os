@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { VehicleCard } from "@/components/fleet/vehicle-card";
 import { getVehicles } from "@/lib/actions/fleet-actions";
+import { useLanguage } from "@/lib/i18n/language-context";
+import { t } from "@/lib/i18n/translations";
 import {
   Select,
   SelectContent,
@@ -31,6 +33,7 @@ interface VehicleData {
 }
 
 export default function FleetPage() {
+  const { lang } = useLanguage();
   const [vehicles, setVehicles] = useState<VehicleData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,10 +48,10 @@ export default function FleetPage() {
       if (result.success) {
         setVehicles(result.data ?? []);
       } else {
-        setError(result.error ?? "Failed to load vehicles");
+        setError(result.error ?? t("fleetDash.loadError", lang));
       }
     } catch {
-      setError("Failed to load vehicles");
+      setError(t("fleetDash.loadError", lang));
     } finally {
       setLoading(false);
     }
@@ -74,15 +77,15 @@ export default function FleetPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Fleet</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t("fleetDash.title", lang)}</h1>
           <p className="text-sm text-muted-foreground">
-            Manage your vehicle inventory
+            {t("fleetDash.subtitle", lang)}
           </p>
         </div>
         <Button asChild>
           <Link href="/fleet/new">
             <Plus className="mr-2 h-4 w-4" />
-            Add Vehicle
+            {t("fleetDash.addVehicle", lang)}
           </Link>
         </Button>
       </div>
@@ -91,7 +94,7 @@ export default function FleetPage() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search brand, model or license plate..."
+            placeholder={t("common.searchBrandModel", lang)}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9"
@@ -99,13 +102,13 @@ export default function FleetPage() {
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-full sm:w-40">
-            <SelectValue placeholder="All statuses" />
+            <SelectValue placeholder={t("common.allStatuses", lang)} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="available">Available</SelectItem>
-            <SelectItem value="booked">Booked</SelectItem>
-            <SelectItem value="maintenance">Maintenance</SelectItem>
+            <SelectItem value="all">{t("common.allStatuses", lang)}</SelectItem>
+            <SelectItem value="available">{t("common.available", lang)}</SelectItem>
+            <SelectItem value="booked">{t("common.booked", lang)}</SelectItem>
+            <SelectItem value="maintenance">{t("common.maintenance", lang)}</SelectItem>
             <SelectItem value="rented">Rented</SelectItem>
             <SelectItem value="inactive">Inactive</SelectItem>
           </SelectContent>
@@ -127,23 +130,23 @@ export default function FleetPage() {
         <div className="flex flex-col items-center justify-center rounded-lg border border-destructive/50 bg-destructive/5 py-16">
           <p className="text-destructive">{error}</p>
           <Button variant="outline" className="mt-4" onClick={loadVehicles}>
-            Try Again
+            {t("common.tryAgain", lang)}
           </Button>
         </div>
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
           <Car className="mb-4 h-12 w-12 text-muted-foreground" />
-          <p className="text-lg font-medium">No vehicles found</p>
+          <p className="text-lg font-medium">{t("fleetDash.noVehicles", lang)}</p>
           <p className="text-sm text-muted-foreground">
             {search || statusFilter !== "all"
-              ? "Try adjusting your search or filter"
-              : "Get started by adding your first vehicle"}
+              ? t("common.noResultsDesc", lang)
+              : t("fleetDash.addFirst", lang)}
           </p>
           {!search && statusFilter === "all" && (
             <Button asChild className="mt-4">
               <Link href="/fleet/new">
                 <Plus className="mr-2 h-4 w-4" />
-                Add Vehicle
+                {t("fleetDash.addVehicle", lang)}
               </Link>
             </Button>
           )}

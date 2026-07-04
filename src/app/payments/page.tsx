@@ -6,6 +6,8 @@ import { Plus, DollarSign, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/lib/i18n/language-context";
+import { t } from "@/lib/i18n/translations";
 import {
   Select,
   SelectContent,
@@ -44,6 +46,7 @@ interface PaymentData {
 }
 
 export default function PaymentsPage() {
+  const { lang } = useLanguage();
   const [payments, setPayments] = useState<PaymentData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -95,15 +98,15 @@ export default function PaymentsPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Payments</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t("payments.title", lang)}</h1>
           <p className="text-sm text-muted-foreground">
-            Track and manage all payments
+            {t("payments.subtitle", lang)}
           </p>
         </div>
         <Button asChild>
           <Link href="/payments/new">
             <Plus className="mr-2 h-4 w-4" />
-            Record Payment
+            {t("payments.recordPayment", lang)}
           </Link>
         </Button>
       </div>
@@ -112,7 +115,7 @@ export default function PaymentsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Revenue
+              {t("payments.totalRevenue", lang)}
             </CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -123,7 +126,7 @@ export default function PaymentsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Transactions
+              {t("payments.totalTransactions", lang)}
             </CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -134,7 +137,7 @@ export default function PaymentsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Paid Transactions
+              {t("payments.paidTransactions", lang)}
             </CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -149,10 +152,10 @@ export default function PaymentsPage() {
       <div className="flex flex-col gap-4 sm:flex-row">
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-full sm:w-40">
-            <SelectValue placeholder="All statuses" />
+            <SelectValue placeholder={t("common.allStatuses", lang)} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Statuses</SelectItem>
+            <SelectItem value="all">{t("common.allStatuses", lang)}</SelectItem>
             <SelectItem value="paid">Paid</SelectItem>
             <SelectItem value="pending">Pending</SelectItem>
             <SelectItem value="refunded">Refunded</SelectItem>
@@ -161,10 +164,10 @@ export default function PaymentsPage() {
         </Select>
         <Select value={typeFilter} onValueChange={setTypeFilter}>
           <SelectTrigger className="w-full sm:w-40">
-            <SelectValue placeholder="All types" />
+            <SelectValue placeholder={t("common.allTypes", lang)} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Types</SelectItem>
+            <SelectItem value="all">{t("common.allTypes", lang)}</SelectItem>
             <SelectItem value="deposit">Deposit</SelectItem>
             <SelectItem value="partial">Partial</SelectItem>
             <SelectItem value="full">Full</SelectItem>
@@ -181,7 +184,7 @@ export default function PaymentsPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b">
-                    {["Amount", "Method", "Type", "Status", "Booking", "Date", "Actions"].map((h) => (
+                    {[t("payments.amount", lang), t("payments.method", lang), t("payments.type", lang), t("payments.status", lang), t("payments.booking", lang), t("payments.date", lang), t("common.actions", lang)].map((h) => (
                       <th key={h} className="text-left text-sm font-medium text-muted-foreground px-6 py-4">
                         {h}
                       </th>
@@ -207,23 +210,23 @@ export default function PaymentsPage() {
         <div className="flex flex-col items-center justify-center rounded-lg border border-destructive/50 bg-destructive/5 py-16">
           <p className="text-destructive">{error}</p>
           <Button variant="outline" className="mt-4" onClick={loadPayments}>
-            Try Again
+            {t("common.tryAgain", lang)}
           </Button>
         </div>
       ) : payments.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
           <DollarSign className="mb-4 h-12 w-12 text-muted-foreground" />
-          <p className="text-lg font-medium">No payments found</p>
+          <p className="text-lg font-medium">{t("payments.noPayments", lang)}</p>
           <p className="text-sm text-muted-foreground">
             {statusFilter !== "all" || typeFilter !== "all"
-              ? "Try adjusting your filters"
-              : "Record your first payment to get started"}
+              ? t("payments.adjustFilters", lang)
+              : t("payments.firstPayment", lang)}
           </p>
           {statusFilter === "all" && typeFilter === "all" && (
             <Button asChild className="mt-4">
               <Link href="/payments/new">
                 <Plus className="mr-2 h-4 w-4" />
-                Record Payment
+                {t("payments.recordPayment", lang)}
               </Link>
             </Button>
           )}
@@ -235,13 +238,13 @@ export default function PaymentsPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-right text-sm font-medium text-muted-foreground px-6 py-4">Amount</th>
-                    <th className="text-left text-sm font-medium text-muted-foreground px-6 py-4">Method</th>
-                    <th className="text-left text-sm font-medium text-muted-foreground px-6 py-4">Type</th>
-                    <th className="text-center text-sm font-medium text-muted-foreground px-6 py-4">Status</th>
-                    <th className="text-left text-sm font-medium text-muted-foreground px-6 py-4">Booking</th>
-                    <th className="text-left text-sm font-medium text-muted-foreground px-6 py-4">Date</th>
-                    <th className="text-right text-sm font-medium text-muted-foreground px-6 py-4">Actions</th>
+                    <th className="text-right text-sm font-medium text-muted-foreground px-6 py-4">{t("payments.amount", lang)}</th>
+                    <th className="text-left text-sm font-medium text-muted-foreground px-6 py-4">{t("payments.method", lang)}</th>
+                    <th className="text-left text-sm font-medium text-muted-foreground px-6 py-4">{t("payments.type", lang)}</th>
+                    <th className="text-center text-sm font-medium text-muted-foreground px-6 py-4">{t("payments.status", lang)}</th>
+                    <th className="text-left text-sm font-medium text-muted-foreground px-6 py-4">{t("payments.booking", lang)}</th>
+                    <th className="text-left text-sm font-medium text-muted-foreground px-6 py-4">{t("payments.date", lang)}</th>
+                    <th className="text-right text-sm font-medium text-muted-foreground px-6 py-4">{t("common.actions", lang)}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -292,18 +295,18 @@ export default function PaymentsPage() {
       <Dialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Payment</DialogTitle>
+            <DialogTitle>{t("payments.deleteTitle", lang)}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this payment? The booking payment status will be recalculated.
+              {t("payments.deleteDesc", lang)}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteId(null)}>
-              Cancel
+              {t("common.cancel", lang)}
             </Button>
             <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
               {deleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Delete
+              {t("common.delete", lang)}
             </Button>
           </DialogFooter>
         </DialogContent>

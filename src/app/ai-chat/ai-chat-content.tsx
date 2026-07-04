@@ -7,6 +7,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatMessage, ChatMessageSkeleton } from "@/components/ai-chat/chat-message";
 import { ChatInput } from "@/components/ai-chat/chat-input";
 import { WelcomeMessage } from "@/components/ai-chat/welcome-message";
+import { useLanguage } from "@/lib/i18n/language-context";
+import { t } from "@/lib/i18n/translations";
 import { toast } from "@/components/ui/toast";
 import { Trash2, AlertCircle } from "lucide-react";
 import { getChatHistory, saveChatMessage, clearChatHistory, getAgencyContext, getActiveLlmConfig } from "@/lib/actions/chat-actions";
@@ -16,6 +18,7 @@ import type { AgencyContext } from "@/lib/actions/chat-actions";
 import type { LlmConfig } from "@/lib/services/llm";
 
 export default function AiChatPage() {
+  const { lang } = useLanguage();
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -80,8 +83,7 @@ export default function AiChatPage() {
           const errorMsg: ChatMessageType = {
             id: `error-${Date.now()}`,
             role: "assistant",
-            content:
-              "LLM is not configured. Please go to Settings > LLM Configuration to set up your AI provider.",
+            content: t("aiChat.llmNotConfigured", lang),
             context: null,
             createdAt: new Date(),
             userId: "",
@@ -141,7 +143,7 @@ export default function AiChatPage() {
         const failMsg: ChatMessageType = {
           id: `error-${Date.now()}`,
           role: "assistant",
-          content: `Sorry, something went wrong: ${errorMsg}`,
+          content: `${t("aiChat.errorOccurred", lang)} ${errorMsg}`,
           context: null,
           createdAt: new Date(),
           userId: "",
@@ -151,7 +153,7 @@ export default function AiChatPage() {
         setIsLoading(false);
       }
     },
-    [isLoading, messages]
+    [isLoading, messages, lang]
   );
 
   const handleNewChat = useCallback(async () => {
@@ -186,11 +188,11 @@ export default function AiChatPage() {
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between border-b px-4 py-3">
         <div className="flex items-center gap-2">
-          <h1 className="text-sm font-semibold">AI Chat</h1>
+          <h1 className="text-sm font-semibold">{t("aiChat.title", lang)}</h1>
           {llmConfigured === false && (
             <span className="flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-900 dark:text-amber-300">
               <AlertCircle className="h-3 w-3" />
-              Not configured
+              {t("aiChat.notConfigured", lang)}
             </span>
           )}
         </div>
@@ -201,7 +203,7 @@ export default function AiChatPage() {
           disabled={isLoading || messages.length === 0}
         >
           <Trash2 className="mr-1 h-4 w-4" />
-          New Chat
+          {t("aiChat.newChat", lang)}
         </Button>
       </div>
 
@@ -217,6 +219,7 @@ export default function AiChatPage() {
                   role={msg.role}
                   content={msg.content}
                   createdAt={msg.createdAt}
+                  variant="dashboard"
                 />
               ))}
               {isLoading && <ChatMessageSkeleton />}

@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { useLanguage } from "@/lib/i18n/language-context";
+import { t } from "@/lib/i18n/translations";
 import { Loader2, Save, User, Lock } from "lucide-react";
 import { toast } from "@/components/ui/toast";
 import { updateProfile, updatePassword } from "@/lib/actions/profile-actions";
@@ -15,6 +17,7 @@ import { updateProfile, updatePassword } from "@/lib/actions/profile-actions";
 export default function ProfilePage() {
   const { user, refresh } = useUserSession();
   const router = useRouter();
+  const { lang } = useLanguage();
 
   const [name, setName] = useState(user?.name || "");
   const [profileSaving, setProfileSaving] = useState(false);
@@ -35,7 +38,7 @@ export default function ProfilePage() {
       if (result?.error) {
         toast({ title: "Error", description: result.error, variant: "destructive" as const });
       } else {
-        toast({ title: "Profile updated", description: "Your name has been updated." });
+        toast({ title: t("profile.profileUpdated", lang), description: t("profile.profileUpdatedDesc", lang) });
         await refresh();
       }
     } catch {
@@ -64,7 +67,7 @@ export default function ProfilePage() {
       if (result?.error) {
         toast({ title: "Error", description: result.error, variant: "destructive" as const });
       } else {
-        toast({ title: "Password updated", description: "Your password has been changed." });
+        toast({ title: t("profile.passwordUpdated", lang), description: t("profile.passwordUpdatedDesc", lang) });
         setCurrentPassword("");
         setNewPassword("");
         setConfirmPassword("");
@@ -79,35 +82,35 @@ export default function ProfilePage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Profile</h1>
-        <p className="text-muted-foreground">Manage your account settings</p>
+        <h1 className="text-3xl font-bold">{t("profile.title", lang)}</h1>
+        <p className="text-muted-foreground">{t("profile.subtitle", lang)}</p>
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <User className="h-5 w-5" />
-            Personal Information
+            {t("profile.personalInfo", lang)}
           </CardTitle>
-          <CardDescription>Update your profile details</CardDescription>
+          <CardDescription>{t("profile.personalInfoDesc", lang)}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t("profile.email", lang)}</Label>
             <Input id="email" value={user?.email || ""} disabled />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name">{t("profile.name", lang)}</Label>
             <Input
               id="name"
-              placeholder="Your name"
+              placeholder={t("profile.namePlaceholder", lang)}
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
           </div>
           <Button onClick={handleProfileSave} disabled={profileSaving}>
             {profileSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-            Save Changes
+            {t("profile.saveChanges", lang)}
           </Button>
         </CardContent>
       </Card>
@@ -118,13 +121,13 @@ export default function ProfilePage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Lock className="h-5 w-5" />
-            Change Password
+            {t("profile.changePassword", lang)}
           </CardTitle>
-          <CardDescription>Update your account password</CardDescription>
+          <CardDescription>{t("profile.changePasswordDesc", lang)}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="currentPassword">Current Password</Label>
+            <Label htmlFor="currentPassword">{t("profile.currentPassword", lang)}</Label>
             <Input
               id="currentPassword"
               type="password"
@@ -133,7 +136,7 @@ export default function ProfilePage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="newPassword">New Password</Label>
+            <Label htmlFor="newPassword">{t("profile.newPassword", lang)}</Label>
             <Input
               id="newPassword"
               type="password"
@@ -142,7 +145,7 @@ export default function ProfilePage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm New Password</Label>
+            <Label htmlFor="confirmPassword">{t("profile.confirmPassword", lang)}</Label>
             <Input
               id="confirmPassword"
               type="password"
@@ -152,7 +155,7 @@ export default function ProfilePage() {
           </div>
           <Button onClick={handlePasswordChange} disabled={passwordSaving}>
             {passwordSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lock className="mr-2 h-4 w-4" />}
-            Change Password
+            {t("profile.changePassword", lang)}
           </Button>
         </CardContent>
       </Card>

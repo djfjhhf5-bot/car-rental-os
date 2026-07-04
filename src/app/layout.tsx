@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Montserrat, Manrope, JetBrains_Mono } from "next/font/google";
 import Providers from "@/components/providers";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
+import { LanguageProvider } from "@/lib/i18n/language-context";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -44,9 +45,11 @@ export default function RootLayout({
 
       <body className="min-h-full">
         <Providers>
-          <DashboardShell>
-            {children}
-          </DashboardShell>
+          <LanguageProvider>
+            <DashboardShell>
+              {children}
+            </DashboardShell>
+          </LanguageProvider>
         </Providers>
       </body>
     </html>

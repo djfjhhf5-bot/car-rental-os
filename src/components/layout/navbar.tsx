@@ -4,6 +4,8 @@ import { useCallback, useState } from "react";
 import { useUserSession } from "@/components/providers";
 import { useRouter } from "next/navigation";
 import { signOutUser } from "@/lib/actions/auth-actions";
+import { useLanguage } from "@/lib/i18n/language-context";
+import { t, type Lang } from "@/lib/i18n/translations";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Menu, User, LogOut } from "lucide-react";
+import { Menu, User, LogOut, Globe } from "lucide-react";
 import Link from "next/link";
 import { getInitials } from "@/lib/utils";
 
@@ -22,9 +24,16 @@ interface NavbarProps {
   onMenuClick: () => void;
 }
 
+const languages: { code: Lang; label: string; flag: string }[] = [
+  { code: "en", label: "EN", flag: "🇬🇧" },
+  { code: "fr", label: "FR", flag: "🇫🇷" },
+  { code: "ar", label: "AR", flag: "🇸🇦" },
+];
+
 export default function Navbar({ onMenuClick }: NavbarProps) {
   const { user } = useUserSession();
   const router = useRouter();
+  const { lang, setLang } = useLanguage();
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   const handleSignOut = useCallback(async () => {
@@ -39,6 +48,22 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
       <Button variant="ghost" size="icon" className="lg:hidden" onClick={onMenuClick}>
         <Menu className="h-5 w-5" />
       </Button>
+      <div className="flex items-center gap-1 ml-2">
+        {languages.map((l) => (
+          <button
+            key={l.code}
+            onClick={() => setLang(l.code)}
+            className={`text-xs px-1.5 py-0.5 rounded transition-colors ${
+              lang === l.code
+                ? "bg-primary text-primary-foreground font-bold"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+            title={t(`lang.${l.code}`, lang)}
+          >
+            {l.flag}
+          </button>
+        ))}
+      </div>
       <div className="flex-1" />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -63,7 +88,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
           </DropdownMenuLabel>
           <DropdownMenuItem className="cursor-pointer" onClick={() => router.push("/profile")}>
             <User className="mr-2 h-4 w-4" />
-            Profile
+            {t("navbar.profile", lang)}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
@@ -72,7 +97,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
             disabled={isSigningOut}
           >
             <LogOut className="mr-2 h-4 w-4" />
-            {isSigningOut ? "Signing out..." : "Sign out"}
+            {isSigningOut ? t("navbar.signingOut", lang) : t("navbar.signOut", lang)}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

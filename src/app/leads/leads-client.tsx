@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useUserSession } from "@/components/providers";
+import { useLanguage } from "@/lib/i18n/language-context";
+import { t } from "@/lib/i18n/translations";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,6 +41,7 @@ export function LeadsPageClient() {
   const router = useRouter();
   const { toast } = useToast();
   const { user, loading: sessionLoading } = useUserSession();
+  const { lang } = useLanguage();
   const [leads, setLeads] = useState<LeadData[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -73,7 +76,7 @@ export function LeadsPageClient() {
     const res = await deleteLead(id);
     if (res.success) {
       setLeads((prev) => prev.filter((l) => l.id !== id));
-      toast({ title: "Deleted", description: "Lead removed", variant: "success" });
+      toast({ title: t("leads.deleted", lang), description: t("leads.deletedDesc", lang), variant: "success" });
     } else {
       toast({ title: "Error", description: res.error || "Failed to delete", variant: "destructive" });
     }
@@ -83,7 +86,7 @@ export function LeadsPageClient() {
     const res = await updateLeadPhase(id, phase);
     if (res.success) {
       setLeads((prev) => prev.map((l) => l.id === id ? { ...l, phase } : l));
-      toast({ title: "Updated", description: `Phase changed to ${phase}`, variant: "success" });
+      toast({ title: t("leads.updated", lang), description: `${t("leads.phaseChanged", lang)} ${phase}`, variant: "success" });
     }
   };
 
@@ -92,7 +95,7 @@ export function LeadsPageClient() {
     const res = await sendLeadDm(id);
     setSendingDm(null);
     if (res.success) {
-      toast({ title: "DM sent", description: "WhatsApp message sent to lead", variant: "success" });
+      toast({ title: t("leads.dmSent", lang), description: t("leads.dmSentDesc", lang), variant: "success" });
     } else {
       toast({ title: "Failed", description: res.error || "Could not send message", variant: "destructive" });
     }
@@ -103,7 +106,7 @@ export function LeadsPageClient() {
     const res = await convertLeadToClient(id);
     setConverting(null);
     if (res.success) {
-      toast({ title: "Converted", description: "Lead converted to client", variant: "success" });
+      toast({ title: t("leads.converted", lang), description: t("leads.convertedDesc", lang), variant: "success" });
       load();
     } else {
       toast({ title: "Error", description: res.error || "Failed to convert", variant: "destructive" });
@@ -118,22 +121,22 @@ export function LeadsPageClient() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Leads</h1>
-          <p className="text-sm text-muted-foreground">Import and manage your leads</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t("leads.title", lang)}</h1>
+          <p className="text-sm text-muted-foreground">{t("leads.subtitle", lang)}</p>
         </div>
         <LeadImportDialog onImportComplete={load} />
       </div>
 
       <div className="flex flex-wrap gap-3">
         <div className="flex-1 min-w-[200px]">
-          <Input placeholder="Search by name or phone..." value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Input placeholder={t("common.searchByName", lang)} value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
         <Select value={phaseFilter} onValueChange={setPhaseFilter}>
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="All phases" />
+            <SelectValue placeholder={t("common.allPhases", lang)} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All phases</SelectItem>
+            <SelectItem value="all">{t("common.allPhases", lang)}</SelectItem>
             {PHASES.map((p) => (
               <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
             ))}
@@ -151,8 +154,8 @@ export function LeadsPageClient() {
         <Card>
           <CardContent className="flex flex-col items-center py-12">
             <Users className="mb-4 h-12 w-12 text-muted-foreground/50" />
-            <p className="text-lg font-medium">No leads yet</p>
-            <p className="text-sm text-muted-foreground mb-4">Import leads from a CSV or WhatsApp export file</p>
+            <p className="text-lg font-medium">{t("leads.noLeads", lang)}</p>
+            <p className="text-sm text-muted-foreground mb-4">{t("leads.noLeadsDesc", lang)}</p>
             <LeadImportDialog onImportComplete={load} />
           </CardContent>
         </Card>
@@ -190,15 +193,15 @@ export function LeadsPageClient() {
                         ))}
                       </SelectContent>
                     </Select>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleSendDm(lead.id)} disabled={sendingDm === lead.id || !wasenderOk} title={!wasenderOk ? "Configure WhatsApp in Settings" : "Send WhatsApp DM"}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleSendDm(lead.id)} disabled={sendingDm === lead.id || !wasenderOk} title={!wasenderOk ? t("leads.configureWhatsApp", lang) : t("leads.sendDm", lang)}>
                       {sendingDm === lead.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                     </Button>
                     {lead.phase !== "client" && (
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-600" onClick={() => handleConvert(lead.id)} disabled={converting === lead.id} title="Convert to client">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-600" onClick={() => handleConvert(lead.id)} disabled={converting === lead.id} title={t("leads.convertToClient", lang)}>
                         {converting === lead.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
                       </Button>
                     )}
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(lead.id)} title="Delete">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(lead.id)} title={t("common.delete", lang)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -215,11 +218,11 @@ export function LeadsPageClient() {
             <div className="flex items-center justify-between">
               <p className="text-sm text-amber-800 dark:text-amber-300">
                 <MessageSquare className="mr-2 inline h-4 w-4" />
-                Configure WhatsApp in Settings to send automated DMs to leads
+                {t("leads.configureWhatsApp", lang)}
               </p>
               <Button variant="outline" size="sm" onClick={() => router.push("/settings")}>
                 <ArrowUpRight className="mr-1 h-3 w-3" />
-                Settings
+                {t("leads.settings", lang)}
               </Button>
             </div>
           </CardContent>

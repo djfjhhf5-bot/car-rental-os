@@ -7,6 +7,8 @@ import { ChartSkeleton } from "@/components/dashboard/charts";
 import { getDashboardStats } from "@/lib/actions/dashboard-actions";
 import type { DashboardStats } from "@/lib/actions/dashboard-actions";
 import { useUserSession } from "@/components/providers";
+import { useLanguage } from "@/lib/i18n/language-context";
+import { t } from "@/lib/i18n/translations";
 
 const FleetUtilizationChart = dynamic(
   () => import("@/components/dashboard/charts").then((m) => ({ default: m.FleetUtilizationChart })),
@@ -59,6 +61,7 @@ function getBadgeVariant(status: string) {
 
 export function DashboardContent() {
   const { user, loading: sessionLoading } = useUserSession();
+  const { lang } = useLanguage();
   const [data, setData] = useState<DashboardStats | null>(null);
   const [error, setError] = useState<string>();
   const [dataLoading, setDataLoading] = useState(false);
@@ -95,24 +98,24 @@ export function DashboardContent() {
   const summaryItems = data
     ? [
         {
-          label: "Fleet",
-          value: `${data.availableVehicles}/${data.totalVehicles} available`,
-          detail: `${data.maintenanceVehicles} in maintenance`,
+          label: t("dashboard.fleet", lang),
+          value: `${data.availableVehicles}/${data.totalVehicles} ${t("dashboard.available", lang)}`,
+          detail: `${data.maintenanceVehicles} ${t("dashboard.inMaintenance", lang)}`,
         },
         {
-          label: "Bookings",
-          value: `${data.activeBookings} active`,
-          detail: `${data.bookingPipeline.reduce((a, b) => a + b.count, 0)} total pipeline`,
+          label: t("dashboard.bookings", lang),
+          value: `${data.activeBookings} ${t("dashboard.active", lang)}`,
+          detail: `${data.bookingPipeline.reduce((a, b) => a + b.count, 0)} ${t("dashboard.pipeline", lang)}`,
         },
         {
-          label: "Revenue",
+          label: t("dashboard.revenue", lang),
           value: formatCurrency(data.totalRevenueThisMonth),
-          detail: `${data.revenueTrend[data.revenueTrend.length - 1]?.month || ""} month`,
+          detail: `${data.revenueTrend[data.revenueTrend.length - 1]?.month || ""} ${t("dashboard.total", lang)}`,
         },
         {
-          label: "Clients",
-          value: `${data.totalClients} total`,
-          detail: `${data.recentBookings.length} recent bookings`,
+          label: t("dashboard.clients", lang),
+          value: `${data.totalClients} ${t("dashboard.total", lang)}`,
+          detail: `${data.recentBookings.length} ${t("dashboard.recentBookings", lang)}`,
         },
       ]
     : [];
@@ -121,9 +124,9 @@ export function DashboardContent() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t("dashboard.title", lang)}</h1>
           <p className="text-sm text-muted-foreground">
-            Overview of your rental agency performance
+            {t("dashboard.subtitle", lang)}
           </p>
         </div>
       </div>
@@ -135,11 +138,11 @@ export function DashboardContent() {
               <div className="flex items-center gap-2">
                 <Building2 className="h-5 w-5 text-primary" />
                 <CardTitle className="text-sm font-medium">
-                  AI Agency Summary
+                  {t("dashboard.aiSummary", lang)}
                 </CardTitle>
               </div>
               <CardDescription>
-                Key insights at a glance
+                {t("dashboard.aiSummaryDesc", lang)}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -158,39 +161,39 @@ export function DashboardContent() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatsCard
               icon={Car}
-              label="Total Vehicles"
+              label={t("dashboard.totalVehicles", lang)}
               value={data.totalVehicles}
               trend={{
-                value: `${data.availableVehicles} available`,
+                value: `${data.availableVehicles} ${t("dashboard.available", lang)}`,
                 positive: data.availableVehicles > data.maintenanceVehicles,
               }}
             />
             <StatsCard
               icon={CheckCircle}
-              label="Available"
+              label={t("dashboard.available", lang)}
               value={data.availableVehicles}
               trend={{
-                value: `${((data.availableVehicles / Math.max(data.totalVehicles, 1)) * 100).toFixed(0)}% of fleet`,
+                value: `${((data.availableVehicles / Math.max(data.totalVehicles, 1)) * 100).toFixed(0)}${t("dashboard.percentOfFleet", lang)}`,
                 positive: data.availableVehicles > data.bookedVehicles,
               }}
               iconClassName="text-green-600 bg-green-100 dark:bg-green-950"
             />
             <StatsCard
               icon={CalendarCheck}
-              label="Active Bookings"
+              label={t("dashboard.activeBookings", lang)}
               value={data.activeBookings}
               trend={{
-                value: `${data.bookingPipeline.find((b) => b.status === "inquiry")?.count || 0} pending inquiries`,
+                value: `${data.bookingPipeline.find((b) => b.status === "inquiry")?.count || 0} ${t("dashboard.pendingInquiries", lang)}`,
                 positive: true,
               }}
               iconClassName="text-blue-600 bg-blue-100 dark:bg-blue-950"
             />
             <StatsCard
               icon={DollarSign}
-              label="Revenue This Month"
+              label={t("dashboard.revenueThisMonth", lang)}
               value={formatCurrency(data.totalRevenueThisMonth)}
               trend={{
-                value: `${data.totalRevenue > 0 ? ((data.totalRevenueThisMonth / data.totalRevenue) * 100).toFixed(0) : 0}% of total`,
+                value: `${data.totalRevenue > 0 ? ((data.totalRevenueThisMonth / data.totalRevenue) * 100).toFixed(0) : 0}${t("dashboard.percentOfTotal", lang)}`,
                 positive: data.totalRevenueThisMonth > 0,
               }}
               iconClassName="text-yellow-600 bg-yellow-100 dark:bg-yellow-950"
@@ -202,9 +205,9 @@ export function DashboardContent() {
               <CardHeader className="pb-3">
                 <div className="flex items-center gap-2">
                   <UserPlus className="h-5 w-5 text-primary" />
-                  <CardTitle className="text-sm font-medium">Lead Pipeline</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t("dashboard.leadPipeline", lang)}</CardTitle>
                 </div>
-                <CardDescription>{data.leadStats.total} total leads</CardDescription>
+                <CardDescription>{data.leadStats.total} {t("dashboard.totalLeads", lang)}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
@@ -215,7 +218,7 @@ export function DashboardContent() {
                     </div>
                   ))}
                   <a href="/leads" className="flex items-center gap-1 text-xs text-primary hover:underline ml-auto">
-                    View all <ArrowUpRight className="h-3 w-3" />
+                    {t("dashboard.viewAll", lang)} <ArrowUpRight className="h-3 w-3" />
                   </a>
                 </div>
               </CardContent>
@@ -228,7 +231,7 @@ export function DashboardContent() {
                 <div className="flex items-center gap-2">
                   <ArrowUpRight className="h-4 w-4 text-amber-600" />
                   <CardTitle className="text-sm font-medium text-amber-800 dark:text-amber-300">
-                    Upcoming Returns
+                    {t("dashboard.upcomingReturns", lang)}
                   </CardTitle>
                 </div>
               </CardHeader>
@@ -260,13 +263,13 @@ export function DashboardContent() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-sm font-medium">
-                  Recent Bookings
+                  {t("dashboard.recentBookingsTitle", lang)}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {data.recentBookings.length === 0 ? (
                   <p className="py-4 text-center text-sm text-muted-foreground">
-                    No bookings yet
+                    {t("dashboard.noBookings", lang)}
                   </p>
                 ) : (
                   <div className="space-y-3">
@@ -305,7 +308,7 @@ export function DashboardContent() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-sm font-medium">
-                  Maintenance Alerts
+                  {t("dashboard.maintenanceAlerts", lang)}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -313,10 +316,10 @@ export function DashboardContent() {
                   <div className="flex flex-col items-center py-6 text-center">
                     <CheckCircle className="mb-2 h-8 w-8 text-green-500" />
                     <p className="text-sm text-muted-foreground">
-                      No overdue maintenance
+                      {t("dashboard.noMaintenance", lang)}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      All vehicles are up to date
+                      {t("dashboard.allUpToDate", lang)}
                     </p>
                   </div>
                 ) : (
@@ -334,7 +337,7 @@ export function DashboardContent() {
                         </div>
                         <div className="text-right">
                           <Badge variant="destructive" className="text-[10px]">
-                            Overdue
+                            {t("dashboard.overdue", lang)}
                           </Badge>
                           {m.scheduledDate && (
                             <p className="mt-1 text-xs text-muted-foreground">
