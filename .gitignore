@@ -36,6 +36,8 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+.env.production
+.env.vercel
 
 # test artifacts
 test-leads.csv
@@ -48,6 +50,10 @@ trace*.json.gz
 *.png
 *.webp
 lead-import-plan.md
+test-snapshots/
+AI-AGENT-TEST-CHECKLIST.md
+TEST-PLAN.md
+verify-checklist.md
 
 # vercel
 .vercel

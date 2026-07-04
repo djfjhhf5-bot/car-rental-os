@@ -1,0 +1,6 @@
+customer_name,phone,whatsapp,email,vehicle_requested,pickup_date,return_date,total_amount,deposit_amount,notes
+Ahmed Benali,0550123456,0550123456,ahmed@email.com,Toyota Camry,2026-07-15,2026-07-20,35000,10000,Client wants automatic transmission
+Sarah Mansouri,0678901234,0678901234,sarah@email.com,Ford Explorer,2026-07-18,2026-07-25,95000,25000,Needs 7-seater for family trip
+Omar Boudiaf,0777654321,0777654321,omar@email.com,BMW X5,2026-08-01,2026-08-10,180000,50000,Luxury sedan preferred
+Lina Hadj,0555987654,0555987654,lina@email.com,Renault Clio,2026-07-22,2026-07-24,12000,5000,Need for weekend trip
+Karim Sahli,0666554433,0666554433,karim@email.com,Hyundai Tucson,2026-07-25,2026-08-05,75000,20000,Monthly rental with discount
