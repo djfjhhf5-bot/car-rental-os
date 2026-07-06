@@ -52,7 +52,6 @@ export function FloatingChat() {
       setMessages([]);
       setHasAutoSent(false);
       hasAutoSentRef.current = false;
-      setIsOpen(true);
       fetchCarName(carId, agency);
     }
   }, [carId, agency]);
