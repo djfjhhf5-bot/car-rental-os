@@ -1,0 +1,202 @@
+▲ Next.js 16.2.9 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.2:3000
+- Environments: .env
+✓ Ready in 669ms
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\Users\moham\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\Users\moham\car-rental-os\package-lock.json
+
+
+ GET /rent 200 in 654ms (next.js: 282ms, application-code: 372ms)
+ GET /rent/cars/cmr6q5h18000gbg6zqkxay34m 200 in 879ms (next.js: 792ms, application-code: 86ms)
+ GET /api/public/cars?agency=demo&id=cmr6q5h18000gbg6zqkxay34m 200 in 1508ms (next.js: 108ms, application-code: 1400ms)
+ GET /api/public/cars?agency=demo&id=cmr6q5h18000gbg6zqkxay34m 200 in 747ms (next.js: 3ms, application-code: 744ms)
+ GET /api/auth/session 200 in 2.4s (next.js: 1443ms, application-code: 920ms)
+ GET /rent/cars 200 in 1321ms (next.js: 1272ms, application-code: 49ms)
+ GET /api/public/cars?agency=cars 404 in 382ms (next.js: 6ms, application-code: 377ms)
+ GET /api/public/cars?agency=cars 404 in 379ms (next.js: 4ms, application-code: 375ms)
+ GET /rent/cars/cmr6q5h18000gbg6zqkxay34m?agency=demo 200 in 82ms (next.js: 17ms, application-code: 65ms)
+ GET /api/auth/session 200 in 487ms (next.js: 23ms, application-code: 465ms)
+ GET /api/public/cars?agency=demo&id=cmr6q5h18000gbg6zqkxay34m 200 in 859ms (next.js: 9ms, application-code: 851ms)
+ GET /api/public/cars?agency=demo&id=cmr6q5h18000gbg6zqkxay34m 200 in 745ms (next.js: 5ms, application-code: 740ms)
+ POST /api/public/orders 200 in 1226ms (next.js: 38ms, application-code: 1188ms)
+ GET /leads 200 in 148ms (next.js: 64ms, application-code: 84ms)
+ GET /api/auth/session 200 in 425ms (next.js: 20ms, application-code: 406ms)
+ POST /leads 200 in 1212ms (next.js: 7ms, application-code: 1205ms)
+  └─ ƒ getLeads() in 1121ms src/lib/actions/lead-actions.ts
+ POST /leads 200 in 1118ms (next.js: 4ms, application-code: 1114ms)
+  └─ ƒ getWasenderConfig() in 1105ms src/lib/actions/lead-actions.ts
+ POST /leads 200 in 1126ms (next.js: 5ms, application-code: 1121ms)
+  └─ ƒ getLeads() in 1109ms src/lib/actions/lead-actions.ts
+ POST /leads 200 in 1118ms (next.js: 5ms, application-code: 1113ms)
+  └─ ƒ getWasenderConfig() in 1104ms src/lib/actions/lead-actions.ts
+ GET /dashboard 200 in 221ms (next.js: 43ms, application-code: 178ms)
+ GET /api/auth/session 200 in 486ms (next.js: 21ms, application-code: 465ms)
+ POST /dashboard 200 in 1252ms (next.js: 9ms, application-code: 1243ms)
+  └─ ƒ getDashboardStats("cmr6q5eho0000bg6zhedzklb1") in 1224ms src/lib/actions/dashboard-actions.ts
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+ POST /dashboard 200 in 682ms (next.js: 6ms, application-code: 676ms)
+  └─ ƒ getDashboardStats("cmr6q5eho0000bg6zhedzklb1") in 664ms src/lib/actions/dashboard-actions.ts
+ GET /settings 200 in 170ms (next.js: 44ms, application-code: 126ms)
+ GET /api/auth/session 200 in 427ms (next.js: 16ms, application-code: 411ms)
+ POST /settings 200 in 1219ms (next.js: 8ms, application-code: 1210ms)
+  └─ ƒ getAgencySettings() in 1198ms src/lib/actions/settings-actions.ts
+ POST /settings 200 in 1122ms (next.js: 6ms, application-code: 1116ms)
+  └─ ƒ getLlmConfigs() in 1107ms src/lib/actions/settings-actions.ts
+ POST /settings 200 in 1123ms (next.js: 5ms, application-code: 1118ms)
+  └─ ƒ getWassenderConfig() in 1110ms src/lib/actions/settings-actions.ts
+ POST /settings 200 in 1127ms (next.js: 5ms, application-code: 1122ms)
+  └─ ƒ getContractTemplates() in 1112ms src/lib/actions/settings-actions.ts
+ POST /settings 200 in 1131ms (next.js: 5ms, application-code: 1127ms)
+  └─ ƒ getAgencyUsers() in 1118ms src/lib/actions/settings-actions.ts
+ POST /settings 200 in 1121ms (next.js: 5ms, application-code: 1116ms)
+  └─ ƒ getAgencySettings() in 1109ms src/lib/actions/settings-actions.ts
+ POST /settings 200 in 1126ms (next.js: 6ms, application-code: 1120ms)
+  └─ ƒ getLlmConfigs() in 1111ms src/lib/actions/settings-actions.ts
+ POST /settings 200 in 1137ms (next.js: 5ms, application-code: 1133ms)
+  └─ ƒ getWassenderConfig() in 1124ms src/lib/actions/settings-actions.ts
+ POST /settings 200 in 1132ms (next.js: 7ms, application-code: 1126ms)
+  └─ ƒ getContractTemplates() in 1117ms src/lib/actions/settings-actions.ts
+ POST /settings 200 in 1139ms (next.js: 8ms, application-code: 1131ms)
+  └─ ƒ getAgencyUsers() in 1120ms src/lib/actions/settings-actions.ts
+ POST /settings 200 in 1135ms (next.js: 6ms, application-code: 1130ms)
+  └─ ƒ getAgencySettings() in 1119ms src/lib/actions/settings-actions.ts
+ POST /settings 200 in 1130ms (next.js: 6ms, application-code: 1124ms)
+  └─ ƒ getLlmConfigs() in 1116ms src/lib/actions/settings-actions.ts
+ POST /settings 200 in 1130ms (next.js: 6ms, application-code: 1124ms)
+  └─ ƒ getWassenderConfig() in 1117ms src/lib/actions/settings-actions.ts
+ POST /settings 200 in 1127ms (next.js: 7ms, application-code: 1120ms)
+  └─ ƒ getContractTemplates() in 1112ms src/lib/actions/settings-actions.ts
+ POST /settings 200 in 1214ms (next.js: 5ms, application-code: 1209ms)
+  └─ ƒ getAgencyUsers() in 1200ms src/lib/actions/settings-actions.ts
+ POST /settings 200 in 1610ms (next.js: 5ms, application-code: 1605ms)
+  └─ ƒ saveLlmConfig({"apiKey":"sk-test-new-key-12345","apiUrl":"https://openrouter.ai/api/v1/chat/completions","model":"openai/gpt-4o","...":"1 item not stringified"}) in 1562ms src/lib/actions/settings-actions.ts
+ GET /ai-chat 200 in 513ms (next.js: 453ms, application-code: 60ms)
+ GET /api/auth/session 200 in 435ms (next.js: 16ms, application-code: 419ms)
+ POST /ai-chat 200 in 1289ms (next.js: 10ms, application-code: 1279ms)
+  └─ ƒ getAgencyContext() in 1267ms src/lib/actions/chat-actions.ts
+ POST /ai-chat 200 in 1189ms (next.js: 5ms, application-code: 1184ms)
+  └─ ƒ getAgencyContext() in 1176ms src/lib/actions/chat-actions.ts
+ POST /ai-chat 200 in 1131ms (next.js: 5ms, application-code: 1126ms)
+  └─ ƒ getAgencyContext() in 1118ms src/lib/actions/chat-actions.ts
+ POST /ai-chat 200 in 1141ms (next.js: 5ms, application-code: 1136ms)
+  └─ ƒ getChatHistory() in 1129ms src/lib/actions/chat-actions.ts
+ POST /ai-chat 200 in 1114ms (next.js: 5ms, application-code: 1109ms)
+  └─ ƒ getChatHistory() in 1101ms src/lib/actions/chat-actions.ts
+ POST /ai-chat 200 in 1121ms (next.js: 5ms, application-code: 1116ms)
+  └─ ƒ getChatHistory() in 1107ms src/lib/actions/chat-actions.ts
+ POST /ai-chat 200 in 1143ms (next.js: 7ms, application-code: 1136ms)
+  └─ ƒ clearChatHistory() in 1128ms src/lib/actions/chat-actions.ts
+ POST /ai-chat 200 in 1585ms (next.js: 6ms, application-code: 1579ms)
+  └─ ƒ saveChatMessage("user", "How can I improve my fleet utilization?") in 1566ms src/lib/actions/chat-actions.ts
+ POST /ai-chat 200 in 1190ms (next.js: 5ms, application-code: 1184ms)
+  └─ ƒ getAgencyContext() in 1176ms src/lib/actions/chat-actions.ts
+ POST /ai-chat 200 in 1140ms (next.js: 5ms, application-code: 1135ms)
+  └─ ƒ getActiveLlmConfig() in 1127ms src/lib/actions/chat-actions.ts
+ GET /rent/cars/cmr6q5h18000gbg6zqkxay34m?agency=demo 200 in 74ms (next.js: 13ms, application-code: 61ms)
+ GET /api/auth/session 200 in 406ms (next.js: 15ms, application-code: 391ms)
+ GET /api/public/cars?agency=demo&id=cmr6q5h18000gbg6zqkxay34m 200 in 779ms (next.js: 4ms, application-code: 775ms)
+ GET /api/public/cars?agency=demo&id=cmr6q5h18000gbg6zqkxay34m 200 in 739ms (next.js: 3ms, application-code: 736ms)
+ GET /rent/cars/cmr6q5h18000gbg6zqkxay34m?agency=demo 200 in 74ms (next.js: 13ms, application-code: 61ms)
+ GET /api/auth/session 200 in 473ms (next.js: 14ms, application-code: 459ms)
+ GET /api/public/cars?agency=demo&id=cmr6q5h18000gbg6zqkxay34m 200 in 844ms (next.js: 5ms, application-code: 839ms)
+ GET /api/public/cars?agency=demo&id=cmr6q5h18000gbg6zqkxay34m 200 in 740ms (next.js: 3ms, application-code: 737ms)
+ GET /rent 200 in 66ms (next.js: 10ms, application-code: 57ms)
+ GET /api/auth/session 200 in 501ms (next.js: 19ms, application-code: 482ms)
+ GET /api/public/cars?agency=demo 200 in 833ms (next.js: 5ms, application-code: 828ms)
+ GET /rent/cars/cmr6q5h18000gbg6zqkxay34m?agency=demo 200 in 70ms (next.js: 14ms, application-code: 57ms)
+ GET /api/auth/session 200 in 414ms (next.js: 14ms, application-code: 400ms)
+ GET /api/public/cars?agency=demo&id=cmr6q5h18000gbg6zqkxay34m 200 in 746ms (next.js: 5ms, application-code: 741ms)
+ GET /api/public/cars?agency=demo&id=cmr6q5h18000gbg6zqkxay34m 200 in 737ms (next.js: 4ms, application-code: 733ms)
+ GET /rent/cars/cmr6q5h18000gbg6zqkxay34m?agency=demo 200 in 69ms (next.js: 13ms, application-code: 56ms)
+ GET /api/auth/session 200 in 477ms (next.js: 13ms, application-code: 464ms)
+ GET /api/public/cars?agency=demo&id=cmr6q5h18000gbg6zqkxay34m 200 in 816ms (next.js: 4ms, application-code: 811ms)
+ GET /api/public/cars?agency=demo&id=cmr6q5h18000gbg6zqkxay34m 200 in 737ms (next.js: 4ms, application-code: 733ms)
+ POST /rent/cars/cmr6q5h18000gbg6zqkxay34m?agency=demo 200 in 1749ms (next.js: 12ms, application-code: 1736ms)
+  └─ ƒ saveChatMessage("user", "What is the daily rate?", undefined, "demo") in 1725ms src/lib/actions/chat-actions.ts
+ POST /rent/cars/cmr6q5h18000gbg6zqkxay34m?agency=demo 200 in 1269ms (next.js: 12ms, application-code: 1257ms)
+  └─ ƒ getAgencyContext("demo") in 1247ms src/lib/actions/chat-actions.ts
+ POST /rent/cars/cmr6q5h18000gbg6zqkxay34m?agency=demo 200 in 757ms (next.js: 12ms, application-code: 745ms)
+  └─ ƒ getActiveLlmConfig("demo") in 735ms src/lib/actions/chat-actions.ts
+ GET /rent 200 in 52ms (next.js: 5ms, application-code: 48ms)
+ GET /api/auth/session 200 in 500ms (next.js: 16ms, application-code: 484ms)
+ GET /api/public/cars?agency=demo 200 in 885ms (next.js: 7ms, application-code: 879ms)
+ GET /rent/cars/cmr6q5h18000gbg6zqkxay34m 200 in 40ms (next.js: 13ms, application-code: 27ms)
+ GET /api/public/cars?agency=demo&id=cmr6q5h18000gbg6zqkxay34m 200 in 755ms (next.js: 3ms, application-code: 752ms)
+ GET /api/public/cars?agency=demo&id=cmr6q5h18000gbg6zqkxay34m 200 in 744ms (next.js: 4ms, application-code: 740ms)
+ GET /api/public/cars?agency=demo&id=cmr6q5h18000gbg6zqkxay34m 200 in 819ms (next.js: 3ms, application-code: 816ms)
+✓ Compiled in 1799ms
+ GET /rent/cars/cmr6q5h18000gbg6zqkxay34m 200 in 323ms (next.js: 186ms, application-code: 137ms)
+ GET /api/public/cars?agency=demo&id=cmr6q5h18000gbg6zqkxay34m 200 in 854ms (next.js: 33ms, application-code: 820ms)
+✓ Compiled in 97ms
+ GET /rent/cars/cmr6q5h18000gbg6zqkxay34m 200 in 239ms (next.js: 184ms, application-code: 54ms)
+ GET /api/public/cars?agency=demo&id=cmr6q5h18000gbg6zqkxay34m 200 in 817ms (next.js: 3ms, application-code: 814ms)
+ GET /api/public/cars?agency=demo&id=cmr6q5h18000gbg6zqkxay34m 200 in 767ms (next.js: 26ms, application-code: 742ms)
+✓ Compiled in 111ms
+ GET /rent/cars/cmr6q5h18000gbg6zqkxay34m 200 in 356ms (next.js: 178ms, application-code: 178ms)
+[browser] The final argument passed to useEffect changed size between renders. The order and size of this array must remain constant.
+
+Previous: [cmr6q5h18000gbg6zqkxay34m, Hyundai Tucson, true, ]
+Incoming: [cmr6q5h18000gbg6zqkxay34m, Hyundai Tucson, ] 
+    at FloatingChat (src/components/ai-chat/floating-chat.tsx:75:12)
+    at Set.forEach (<anonymous>)
+  73 |   }, [messages, scrollToBottom]);
+  74 |
+> 75 |   useEffect(() => {
+     |            ^
+  76 |     if (carId && carName && !hasAutoSentRef.current && messages.length === 0) {
+  77 |       hasAutoSentRef.current = true;
+  78 |       setHasAutoSent(true); (src/components/ai-chat/floating-chat.tsx:75:12)
+ GET /api/public/cars?agency=demo&id=cmr6q5h18000gbg6zqkxay34m 200 in 787ms (next.js: 37ms, application-code: 749ms)
+ POST /rent/cars/cmr6q5h18000gbg6zqkxay34m 200 in 1164ms (next.js: 12ms, application-code: 1152ms)
+  └─ ƒ saveChatMessage("user", "Tell me about the Hyundai Tucson's features, pricing and availability", undefined, "demo") in 1124ms src/lib/actions/chat-actions.ts
+ POST /rent/cars/cmr6q5h18000gbg6zqkxay34m 200 in 840ms (next.js: 13ms, application-code: 828ms)
+  └─ ƒ getAgencyContext("demo") in 818ms src/lib/actions/chat-actions.ts
+ POST /rent/cars/cmr6q5h18000gbg6zqkxay34m 200 in 757ms (next.js: 12ms, application-code: 746ms)
+  └─ ƒ getActiveLlmConfig("demo") in 736ms src/lib/actions/chat-actions.ts
+✓ Compiled in 95ms
+ GET /rent/cars/cmr6q5h18000gbg6zqkxay34m 200 in 260ms (next.js: 178ms, application-code: 81ms)
+ GET /api/public/cars?agency=demo&id=cmr6q5h18000gbg6zqkxay34m 200 in 853ms (next.js: 29ms, application-code: 824ms)
+ POST /rent/cars/cmr6q5h18000gbg6zqkxay34m 200 in 1165ms (next.js: 12ms, application-code: 1153ms)
+  └─ ƒ saveChatMessage("user", "Tell me about the Hyundai Tucson's features, pricing and availability", undefined, "demo") in 1125ms src/lib/actions/chat-actions.ts
+ POST /rent/cars/cmr6q5h18000gbg6zqkxay34m 200 in 838ms (next.js: 13ms, application-code: 826ms)
+  └─ ƒ getAgencyContext("demo") in 816ms src/lib/actions/chat-actions.ts
+ POST /rent/cars/cmr6q5h18000gbg6zqkxay34m 200 in 765ms (next.js: 13ms, application-code: 752ms)
+  └─ ƒ getActiveLlmConfig("demo") in 742ms src/lib/actions/chat-actions.ts
+ GET /rent/cars 200 in 436ms (next.js: 190ms, application-code: 246ms)
+ GET /rent/cars 200 in 74ms (next.js: 13ms, application-code: 61ms)
+ GET /api/public/cars?agency=cars 404 in 465ms (next.js: 8ms, application-code: 457ms)
+ GET /api/auth/session 200 in 602ms (next.js: 85ms, application-code: 517ms)
+ GET /rent?agency=demo 200 in 428ms (next.js: 197ms, application-code: 231ms)
+ GET /api/auth/session 200 in 417ms (next.js: 17ms, application-code: 400ms)
+ GET /api/public/cars?agency=demo 200 in 767ms (next.js: 5ms, application-code: 762ms)
+ GET /rent/cars/cmr6q5h18000gbg6zqkxay34m?agency=demo 200 in 100ms (next.js: 13ms, application-code: 87ms)
+ GET /api/auth/session 200 in 397ms (next.js: 13ms, application-code: 385ms)
+ GET /api/public/cars?agency=demo&id=cmr6q5h18000gbg6zqkxay34m 200 in 764ms (next.js: 4ms, application-code: 760ms)
+ GET /api/public/cars?agency=demo&id=cmr6q5h18000gbg6zqkxay34m 200 in 753ms (next.js: 4ms, application-code: 749ms)
+ POST /rent/cars/cmr6q5h18000gbg6zqkxay34m?agency=demo 200 in 1778ms (next.js: 15ms, application-code: 1763ms)
+  └─ ƒ saveChatMessage("user", "Tell me about the Hyundai Tucson's features, pricing and availability", undefined, "demo") in 1751ms src/lib/actions/chat-actions.ts
+ POST /rent/cars/cmr6q5h18000gbg6zqkxay34m?agency=demo 200 in 835ms (next.js: 15ms, application-code: 820ms)
+  └─ ƒ getAgencyContext("demo") in 808ms src/lib/actions/chat-actions.ts
+ POST /rent/cars/cmr6q5h18000gbg6zqkxay34m?agency=demo 200 in 1285ms (next.js: 13ms, application-code: 1273ms)
+  └─ ƒ getActiveLlmConfig("demo") in 1263ms src/lib/actions/chat-actions.ts
+[?25h

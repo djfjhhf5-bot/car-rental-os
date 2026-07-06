@@ -1,0 +1,12 @@
+uid=2_0 RootWebArea "CarRental OS" busy url="http://localhost:3000/login"
+  uid=2_1 StaticText "Sign in"
+  uid=2_2 StaticText "Enter your email and password to access your account"
+  uid=2_3 form
+    uid=2_4 StaticText "Email"
+    uid=2_5 textbox "Email"
+    uid=2_6 StaticText "Password"
+    uid=2_7 textbox "Password"
+    uid=2_8 button "Sign in"
+    uid=2_9 StaticText "Don't have an account?"
+    uid=2_10 link "Sign up" url="http://localhost:3000/register"
+      uid=2_11 StaticText "Sign up"
