@@ -91,23 +91,22 @@ export async function getChatHistory(): Promise<{
 export async function saveChatMessage(
   role: string,
   content: string,
-  context?: string
+  context?: string,
+  agencySlug?: string
 ): Promise<{ success: boolean; data?: ChatMessage; error?: string }> {
   try {
+    const resolved = await resolveAgency(agencySlug);
+    if (!resolved.success) return { success: false, error: resolved.error };
+    const agencyId = resolved.agencyId;
+
+    let userId = "public";
     const session = await auth();
-    if (!session?.user?.id) return { success: false, error: "Unauthorized" };
-
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { agencyId: true },
-    });
-
-    if (!user?.agencyId) return { success: false, error: "No agency found" };
+    if (session?.user?.id) userId = session.user.id;
 
     const message = await prisma.chatMessage.create({
       data: {
-        agencyId: user.agencyId,
-        userId: session.user.id,
+        agencyId,
+        userId,
         role,
         content,
         context: context || null,
@@ -155,23 +154,32 @@ export async function clearChatHistory(): Promise<{
   }
 }
 
-export async function getAgencyContext(): Promise<{
+async function resolveAgency(agencySlug?: string) {
+  if (agencySlug) {
+    const agency = await prisma.agency.findUnique({ where: { slug: agencySlug } });
+    if (!agency) return { success: false as const, error: "Agency not found" };
+    return { success: true as const, agencyId: agency.id };
+  }
+  const session = await auth();
+  if (!session?.user?.id) return { success: false as const, error: "Unauthorized" };
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { agencyId: true },
+  });
+  if (!user?.agencyId) return { success: false as const, error: "No agency found" };
+  return { success: true as const, agencyId: user.agencyId };
+}
+
+export async function getAgencyContext(agencySlug?: string): Promise<{
   success: boolean;
   data?: AgencyContext;
   error?: string;
 }> {
   try {
-    const session = await auth();
-    if (!session?.user?.id) return { success: false, error: "Unauthorized" };
+    const resolved = await resolveAgency(agencySlug);
+    if (!resolved.success) return { success: false, error: resolved.error };
 
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { agencyId: true },
-    });
-
-    if (!user?.agencyId) return { success: false, error: "No agency found" };
-
-    const agencyId = user.agencyId;
+    const agencyId = resolved.agencyId;
 
     const [agency, vehicles, bookings, clients, payments] =
       await Promise.all([
@@ -249,24 +257,19 @@ export async function getAgencyContext(): Promise<{
   }
 }
 
-export async function getActiveLlmConfig(): Promise<{
+export async function getActiveLlmConfig(agencySlug?: string): Promise<{
   success: boolean;
   data?: LlmConfig;
   error?: string;
 }> {
   try {
-    const session = await auth();
-    if (!session?.user?.id) return { success: false, error: "Unauthorized" };
+    const resolved = await resolveAgency(agencySlug);
+    if (!resolved.success) return { success: false, error: resolved.error };
 
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { agencyId: true },
-    });
-
-    if (!user?.agencyId) return { success: false, error: "No agency found" };
+    const agencyId = resolved.agencyId;
 
     const config = await prisma.llmConfig.findFirst({
-      where: { agencyId: user.agencyId, active: true },
+      where: { agencyId, active: true },
     });
 
     if (!config) {

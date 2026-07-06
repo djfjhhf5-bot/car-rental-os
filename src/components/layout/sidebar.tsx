@@ -17,6 +17,7 @@ import {
   Settings,
   X,
   UserPlus,
+  Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -98,6 +99,16 @@ export default function Sidebar({ open, onClose, agencyName }: SidebarProps) {
             );
           })}
         </nav>
+        <div className="border-t p-3">
+          <Link
+            href="/rent"
+            target="_blank"
+            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          >
+            <Globe className="h-4 w-4" />
+            {t("sidebar.store", lang)}
+          </Link>
+        </div>
         <div className="border-t p-3 text-xs text-muted-foreground">
           {t("sidebar.version", lang)}
         </div>

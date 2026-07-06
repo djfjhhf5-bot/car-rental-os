@@ -60,7 +60,7 @@ export function ChatMessage({ role, content, createdAt }: ChatMessageProps) {
   );
 }
 
-export function ChatMessageSkeleton() {
+export function TypingDots() {
   return (
     <div className="flex w-full gap-3 justify-start">
       <Avatar className="h-8 w-8 shrink-0">
@@ -69,14 +69,23 @@ export function ChatMessageSkeleton() {
         </AvatarFallback>
       </Avatar>
       <div className="flex max-w-[80%] flex-col gap-1">
-        <div className="rounded-2xl rounded-bl-sm bg-muted px-4 py-2.5">
-          <div className="space-y-2">
-            <div className="h-3 w-48 animate-pulse rounded bg-muted-foreground/20" />
-            <div className="h-3 w-32 animate-pulse rounded bg-muted-foreground/20" />
-            <div className="h-3 w-40 animate-pulse rounded bg-muted-foreground/20" />
+        <div className="rounded-2xl rounded-bl-sm bg-muted px-4 py-4">
+          <div className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-muted-foreground/40 typing-dot" style={{ animationDelay: "0ms" }} />
+            <span className="h-2 w-2 rounded-full bg-muted-foreground/40 typing-dot" style={{ animationDelay: "160ms" }} />
+            <span className="h-2 w-2 rounded-full bg-muted-foreground/40 typing-dot" style={{ animationDelay: "320ms" }} />
           </div>
         </div>
       </div>
+      <style>{`
+        .typing-dot {
+          animation: typingDot 1.4s infinite ease-in-out both;
+        }
+        @keyframes typingDot {
+          0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+          40% { opacity: 1; transform: scale(1); }
+        }
+      `}</style>
     </div>
   );
 }

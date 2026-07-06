@@ -41,6 +41,19 @@ export type DashboardStats = {
     total: number;
     byPhase: { phase: string; count: number }[];
   };
+  recentLeads: {
+    id: string;
+    name: string;
+    phone: string | null;
+    whatsapp: string | null;
+    vehicleRequested: string | null;
+    pickupDate: Date | null;
+    returnDate: Date | null;
+    phase: string;
+    status: string;
+    source: string;
+    createdAt: Date;
+  }[];
 };
 
 export async function getDashboardStats(agencyId: string): Promise<{
@@ -53,7 +66,7 @@ export async function getDashboardStats(agencyId: string): Promise<{
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    const [vehicles, totalClients, rawBookings, payments, rawMaintenance, leadStats] =
+    const [vehicles, totalClients, rawBookings, payments, rawMaintenance, leadStats, rawRecentLeads] =
       await Promise.all([
         prisma.vehicle.findMany({ where: { agencyId } }),
         prisma.client.count({ where: { agencyId } }),
@@ -77,6 +90,11 @@ export async function getDashboardStats(agencyId: string): Promise<{
           by: ["phase"],
           where: { agencyId },
           _count: true,
+        }),
+        prisma.lead.findMany({
+          where: { agencyId },
+          orderBy: { createdAt: "desc" },
+          take: 10,
         }),
       ]);
     type BookingWithRelations = Prisma.BookingGetPayload<{ include: { client: true; vehicle: true } }>;
@@ -148,6 +166,20 @@ export async function getDashboardStats(agencyId: string): Promise<{
       byPhase: leadData.map((l) => ({ phase: l.phase, count: l._count })),
     };
 
+    const recentLeadsData = rawRecentLeads.map((l) => ({
+      id: l.id,
+      name: l.name,
+      phone: l.phone,
+      whatsapp: l.whatsapp,
+      vehicleRequested: l.vehicleRequested,
+      pickupDate: l.pickupDate,
+      returnDate: l.returnDate,
+      phase: l.phase,
+      status: l.status,
+      source: l.source,
+      createdAt: l.createdAt,
+    }));
+
     const recentBookings = bookings.slice(0, 5).map((b) => ({
       id: b.id,
       client: `${b.client.firstName} ${b.client.lastName}`,
@@ -169,6 +201,7 @@ export async function getDashboardStats(agencyId: string): Promise<{
         overdueMaintenance,
         recentBookings,
         leadStats: leadStatsData,
+        recentLeads: recentLeadsData,
       },
     };
   } catch (e) {

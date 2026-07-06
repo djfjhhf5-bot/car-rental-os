@@ -42,7 +42,7 @@ export async function getLlmConfig(
   }
 }
 
-function buildSystemPrompt(context: AgencyContext, contextType: "admin" | "public" = "admin", leadContext?: { name?: string; phase?: string; source?: string; notes?: string } | null): string {
+function buildSystemPrompt(context: AgencyContext, contextType: "admin" | "public" = "admin", leadContext?: { name?: string; phase?: string; source?: string; notes?: string } | null, car?: { brand?: string; model?: string; year?: number } | null): string {
   const vehicleList = context.vehicles
     .map(
       (v) =>
@@ -53,11 +53,13 @@ function buildSystemPrompt(context: AgencyContext, contextType: "admin" | "publi
   const leadInfo = leadContext ? `## CUSTOMER INFO\nName: ${leadContext.name || "Unknown"}\nStage: ${leadContext.phase || "New inquiry"}\nSource: ${leadContext.source || "WhatsApp"}\nPrevious notes: ${leadContext.notes || "None"}\n` : "";
 
   if (contextType === "public") {
+    const carContext = car ? `\n\nThe user is currently looking at the **${car.brand} ${car.model}${car.year ? " (" + car.year + ")" : ""}**. Focus your answer on this specific vehicle, including its features, pricing, and availability.` : "";
+
     return `You are a friendly WhatsApp assistant for ${context.agencyName}, a car rental agency.
 
 ${leadInfo}## FLEET
 ${vehicleList}
-
+${carContext}
 ## RULES
 - Greet warmly, then immediately address their request
 - If they ask "what cars", list ALL available cars with brand, model, daily rate, and status
@@ -184,7 +186,7 @@ export async function queryLlm(
   car?: { brand?: string; model?: string; year?: number } | null
 ): Promise<{ success: boolean; data?: string; error?: string }> {
   try {
-    const systemPrompt = buildSystemPrompt(agencyContext, contextType, leadContext);
+    const systemPrompt = buildSystemPrompt(agencyContext, contextType, leadContext, car);
     const userMessage = buildUserMessage(messages, userInput);
 
     switch (llmConfig.provider) {

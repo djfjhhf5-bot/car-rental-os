@@ -225,6 +225,47 @@ export function DashboardContent() {
             </Card>
           )}
 
+          {data.recentLeads && data.recentLeads.length > 0 && (
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <Send className="h-5 w-5 text-primary" />
+                  <CardTitle className="text-sm font-medium">Recent Inquiries</CardTitle>
+                </div>
+                <CardDescription>{data.recentLeads.length} latest inquiries from the rent page</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {data.recentLeads.map((lead) => (
+                    <div key={lead.id} className="flex items-center justify-between rounded-lg border p-3 text-sm">
+                      <div className="space-y-0.5">
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium">{lead.name}</p>
+                          <Badge variant={getBadgeVariant(lead.phase)} className="text-[10px]">{lead.phase}</Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {lead.phone || lead.whatsapp || "—"}
+                          {lead.vehicleRequested ? ` | ${lead.vehicleRequested}` : ""}
+                        </p>
+                        {lead.pickupDate && (
+                          <p className="text-xs text-muted-foreground">
+                            {formatDate(lead.pickupDate)} {lead.returnDate ? `- ${formatDate(lead.returnDate)}` : ""}
+                          </p>
+                        )}
+                      </div>
+                      <div className="text-right text-xs text-muted-foreground">
+                        {new Date(lead.createdAt).toLocaleDateString()}
+                      </div>
+                    </div>
+                  ))}
+                  <a href="/leads" className="flex items-center gap-1 text-xs text-primary hover:underline mt-2">
+                    {t("dashboard.viewAll", lang)} <ArrowUpRight className="h-3 w-3" />
+                  </a>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {data.upcomingReturns.length > 0 && (
             <Card className="border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800">
               <CardHeader className="pb-3">

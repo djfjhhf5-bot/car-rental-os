@@ -109,6 +109,7 @@ export async function saveLlmConfig(data: unknown) {
     });
 
     const encryptedKey = validated.data.apiKey ? encrypt(validated.data.apiKey) : null;
+    const apiUrl = validated.data.provider === "custom" ? (validated.data.apiUrl || null) : null;
 
     if (existing) {
       const config = await prisma.llmConfig.update({
@@ -117,7 +118,7 @@ export async function saveLlmConfig(data: unknown) {
           provider: validated.data.provider,
           apiKey: encryptedKey || existing.apiKey,
           model: validated.data.model,
-          apiUrl: validated.data.apiUrl || null,
+          apiUrl,
           active: true,
         },
       });
@@ -131,7 +132,7 @@ export async function saveLlmConfig(data: unknown) {
         provider: validated.data.provider,
         apiKey: encryptedKey,
         model: validated.data.model,
-        apiUrl: validated.data.apiUrl || null,
+        apiUrl,
         active: true,
       },
     });

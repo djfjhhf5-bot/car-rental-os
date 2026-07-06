@@ -13,6 +13,8 @@ import {
   Phone,
   Mail,
   User,
+  Eye,
+  Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -28,7 +30,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { getVehicle, deleteVehicle } from "@/lib/actions/fleet-actions";
+import { getVehicle, deleteVehicle, toggleVehiclePublish } from "@/lib/actions/fleet-actions";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 const statusConfig: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
@@ -97,6 +99,7 @@ export default function VehicleDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [publishing, setPublishing] = useState(false);
 
   async function loadVehicle() {
     try {
@@ -118,6 +121,13 @@ export default function VehicleDetailPage() {
   useEffect(() => {
     loadVehicle();
   }, [id]);
+
+  async function handleTogglePublish() {
+    setPublishing(true);
+    await toggleVehiclePublish(id);
+    loadVehicle();
+    setPublishing(false);
+  }
 
   async function handleDelete() {
     setDeleting(true);
@@ -187,6 +197,21 @@ export default function VehicleDetailPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/rent/cars/${vehicle.id}`} target="_blank">
+              <Eye className="mr-1 h-4 w-4" />
+              View on Store
+            </Link>
+          </Button>
+          <Button
+            variant={vehicle.published ? "secondary" : "default"}
+            size="sm"
+            onClick={handleTogglePublish}
+            disabled={publishing}
+          >
+            <Globe className="mr-1 h-4 w-4" />
+            {vehicle.published ? "Unpublish" : "Publish"}
+          </Button>
           <Button variant="outline" asChild>
             <Link href={`/fleet/${vehicle.id}/edit`}>
               <Edit className="mr-2 h-4 w-4" />

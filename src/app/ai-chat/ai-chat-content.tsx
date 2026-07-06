@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ChatMessage, ChatMessageSkeleton } from "@/components/ai-chat/chat-message";
+import { ChatMessage, TypingDots } from "@/components/ai-chat/chat-message";
 import { ChatInput } from "@/components/ai-chat/chat-input";
 import { WelcomeMessage } from "@/components/ai-chat/welcome-message";
 import { useLanguage } from "@/lib/i18n/language-context";
@@ -177,8 +177,8 @@ export default function AiChatPage() {
       <div className="flex h-full flex-col">
         <LoadingHeader />
         <div className="flex-1 space-y-4 p-4">
-          <ChatMessageSkeleton />
-          <ChatMessageSkeleton />
+          <TypingDots />
+          <TypingDots />
         </div>
       </div>
     );
@@ -221,7 +221,7 @@ export default function AiChatPage() {
                   createdAt={msg.createdAt}
                 />
               ))}
-              {isLoading && <ChatMessageSkeleton />}
+              {isLoading && <TypingDots />}
             </>
           )}
         </div>

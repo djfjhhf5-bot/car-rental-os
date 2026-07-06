@@ -1,7 +1,11 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { Gauge, Users, Fuel } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n/language-context";
+import { t } from "@/lib/i18n/translations";
 
 interface CarCardProps {
   id: string;
@@ -17,6 +21,7 @@ interface CarCardProps {
 }
 
 export function CarCard({ id, brand, model, year, transmission, fuelType, seats, dailyRate, category, imageUrl }: CarCardProps) {
+  const { lang } = useLanguage();
   const initials = `${brand[0]}${model[0]}`.toUpperCase();
   const categoryLabel = category.charAt(0).toUpperCase() + category.slice(1);
 
@@ -45,6 +50,20 @@ export function CarCard({ id, brand, model, year, transmission, fuelType, seats,
               </div>
             </div>
           )}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              window.dispatchEvent(
+                new CustomEvent("chat:ask", {
+                  detail: { message: `Tell me about the ${brand} ${model}'s features, pricing and availability` },
+                })
+              );
+            }}
+            className="absolute top-4 left-4 z-10 bg-white/10 backdrop-blur-md border border-white/30 text-white font-manrope font-bold px-4 py-2 rounded-lg text-xs hover:bg-white/20 transition-all shadow-lg"
+          >
+            {t("car.ask", lang)}
+          </button>
         </div>
       </Link>
       <div className="p-6 flex flex-col gap-4 relative z-10 bg-surface-container-lowest">
@@ -77,19 +96,21 @@ export function CarCard({ id, brand, model, year, transmission, fuelType, seats,
         </div>
         <div className="flex justify-between items-center">
           <span className="font-manrope text-body-md text-on-surface-variant">
-            From <strong className="text-primary font-bold">{formatCurrency(dailyRate)}</strong>
-            <span className="text-sm">/day</span>
+            {t("car.from", lang)} <strong className="text-primary font-bold">{formatCurrency(dailyRate)}</strong>
+            <span className="text-sm">{t("car.perDay", lang)}</span>
           </span>
-          <Link
-            href={`/rent/cars/${id}`}
-            className="text-primary hover:text-primary-fixed transition-colors flex items-center gap-1 font-jetbrains-mono text-label-sm uppercase tracking-widest"
-          >
-            Details
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5 12h14" />
-              <path d="m12 5 7 7-7 7" />
-            </svg>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/rent/cars/${id}`}
+              className="text-primary hover:text-primary-fixed transition-colors flex items-center gap-1 font-jetbrains-mono text-label-sm uppercase tracking-widest"
+            >
+              {t("car.details", lang)}
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+              </svg>
+            </Link>
+          </div>
         </div>
       </div>
     </div>

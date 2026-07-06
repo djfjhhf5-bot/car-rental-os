@@ -39,7 +39,9 @@ import {
   Loader2,
   Eye,
   EyeOff,
+  Globe,
 } from "lucide-react";
+import Link from "next/link";
 
 type AgencyData = {
   id: string;
@@ -170,11 +172,12 @@ export default function SettingsPage() {
 
   const handleLlmSave = useCallback(async () => {
     setLlmSaving(true);
+    const provider = llmConfig?.provider || "openai";
     const res = await saveLlmConfig({
-      provider: llmConfig?.provider || "openai",
+      provider,
       apiKey: llmConfig?.apiKey || "",
       model: llmConfig?.model || "gpt-4",
-      apiUrl: llmConfig?.apiUrl || "",
+      apiUrl: provider === "custom" ? (llmConfig?.apiUrl || "") : "",
     });
     setLlmSaving(false);
     if (res.success) {
@@ -527,6 +530,34 @@ export default function SettingsPage() {
               </Button>
             </CardContent>
           </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Globe className="h-5 w-5" />
+                Store Page
+              </CardTitle>
+              <CardDescription>
+                Preview your public store page. Cars marked as "Published" in the fleet will appear here.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col gap-3">
+                <div className="rounded-lg border bg-muted/50 p-4">
+                  <p className="text-sm font-medium">{agency?.name || "My Car Rental Agency"}</p>
+                  <p className="text-xs text-muted-foreground">
+                    /rent{agency?.slug ? `?agency=${agency.slug}` : ""}
+                  </p>
+                </div>
+                <Button variant="outline" asChild>
+                  <Link href="/rent" target="_blank">
+                    <Eye className="mr-2 h-4 w-4" />
+                    Preview Store Page
+                  </Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="llm" className="space-y-4">
@@ -543,9 +574,22 @@ export default function SettingsPage() {
                 <Select
                   value={llmConfig?.provider || "openai"}
                   onValueChange={(v) =>
-                    setLlmConfig((prev) =>
-                      prev ? { ...prev, provider: v } : { id: "", provider: v, apiKey: null, model: "gpt-4", apiUrl: null, active: true }
-                    )
+                    setLlmConfig((prev) => {
+                      const defaults: Record<string, string> = {
+                        openai: "gpt-4",
+                        anthropic: "claude-3-opus-20240229",
+                        openrouter: "openai/gpt-4o-mini",
+                        custom: prev?.model || "gpt-4",
+                      };
+                      return {
+                        id: prev?.id || "",
+                        provider: v,
+                        apiKey: prev?.apiKey || null,
+                        model: defaults[v] || "gpt-4",
+                        apiUrl: v === "custom" ? (prev?.apiUrl || null) : null,
+                        active: true,
+                      };
+                    })
                   }
                 >
                   <SelectTrigger id="provider">
