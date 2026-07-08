@@ -18,7 +18,7 @@ export function FloatingChat() {
   const carMatch = pathname.match(/^\/rent\/cars\/([^\/]+)/);
   const carId = carMatch ? carMatch[1] : null;
   const agency = searchParams.get("agency") || "demo";
-  const agencyParam = carId ? agency : undefined;
+  const agencyParam = agency;
 
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
@@ -115,10 +115,8 @@ export function FloatingChat() {
       try {
         await saveChatMessage("user", content, undefined, agencyParam);
 
-        const [ctxResult, configResult] = await Promise.all([
-          getAgencyContext(agencyParam),
-          getActiveLlmConfig(agencyParam),
-        ]);
+        const configResult = await getActiveLlmConfig(agencyParam);
+        const ctxResult = await getAgencyContext(agencyParam);
 
         if (!configResult.success || !configResult.data) {
           const errorMsg: ChatMessageType = {

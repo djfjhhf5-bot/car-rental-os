@@ -181,14 +181,11 @@ export async function getAgencyContext(agencySlug?: string): Promise<{
 
     const agencyId = resolved.agencyId;
 
-    const [agency, vehicles, bookings, clients, payments] =
-      await Promise.all([
-        prisma.agency.findUnique({ where: { id: agencyId } }),
-        prisma.vehicle.findMany({ where: { agencyId } }),
-        prisma.booking.findMany({ where: { agencyId } }),
-        prisma.client.findMany({ where: { agencyId } }),
-        prisma.payment.findMany({ where: { agencyId } }),
-      ]);
+    const agency = await prisma.agency.findUnique({ where: { id: agencyId } });
+    const vehicles = await prisma.vehicle.findMany({ where: { agencyId } });
+    const bookings = await prisma.booking.findMany({ where: { agencyId } });
+    const clients = await prisma.client.findMany({ where: { agencyId } });
+    const payments = await prisma.payment.findMany({ where: { agencyId } });
 
     if (!agency) return { success: false, error: "Agency not found" };
 
