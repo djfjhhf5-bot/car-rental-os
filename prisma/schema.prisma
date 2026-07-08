@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider           = "postgresql"
+  url                = env("DATABASE_URL")
+  preparedStatements = false
 }
 
 model Agency {
@@ -374,10 +375,13 @@ model LlmConfig {
   apiKey    String?
   model     String   @default("gpt-4")
   apiUrl    String?
+  purpose   String   @default("admin")
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   agencyId String
   agency   Agency @relation(fields: [agencyId], references: [id])
+
+  @@unique([agencyId, purpose])
 }

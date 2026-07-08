@@ -38,9 +38,10 @@ interface SidebarProps {
   open: boolean;
   onClose: () => void;
   agencyName?: string;
+  agencySlug?: string;
 }
 
-export default function Sidebar({ open, onClose, agencyName }: SidebarProps) {
+export default function Sidebar({ open, onClose, agencyName, agencySlug }: SidebarProps) {
   const pathname = usePathname();
   const { lang, dir } = useLanguage();
 
@@ -101,7 +102,7 @@ export default function Sidebar({ open, onClose, agencyName }: SidebarProps) {
         </nav>
         <div className="border-t p-3">
           <Link
-            href="/rent"
+            href={agencySlug ? `/rent/${agencySlug}` : "/rent"}
             target="_blank"
             className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
           >

@@ -47,6 +47,7 @@ export function DashboardShell({
           open={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
           agencyName={user.name ? `${user.name}'s Agency` : "CarRental OS"}
+          agencySlug={user.agencySlug}
         />
         <div className="flex flex-1 flex-col overflow-hidden">
           <Navbar onMenuClick={toggleSidebar} />

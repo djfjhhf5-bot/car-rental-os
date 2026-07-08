@@ -180,11 +180,23 @@ async function main() {
       apiKey: "sk-or-v1-placeholder-replace-with-real-key",
       apiUrl: "https://openrouter.ai/api/v1/chat/completions",
       model: "openai/gpt-4o",
+      purpose: "admin",
       active: true,
       agencyId: agency.id,
     },
   });
-  console.log("Default LLM config created (OpenRouter)");
+  await prisma.llmConfig.create({
+    data: {
+      provider: "custom",
+      apiKey: "sk-or-v1-placeholder-replace-with-real-key",
+      apiUrl: "https://openrouter.ai/api/v1/chat/completions",
+      model: "openai/gpt-4o-mini",
+      purpose: "public",
+      active: true,
+      agencyId: agency.id,
+    },
+  });
+  console.log("Default LLM configs created (admin + public)");
 
   await prisma.wassenderConfig.create({
     data: {

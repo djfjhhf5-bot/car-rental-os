@@ -64,6 +64,7 @@ type LlmConfigData = {
   model: string;
   apiUrl: string | null;
   active: boolean;
+  purpose?: string;
 };
 
 type WassenderConfigData = {
@@ -99,8 +100,11 @@ export default function SettingsPage() {
   const [agencySaving, setAgencySaving] = useState(false);
 
   const [llmConfig, setLlmConfig] = useState<LlmConfigData | null>(null);
+  const [publicLlmConfig, setPublicLlmConfig] = useState<LlmConfigData | null>(null);
   const [llmSaving, setLlmSaving] = useState(false);
+  const [publicLlmSaving, setPublicLlmSaving] = useState(false);
   const [showApiKey, setShowApiKey] = useState(false);
+  const [showPublicApiKey, setShowPublicApiKey] = useState(false);
 
   const [wassender, setWassender] = useState<WassenderConfigData | null>(null);
   const [wassenderSaving, setWassenderSaving] = useState(false);
@@ -135,8 +139,12 @@ export default function SettingsPage() {
           ]);
 
         if (agencyRes.success && agencyRes.data) setAgency(agencyRes.data);
-        if (llmRes.success && llmRes.data && llmRes.data.length > 0)
-          setLlmConfig(llmRes.data[0]);
+        if (llmRes.success && llmRes.data) {
+          const adminCfg = llmRes.data.find((c: LlmConfigData) => !c.purpose || c.purpose === "admin");
+          const publicCfg = llmRes.data.find((c: LlmConfigData) => c.purpose === "public");
+          if (adminCfg) setLlmConfig(adminCfg);
+          if (publicCfg) setPublicLlmConfig(publicCfg);
+        }
         if (wassenderRes.success && wassenderRes.data)
           setWassender(wassenderRes.data);
         if (templatesRes.success && templatesRes.data)
@@ -178,6 +186,7 @@ export default function SettingsPage() {
       apiKey: llmConfig?.apiKey || "",
       model: llmConfig?.model || "gpt-4",
       apiUrl: provider === "custom" ? (llmConfig?.apiUrl || "") : "",
+      purpose: "admin",
     });
     setLlmSaving(false);
     if (res.success) {
@@ -187,6 +196,25 @@ export default function SettingsPage() {
       toast({ title: "Error", description: res.error || "Failed to save", variant: "destructive" as const });
     }
   }, [llmConfig]);
+
+  const handlePublicLlmSave = useCallback(async () => {
+    setPublicLlmSaving(true);
+    const provider = publicLlmConfig?.provider || "openai";
+    const res = await saveLlmConfig({
+      provider,
+      apiKey: publicLlmConfig?.apiKey || "",
+      model: publicLlmConfig?.model || "gpt-4",
+      apiUrl: provider === "custom" ? (publicLlmConfig?.apiUrl || "") : "",
+      purpose: "public",
+    });
+    setPublicLlmSaving(false);
+    if (res.success) {
+      if (res.data) setPublicLlmConfig(res.data as LlmConfigData);
+      toast({ title: t("settings.saved", lang), description: t("settings.configUpdated", lang), variant: "success" as const });
+    } else {
+      toast({ title: "Error", description: res.error || "Failed to save", variant: "destructive" as const });
+    }
+  }, [publicLlmConfig]);
 
   const handleWassenderSave = useCallback(async () => {
     setWassenderSaving(true);
@@ -563,9 +591,9 @@ export default function SettingsPage() {
         <TabsContent value="llm" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>{t("settings.llmConfig", lang)}</CardTitle>
+              <CardTitle>{t("settings.llmAdmin", lang)}</CardTitle>
               <CardDescription>
-                {t("settings.llmConfigDesc", lang)}
+                {t("settings.llmAdminDesc", lang)}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -674,6 +702,126 @@ export default function SettingsPage() {
 
               <Button onClick={handleLlmSave} disabled={llmSaving}>
                 {llmSaving && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                {t("settings.saveConfig", lang)}
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("settings.llmStore", lang)}</CardTitle>
+              <CardDescription>
+                {t("settings.llmStoreDesc", lang)}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="publicProvider">{t("settings.provider", lang)}</Label>
+                <Select
+                  value={publicLlmConfig?.provider || "openai"}
+                  onValueChange={(v) =>
+                    setPublicLlmConfig((prev) => {
+                      const defaults: Record<string, string> = {
+                        openai: "gpt-4",
+                        anthropic: "claude-3-opus-20240229",
+                        openrouter: "openai/gpt-4o-mini",
+                        custom: prev?.model || "gpt-4",
+                      };
+                      return {
+                        id: prev?.id || "",
+                        provider: v,
+                        apiKey: prev?.apiKey || null,
+                        model: defaults[v] || "gpt-4",
+                        apiUrl: v === "custom" ? (prev?.apiUrl || null) : null,
+                        active: true,
+                      };
+                    })
+                  }
+                >
+                  <SelectTrigger id="publicProvider">
+                    <SelectValue />
+                  </SelectTrigger>
+                    <SelectContent>
+                    <SelectItem value="openai">OpenAI</SelectItem>
+                    <SelectItem value="anthropic">Anthropic</SelectItem>
+                    <SelectItem value="openrouter">OpenRouter</SelectItem>
+                    <SelectItem value="custom">{t("settings.customApiUrl", lang)}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="publicModel">{t("settings.model", lang)}</Label>
+                <Input
+                  id="publicModel"
+                  value={publicLlmConfig?.model || ""}
+                  onChange={(e) =>
+                  setPublicLlmConfig((prev) =>
+                    prev ? { ...prev, model: e.target.value } : { id: "", provider: "openai", apiKey: null, model: e.target.value, apiUrl: null, active: true }
+                  )
+                  }
+                  placeholder={
+                    publicLlmConfig?.provider === "openai"
+                      ? "gpt-4"
+                      : publicLlmConfig?.provider === "anthropic"
+                        ? "claude-3-opus-20240229"
+                        : publicLlmConfig?.provider === "openrouter"
+                          ? "openai/gpt-4o-mini"
+                          : "gpt-4"
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="publicApiKey">{t("settings.apiKey", lang)}</Label>
+                <div className="relative">
+                  <Input
+                    id="publicApiKey"
+                    type={showPublicApiKey ? "text" : "password"}
+                    value={publicLlmConfig?.apiKey || ""}
+                    onChange={(e) =>
+                      setPublicLlmConfig((prev) =>
+                        prev ? { ...prev, apiKey: e.target.value } : { id: "", provider: "openai", apiKey: e.target.value, model: "gpt-4", apiUrl: null, active: true }
+                      )
+                    }
+                    placeholder="sk-..."
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-1 top-1 h-7 w-7"
+                    onClick={() => setShowPublicApiKey(!showPublicApiKey)}
+                  >
+                    {showPublicApiKey ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              {publicLlmConfig?.provider === "custom" && (
+                <div className="space-y-2">
+                  <Label htmlFor="publicApiUrl">{t("settings.customApiUrl", lang)}</Label>
+                  <Input
+                    id="publicApiUrl"
+                    value={publicLlmConfig?.apiUrl || ""}
+                    onChange={(e) =>
+                      setPublicLlmConfig((prev) =>
+                        prev ? { ...prev, apiUrl: e.target.value } : { id: "", provider: "custom", apiKey: null, model: "gpt-4", apiUrl: e.target.value, active: true }
+                      )
+                    }
+                    placeholder="https://your-api.com/v1/chat/completions"
+                  />
+                </div>
+              )}
+
+              <Button onClick={handlePublicLlmSave} disabled={publicLlmSaving}>
+                {publicLlmSaving && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
                 {t("settings.saveConfig", lang)}

@@ -9,6 +9,7 @@ interface SessionUser {
   name?: string | null;
   email?: string | null;
   agencyId?: string;
+  agencySlug?: string;
   onboardingCompleted?: boolean;
 }
 

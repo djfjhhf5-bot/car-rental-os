@@ -105,6 +105,7 @@ export const llmConfigSchema = z.object({
   apiKey: z.string().optional(),
   model: z.string().default("gpt-4"),
   apiUrl: z.string().optional(),
+  purpose: z.string().default("admin"),
 });
 
 export const wassenderConfigSchema = z.object({

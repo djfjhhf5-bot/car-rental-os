@@ -19,10 +19,17 @@ async function getAgencyId(): Promise<{ agencyId?: string; error?: string }> {
   const session = await auth();
   if (!session?.user?.id) return { error: "Unauthorized" };
 
-  const user = await prisma.user.findUnique({
+  let user = await prisma.user.findUnique({
     where: { id: session.user.id },
     select: { agencyId: true },
   });
+
+  if (!user && session.user.email) {
+    user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { agencyId: true },
+    });
+  }
 
   if (!user?.agencyId) return { error: "No agency found" };
   return { agencyId: user.agencyId };
@@ -104,8 +111,10 @@ export async function saveLlmConfig(data: unknown) {
       };
     }
 
+    const purpose = validated.data.purpose || "admin";
+
     const existing = await prisma.llmConfig.findFirst({
-      where: { agencyId, active: true },
+      where: { agencyId, purpose },
     });
 
     const encryptedKey = validated.data.apiKey ? encrypt(validated.data.apiKey) : null;
@@ -133,6 +142,7 @@ export async function saveLlmConfig(data: unknown) {
         apiKey: encryptedKey,
         model: validated.data.model,
         apiUrl,
+        purpose,
         active: true,
       },
     });

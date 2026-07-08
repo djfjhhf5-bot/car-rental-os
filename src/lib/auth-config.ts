@@ -24,8 +24,9 @@ export const authConfig: NextAuthConfig = {
       if (token.agencyId) {
         const agency = await prisma.agency.findUnique({
           where: { id: token.agencyId as string },
-          select: { onboardingCompleted: true },
+          select: { slug: true, onboardingCompleted: true },
         });
+        token.agencySlug = agency?.slug;
         token.onboardingCompleted = agency?.onboardingCompleted ?? true;
       }
       return token;
@@ -34,6 +35,7 @@ export const authConfig: NextAuthConfig = {
       if (token && session.user) {
         session.user.id = token.id as string;
         (session.user as { agencyId?: string }).agencyId = token.agencyId as string;
+        (session.user as { agencySlug?: string }).agencySlug = token.agencySlug as string;
         (session.user as { onboardingCompleted?: boolean }).onboardingCompleted = token.onboardingCompleted as boolean;
       }
       return session;

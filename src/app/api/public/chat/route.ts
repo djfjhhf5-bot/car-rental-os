@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     const [vehicles, llmConfig] = await Promise.all([
       prisma.vehicle.findMany({ where: { agencyId: agency.id } }),
       prisma.llmConfig.findFirst({
-        where: { agencyId: agency.id, active: true },
+        where: { agencyId: agency.id, purpose: "public" },
       }),
     ]);
 

@@ -56,6 +56,23 @@ export type DashboardStats = {
   }[];
 };
 
+async function fetchWithFallback<T>(fn: () => Promise<T>, fallback: T, retries = 2): Promise<T> {
+  for (let i = 0; i <= retries; i++) {
+    try {
+      return await fn();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (i < retries && msg.includes("max clients reached")) {
+        await new Promise((r) => setTimeout(r, 1000 * (i + 1)));
+        continue;
+      }
+      console.error(`Dashboard query failed (attempt ${i + 1}/${retries + 1}):`, msg);
+      return fallback;
+    }
+  }
+  return fallback;
+}
+
 export async function getDashboardStats(agencyId: string): Promise<{
   success: boolean;
   data?: DashboardStats;
@@ -66,40 +83,63 @@ export async function getDashboardStats(agencyId: string): Promise<{
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    const [vehicles, totalClients, rawBookings, payments, rawMaintenance, leadStats, rawRecentLeads] =
-      await Promise.all([
-        prisma.vehicle.findMany({ where: { agencyId } }),
-        prisma.client.count({ where: { agencyId } }),
+    const vehicles = await fetchWithFallback(
+      () => prisma.vehicle.findMany({ where: { agencyId } }),
+      []
+    );
+    const totalClients = await fetchWithFallback(
+      () => prisma.client.count({ where: { agencyId } }),
+      0
+    );
+    const rawBookings = await fetchWithFallback(
+      () =>
         prisma.booking.findMany({
           where: { agencyId },
           include: { client: true, vehicle: true },
           orderBy: { createdAt: "desc" },
           take: 50,
         }),
+      []
+    );
+    const payments = await fetchWithFallback(
+      () =>
         prisma.payment.findMany({
           where: { agencyId, paidAt: { gte: new Date(now.getFullYear(), now.getMonth() - 5, 1) } },
           orderBy: { paidAt: "desc" },
         }),
+      []
+    );
+    const rawMaintenance = await fetchWithFallback(
+      () =>
         prisma.maintenance.findMany({
           where: { agencyId },
           include: { vehicle: true },
           orderBy: { scheduledDate: "desc" },
           take: 50,
         }),
+      []
+    );
+    const leadStats = await fetchWithFallback(
+      () =>
         prisma.lead.groupBy({
           by: ["phase"],
           where: { agencyId },
           _count: true,
         }),
+      []
+    );
+    const rawRecentLeads = await fetchWithFallback(
+      () =>
         prisma.lead.findMany({
           where: { agencyId },
           orderBy: { createdAt: "desc" },
           take: 10,
         }),
-      ]);
+      []
+    );
+
     type BookingWithRelations = Prisma.BookingGetPayload<{ include: { client: true; vehicle: true } }>;
     const bookings = rawBookings as BookingWithRelations[];
-    const leadData = leadStats as { _count: number; phase: string }[];
     type MaintWithRelations = Prisma.MaintenanceGetPayload<{ include: { vehicle: true } }>;
     const maintenanceLogs = rawMaintenance as MaintWithRelations[];
 
@@ -162,8 +202,8 @@ export async function getDashboardStats(agencyId: string): Promise<{
     const totalRevenue = payments.reduce((sum, p) => sum + p.amount, 0);
 
     const leadStatsData = {
-      total: leadData.reduce((s, l) => s + l._count, 0),
-      byPhase: leadData.map((l) => ({ phase: l.phase, count: l._count })),
+      total: leadStats.reduce((s: number, l: { _count: number }) => s + l._count, 0),
+      byPhase: leadStats.map((l: { phase: string; _count: number }) => ({ phase: l.phase, count: l._count })),
     };
 
     const recentLeadsData = rawRecentLeads.map((l) => ({

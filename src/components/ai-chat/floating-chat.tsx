@@ -115,7 +115,7 @@ export function FloatingChat() {
       try {
         await saveChatMessage("user", content, undefined, agencyParam);
 
-        const configResult = await getActiveLlmConfig(agencyParam);
+        const configResult = await getActiveLlmConfig(agencyParam, "public");
         const ctxResult = await getAgencyContext(agencyParam);
 
         if (!configResult.success || !configResult.data) {

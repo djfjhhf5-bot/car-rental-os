@@ -56,7 +56,7 @@ export function VehicleForm({ initialData, onSubmit }: VehicleFormProps) {
       registrationExpiry: "",
       serviceInterval: undefined,
       notes: "",
-      published: false,
+      published: true,
     },
   });
 

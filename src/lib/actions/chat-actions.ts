@@ -254,7 +254,7 @@ export async function getAgencyContext(agencySlug?: string): Promise<{
   }
 }
 
-export async function getActiveLlmConfig(agencySlug?: string): Promise<{
+export async function getActiveLlmConfig(agencySlug?: string, purpose: string = "admin"): Promise<{
   success: boolean;
   data?: LlmConfig;
   error?: string;
@@ -266,7 +266,7 @@ export async function getActiveLlmConfig(agencySlug?: string): Promise<{
     const agencyId = resolved.agencyId;
 
     const config = await prisma.llmConfig.findFirst({
-      where: { agencyId, active: true },
+      where: { agencyId, purpose },
     });
 
     if (!config) {
